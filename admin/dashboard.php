@@ -349,10 +349,11 @@ require 'database.php';
 						<?php 
 							$valuacion = 0;
 							$pdo = Database::connect();
-							$sql = "SELECT s.`cantidad`, p.precio FROM `stock` s inner join productos p on p.id = s.id_producto where s.`cantidad` > 0 ";
+							$sql = "SELECT s.cantidad, p.precio FROM stock s inner join productos p on p.id = s.id_producto where s.cantidad > 0 ";
 							if ($_SESSION['user']['id_perfil'] == 2) {
 								$sql .= " and s.id_almacen = ".$_SESSION['user']['id_almacen']; 
 							}
+              //echo $sql;
 							foreach ($pdo->query($sql) as $row) {
 								$valuacion += $row[0]*$row[1];
 							}

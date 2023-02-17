@@ -10,6 +10,12 @@ function get_nombre_comprobante($tipo_comprobante){
     case 'B':
       $tipo_cbte="Factura B";
       break;
+    case 'NCA':
+      $tipo_cbte="Nota de Crédito A";
+      break;
+    case 'NCB':
+      $tipo_cbte="Nota de Crédito B";
+      break;
     default:
       $tipo_cbte="";
       break;

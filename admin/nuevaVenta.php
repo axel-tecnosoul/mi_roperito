@@ -137,6 +137,8 @@ if ( !empty($_POST)) {
     $total+=($_POST['cantidad'][$key]*$_POST['precio'][$key]);
   }
 
+  //var_dump($total);
+
   $totalConDescuento = 0;
   foreach ($_POST['id_stock'] as $key => $id_stock) {
     
@@ -152,6 +154,7 @@ if ( !empty($_POST)) {
       $precio = $precio*0.9; //10% off por pago en efectivo
     }*/
     $subtotal = $cantidad * $precio;
+    //var_dump($subtotal);
 
     $fp = 1;
     //si el pago no es en efectivo se le hace un descuento a la proveedora
@@ -172,7 +175,8 @@ if ( !empty($_POST)) {
       //$subtotal=$subtotal;
       if ($minimo_compra!="" and $total>$minimo_compra and $minimo_cantidad_prendas!="" and $cantPrendas>=$minimo_cantidad_prendas) {
         //$totalConDescuento = $totalConDescuento - $monto_fijo;
-        $subtotal-=(($total*$porcentaje)/100);
+        $subtotal-=(($subtotal*$porcentaje)/100);
+        //var_dump($subtotal);
       }
     /*} else if ($minimo_cantidad_prendas > 1) {
       if () {
@@ -181,6 +185,7 @@ if ( !empty($_POST)) {
       }*/
     //}
     $totalConDescuento += $subtotal;
+    //var_dump($totalConDescuento);
     //$deuda_proveedor=0;
 
     $pagado = 0;
@@ -292,13 +297,19 @@ if ( !empty($_POST)) {
   if($tipo_comprobante!="R"){
 
     include './../external/afip/Afip.php';
-    /*$cuit=20351290340;
-    $produccion=false;*/
-    $cuit=30717754200;
+
+    /*$cuit=30717754200;
     $produccion=true;
+    if ($modoDebug==1) {
+      $cuit=20351290340;
+      $produccion=false;
+    }
 
     //$afip = new Afip(array('CUIT' => 20351290340,$production=true));
-    $afip = new Afip(array('CUIT' => $cuit,'production'=>$produccion));
+    $afip = new Afip(array('CUIT' => $cuit,'production'=>$produccion));*/
+
+    include 'config_facturacion_electronica.php';//poner $homologacion=1 para facturar en modo homologacion. Retorna $aInitializeAFIP.
+    $afip = new Afip($aInitializeAFIP);
 
     $sql4 = "SELECT punto_venta FROM almacenes WHERE id = ? ";
     $q4 = $pdo->prepare($sql4);
@@ -746,8 +757,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           {"data": "categoria"},//"vehiculo.modelo"},
           //{"data": "descripcion"},//"vehiculo.patente"},
           {render: function(data, type, row, meta) {
-            return row.descripcion
-            //return `(${row.id_modalidad}%) ${row.descripcion}`;
+            //return row.descripcion
+            return `(${row.id_modalidad}%) ${row.descripcion}`;
           }},
           {
             "data": "cantidad",

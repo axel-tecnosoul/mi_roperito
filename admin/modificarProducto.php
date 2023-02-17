@@ -23,9 +23,9 @@
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "update `productos` set `codigo` = ?, `id_categoria` = ?, `descripcion` = ?, `id_proveedor` = ?, `precio` = ?, `activo` = ? where id = ?";
+		$sql = "UPDATE productos set codigo = ?, id_categoria = ?, descripcion = ?, id_proveedor = ?, precio = ?, precio_costo = ?, activo = ? where id = ?";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST['activo'],$_GET['id']));
+		$q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST['precio_costo'],$_POST['activo'],$_GET['id']));
 		
 		$sql = "SELECT `cb` FROM `productos` WHERE id = ? ";
 		$q = $pdo->prepare($sql);
@@ -46,7 +46,7 @@
 		
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT `id`, `codigo`, `id_categoria`, `descripcion`, `id_proveedor`, `precio`, `activo` FROM `productos` WHERE id = ? ";
+		$sql = "SELECT id, codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo FROM productos WHERE id = ? ";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -159,15 +159,29 @@
 									}
 									echo ">".$fila['nombre'].' '.$fila['apellido']."</option>";
 								}
-								Database::disconnect();
-								?>
+								Database::disconnect();?>
 								</select>
 								</div>
 							</div>
-							<div class="form-group row">
+							<div class="form-group row"><?php
+                $readonly_precio="";
+                if($_SESSION["user"]["id_perfil"]!=1){
+                  //$precio_costo=0;
+                  $readonly_precio="readonly";
+                }?>
 								<label class="col-sm-3 col-form-label">Precio</label>
-								<div class="col-sm-9"><input name="precio" type="number" step="0.01" min="0" class="form-control" value="<?php echo $data['precio']; ?>" required="required"></div>
-							</div>
+								<div class="col-sm-9"><input name="precio" type="number" step="0.01" min="0" class="form-control" value="<?php echo $data['precio']; ?>" required="required" <?=$readonly_precio?>></div>
+							</div><?php
+              $precio_costo=$data['precio_costo'];
+              //$readonly_precio="";
+              if($_SESSION["user"]["id_perfil"]!=1 and $data['id_proveedor']==1091){
+                $precio_costo=0;
+                //$readonly_precio="readonly";
+              }?>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Precio de costo</label>
+                <div class="col-sm-9"><input name="precio_costo" type="number" step="0.01" min="0" class="form-control" value="<?=$precio_costo?>" required="required" <?=$readonly_precio?>></div>
+              </div>
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
 								<div class="col-sm-9">

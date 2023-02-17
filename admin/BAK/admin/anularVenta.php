@@ -20,15 +20,15 @@
 	$pdo = Database::connect();
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-	$sql = "update ventas set anulada = 1 where id = ?";
+	$sql = "UPDATE ventas set anulada = 1 where id = ?";
 	$q = $pdo->prepare($sql);
 	$q->execute(array($id));
 	
 	$sql = " SELECT vd.`id_producto`, vd.`cantidad`, vd.`subtotal`, vd.`id_modalidad`, p.id_proveedor, v.id_almacen from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.`id_producto` where vd.`id_venta` = ".$id;
 	foreach ($pdo->query($sql) as $row) {
-		if ($row[3] == 3) {
+		if ($row[3] == 50) {
 			$credito = $row[2]/2;
-			$sql = "update `proveedores` set credito = credito - ? where id = ?";
+			$sql = "UPDATE `proveedores` set credito = credito - ? where id = ?";
 			$q = $pdo->prepare($sql);
 			$q->execute(array($credito,$row[4]));
 			
@@ -37,7 +37,7 @@
 			$q2->execute(array($row[0],$row[5]));
 			$data = $q2->fetch(PDO::FETCH_ASSOC);
 			if (!empty($data)) {
-				$sql3 = "update `stock` set cantidad = cantidad + ? where id = ?";
+				$sql3 = "UPDATE `stock` set cantidad = cantidad + ? where id = ?";
 				$q3 = $pdo->prepare($sql3);
 				$q3->execute(array($row[1],$data['id']));
 			} else {

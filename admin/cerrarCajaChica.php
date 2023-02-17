@@ -17,7 +17,7 @@ $q = $pdo->prepare($sql);
 $q->execute(array($id_usuario,$id_almacen));
 $idCierreCaja = $pdo->lastInsertId();
 
-$sql = "UPDATE ventas set id_cierre_caja = $idCierreCaja WHERE id_cierre_caja = 0";
+$sql = "UPDATE ventas set id_cierre_caja = $idCierreCaja WHERE id_almacen = $id_almacen AND id_cierre_caja = 0";
 $q = $pdo->prepare($sql);
 $q->execute(array());
 

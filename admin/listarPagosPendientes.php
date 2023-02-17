@@ -25,6 +25,13 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
   $id_proveedor=$_GET["p"];
   $filtroProveedor=" AND pr.id=".$id_proveedor;
 }
+$id_almacen=0;
+$filtroAlmacen="";
+if(isset($_GET["a"]) and $_GET["a"]!=0){
+  $id_almacen=$_GET["a"];
+  $filtroAlmacen=" AND a.id=".$id_almacen;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +39,12 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
     <?php include('head_tables.php');?>
     <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css">
+    <style>
+       .select2-container{
+        border: 1px solid #ccc;
+        border-radius: 5px;
+       }
+    </style>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -91,17 +104,19 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
                         <tr>
                           <td class="text-right border-0 p-1">Desde: </td>
                           <td class="border-0 p-1"><input type="date" name="desde" id="desde" value="<?=$desde?>" class="form-control form-control-sm filtraTabla"></td>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single">
+                          <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td> -->
+                          <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
+                            <label style="margin-left: .5rem;" for="id_proveedor">Proveedores:</label><br>
+                            <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100">
                               <option value="0">- Seleccione -</option><?php
                               include 'database.php';
                               $pdo = Database::connect();
                               $whereAlmacen="";
                               if ($_SESSION['user']['id_perfil'] == 2) {
-                                $whereAlmacen= " v.id_almacen = ".$_SESSION['user']['id_almacen']; 
+                                $whereAlmacen= " AND v.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
                               $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
+                              echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
@@ -111,7 +126,32 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
                               }
                               Database::disconnect();?>
                             </select>
-                          </td>
+                          </td><?php
+                          if($_SESSION['user']['id_perfil']==1){?>
+                            <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Almacen:</td> -->
+                            <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
+                              <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
+                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single w-100">
+                                <option value="0">- Seleccione -</option><?php
+                                //include 'database.php';
+                                $pdo = Database::connect();
+                                $whereAlmacen="";
+                                /*if ($_SESSION['user']['id_perfil'] == 2) {
+                                  $whereAlmacen= " AND v.id_almacen = ".$_SESSION['user']['id_almacen']; 
+                                }*/
+                                $sql = "SELECT id,almacen FROM almacenes WHERE activo=1 $whereAlmacen";
+                                echo $sql;
+                                foreach ($pdo->query($sql) as $row) {
+                                  $selected="";
+                                  if($row["id"]==$id_almacen){
+                                    $selected="selected";
+                                  }?>
+                                  <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["almacen"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </td><?php
+                          }?>
                           <td class="text-right border-0 p-1">Total pendiente: </td>
                           <td class="border-0 p-1" id="total_pagos_pendientes"></td>
                         </tr>
@@ -155,7 +195,7 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
                         </thead>
                         <tbody><?php
                           $pdo = Database::connect();
-                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 $filtroDesde $filtroHasta $filtroProveedor";
+                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
@@ -210,10 +250,12 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
                       <div class="modal-body">
                         <label class="d-block" for="edo-ani">
                           <input class="radio_animated" value="Chica" required id="edo-ani" type="radio" name="tipo_caja"><label for="edo-ani">Chica</label>
-                        </label>
-                        <label class="d-block" for="edo-ani1">
-                          <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
-                        </label>
+                        </label><?php
+                        if ($id_perfil == 1) {?>
+                          <label class="d-block" for="edo-ani1">
+                            <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
+                          </label><?php
+                        }?>
                       </div>
                       <div class="modal-footer">
                         <!-- <a href="#" class="btn btn-primary">Pagar pendientes</a> -->
@@ -284,7 +326,8 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
         let desde=$("#desde").val();
         let hasta=$("#hasta").val();
         let id_proveedor=$("#id_proveedor").val();
-        window.location.href="listarPagosPendientes.php?d="+desde+"&h="+hasta+"&p="+id_proveedor
+        let id_almacen=$("#id_almacen").val();
+        window.location.href="listarPagosPendientes.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
       }
 
       function calcular_total_seleccionado(){
@@ -306,6 +349,7 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
         $("#desde").on("change",reloadPage)
         $("#hasta").on("change",reloadPage)
         $("#id_proveedor").on("change",reloadPage)
+        $("#id_almacen").on("change",reloadPage)
 
         $(".pago_pendiente").on("click",function(){
           console.log(this);

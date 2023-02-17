@@ -14,12 +14,12 @@ if ( !empty($_POST)) {
   
   $cb = microtime(true)*10000;
   
-  $sql = "INSERT INTO `productos`(`codigo`, `id_categoria`, `descripcion`, `id_proveedor`, `precio`, `activo`, `cb`) VALUES (?,?,?,?,?,1,?)";
+  $sql = "INSERT INTO productos(codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,1,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$cb));
+  $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
   $idProducto = $pdo->lastInsertId();
 
-  $sql3 = "INSERT INTO `stock`(`id_producto`, `id_almacen`, `cantidad`, `id_modalidad`) VALUES (?,?,?,?)";
+  $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
   $q3 = $pdo->prepare($sql3);
   $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
   
@@ -129,6 +129,10 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Precio</label>
                             <div class="col-sm-9"><input name="precio" type="number" step="0.01" min="0" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Precio de costo</label>
+                            <div class="col-sm-9"><input name="precio_costo" type="number" step="0.01" min="0" class="form-control" value="0" required="required"></div>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Almacen</label>
