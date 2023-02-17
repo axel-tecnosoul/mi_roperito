@@ -18,7 +18,7 @@ if ( null==$id ) {
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 //$sql = "SELECT mcg.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,a.almacen,mcg.tipo_movimiento FROM movimientos_caja_grande mcg INNER JOIN almacenes a ON mcg.id_almacen=a.id INNER JOIN forma_pago fp ON mcg.id_forma_pago=fp.id INNER JOIN usuarios u ON mcg.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON mcg.id_motivo=msc.id WHERE mcg.id = ? ";
-$sql = "SELECT mc.fecha_hora,mc.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,a.almacen,mc.tipo_movimiento FROM movimientos_caja mc INNER JOIN almacenes a ON mc.id_almacen=a.id INNER JOIN forma_pago fp ON mc.id_forma_pago=fp.id INNER JOIN usuarios u ON mc.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE mc.id = ? ";
+$sql = "SELECT mc.fecha_hora,mc.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,a.almacen,mc.tipo_movimiento,anulado FROM movimientos_caja mc INNER JOIN almacenes a ON mc.id_almacen=a.id INNER JOIN forma_pago fp ON mc.id_forma_pago=fp.id INNER JOIN usuarios u ON mc.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE mc.id = ? ";
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
 $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -113,7 +113,26 @@ Database::disconnect();?>
                     </div>
                   </div>
                   <div class="card-footer">
-                    <div class="col-sm-9 offset-sm-3">
+                    <div class="col-sm-9 offset-sm-3"><?php
+                        if($_SESSION["user"]["id_perfil"]=1 and $data["anulado"]==0){?>
+                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalAnularMovimiento">Anular</button>
+                          
+                          <div class="modal fade" id="modalAnularMovimiento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                                  <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                </div>
+                                <div class="modal-body">¿Está seguro que desea anular el movimiento?</div>
+                                <div class="modal-footer">
+                                  <a href="anularMovimientoCajaGrande.php?id=<?=$id?>" class="btn btn-primary">Anular</a>
+                                  <button data-dismiss="modal" class="btn btn-light">Volver</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div><?php
+                        }?>
                       <a href="listarCajaGrande.php" class="btn btn-light">Volver</a>
                     </div>
                   </div>

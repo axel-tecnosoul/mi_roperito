@@ -9,9 +9,6 @@
     $id_perfil=$_SESSION['user']['id_perfil']; 
 
 		if ($id_perfil != 3) {?>
-		  <li><a class="sidebar-header" href="listarCategorias.php"><i data-feather="shopping-bag"></i><span>Categorías</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-		}
-		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProductos.php"><i data-feather="clipboard"></i><span>Productos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
@@ -59,12 +56,16 @@
           <li><a href="evolutivoVentas.php"><i class="fa fa-circle"></i>Evolutivo Ventas</a></li>
           <li><a href="reporteAsistencias.php"><i class="fa fa-circle"></i>Asistencia Empleados</a></li>
           <li><a href="reporteCierreCaja.php"><i class="fa fa-circle"></i>Cierres de Caja</a></li>
+          <li><a href="reporteComprasDirectas.php"><i class="fa fa-circle"></i>Compras Directas</a></li>
         </ul>
       </li><?php 
 		}
     if ($id_perfil == 1) {?>
       <li><a class="sidebar-header" href="#"><i data-feather="database"></i><span>Maestros</span><i class="fa fa-angle-right pull-right"></i></a>
-        <ul class="sidebar-submenu">
+        <ul class="sidebar-submenu"><?php
+          if ($id_perfil != 3) {?>
+            <li><a href="listarCategorias.php"><i class="fa fa-circle"></i>Categorías</a></li><?php 
+          }?>
           <li><a href="listarAlmacenes.php"><i class="fa fa-circle"></i>Almacenes</a></li>
           <li><a href="listarFormasPago.php"><i class="fa fa-circle"></i>Formas de Pago</a></li>
           <li><a href="listarMotivosCaja.php"><i class="fa fa-circle"></i>Motivos Caja</a></li>

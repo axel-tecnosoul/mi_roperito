@@ -85,7 +85,18 @@ if(empty($_SESSION['user'])){
                               $pdo = Database::connect();
                               $sql = " SELECT id, forma_pago FROM forma_pago";
                               foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>" selected><?=$row["forma_pago"]?></option><?php
+                                <option value="<?=$row["id"]?>"><?=$row["forma_pago"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Motivo:</td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <select name="motivo" id="motivo" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, motivo FROM motivos_salidas_caja";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["motivo"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
@@ -99,7 +110,7 @@ if(empty($_SESSION['user'])){
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
                             if ($_SESSION['user']['id_perfil'] == 1) {?>
                               <select name="id_almacen" id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="0">- Todos -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
                                 foreach ($pdo->query($sql) as $row) {?>
@@ -262,6 +273,7 @@ if(empty($_SESSION['user'])){
       let desde=$("#desde").val();
       let hasta=$("#hasta").val();
       let forma_pago=$("#forma_pago").val();
+      let motivo=$("#motivo").val();
       //let tipo_comprobante=$("#tipo_comprobante").val();
       let id_almacen=$("#id_almacen").val();
       let bandera_saldo=saldo=credito=debito=0;
@@ -272,7 +284,7 @@ if(empty($_SESSION['user'])){
 				responsive: true,
         ordering: false,
         //ajax: "listarCajaGetData.php",
-        ajax:{url:"listarCajaGrandeGetData.php?desde="+desde+"&hasta="+hasta+"&forma_pago="+forma_pago+"&id_almacen="+id_almacen,dataSrc:""},
+        ajax:{url:"listarCajaGrandeGetData.php?desde="+desde+"&hasta="+hasta+"&forma_pago="+forma_pago+"&id_almacen="+id_almacen+"&motivo="+motivo,dataSrc:""},
         paginate: false,
         scrollY: '100vh',
         scrollCollapse: true,

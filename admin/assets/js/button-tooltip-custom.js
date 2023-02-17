@@ -6,7 +6,7 @@ var button_tooltip_custom = {
         	$("button").attr("data-original-title", buttontooltiptext);
 		});
 		$("button").tooltip();
-		$("a").tooltip();
+		$("a").tooltip({ boundary: 'window' });
 		$("input").tooltip();
 	}
 };

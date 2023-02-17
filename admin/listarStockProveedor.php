@@ -78,7 +78,7 @@ if(empty($_SESSION['proveedor'])) {
                           <?php 
 							include 'database.php';
 							$pdo = Database::connect();
-							$sql = " SELECT s.`id`, p.`codigo`, c.`categoria`, p.`descripcion`, pr.`nombre`, pr.`apellido`, a.`almacen`, s.`cantidad`, m.`modalidad` FROM `stock` s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen inner join modalidades m on m.id = s.id_modalidad inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor WHERE s.`cantidad` > 0 AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
+							$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen inner join modalidades m on m.id = s.id_modalidad inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
 							
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';

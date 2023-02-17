@@ -18,7 +18,7 @@ if ( null==$id ) {
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado INNER JOIN forma_pago fp ON v.id_forma_pago = fp.id WHERE v.id = ? ";
+$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id WHERE v.id = ? ";
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
 $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -36,7 +36,6 @@ if($data['minimo_cantidad_prendas']>0){
 if($data['minimo_compra']>0){
   $descuento.=" Compra minima: ".number_format($data['minimo_compra'],0,",",".");
 }
-  
 Database::disconnect();?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,16 +84,24 @@ Database::disconnect();?>
           <div class="container-fluid">
             <div class="row">
               <div class="col-sm-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h5>Ver Venta</h5>
+                <div class="card"><?php
+                  $style="";
+                  $texto="";
+                  $link_volver="listarVentas";
+                  if($data['anulada']==1){
+                    $style="background-color: rgb(255 0 0 / 50%);";
+                    $texto="Anulada";
+                    $link_volver="listarVentasAnuladas";
+                  }?>
+                  <div class="card-header" style="<?=$style?>">
+                    <h5>Ver Venta <?=$texto?></h5>
                   </div>
 				          <form class="form theme-form" role="form" method="post" action="#">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Fecha Hora Venta</label>
+                            <label class="col-sm-3 col-form-label">Fecha Hora</label>
                             <div class="col-sm-9"><?php echo $data['fecha_hora']; ?>hs</div>
                           </div>
                           <div class="form-group row">
@@ -217,13 +224,44 @@ Database::disconnect();?>
                               <label class="col-sm-3 col-form-label">Fecha vencimiento CAE</label>
                               <div class="col-sm-9"><?=$data['fecha_vencimiento_cae']?></div>
                             </div><?php
+                            if(!is_null($data["id_venta_cbte_relacionado"])){?>
+                              <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Comprobante relacionado</label>
+                                <div class="col-sm-9">
+                                  <a href="verVenta.php?id=<?=$data["id_venta_cbte_relacionado"]?>" target="_blank" title="Ver Comprobante relacionado">
+                                    <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta">
+                                    <?=$data['id_venta_cbte_relacionado']?>
+                                  </a>
+                                </div>
+                              </div><?php
+                            }
                           }?>
                         </div>
                       </div>
                     </div>
+
+                    <div class="modal fade" id="modalGenerarNC" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          </div>
+                          <div class="modal-body">¿Está seguro que desea generar un Nota de Crédito para esta factura?</div>
+                          <div class="modal-footer">
+                            <a href="generarNC.php?id=<?=$id?>" class="btn btn-primary">Generar</a>
+                            <button data-dismiss="modal" class="btn btn-light">Volver</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="card-footer">
-                      <div class="col-sm-9 offset-sm-3">
-                        <a href='listarVentas.php' class="btn btn-light">Volver</a>
+                      <div class="col-sm-9 offset-sm-3"><?php
+                        if($data["tipo_comprobante"]!="R" and $data["estado"]=="A" and is_null($data["id_venta_cbte_relacionado"])){?>
+                          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalGenerarNC">Generar NC</button><?php
+                        }?>
+                        <a href='<?=$link_volver?>.php' class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
@@ -249,21 +287,16 @@ Database::disconnect();?>
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-	<script src="assets/js/select2/select2.full.min.js"></script>
+	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
 	
-	<script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+	  <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/jszip.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/buttons.colVis.min.js"></script>
@@ -292,102 +325,25 @@ Database::disconnect();?>
 				stateSave: true,
 				responsive: true,
 				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
-			});
-		});
-		
-		$(document).ready(function() {
-			$('#dataTables-example667').DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
-			});
-		});
-		
-		$(document).ready(function() {
-			$('#dataTables-example668').DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
-			});
-		});
-		
-		$(document).ready(function() {
-			$('#dataTables-example669').DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+          }
+        }
 			});
 		});
 		

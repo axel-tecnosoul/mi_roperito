@@ -144,16 +144,7 @@ if(empty($_SESSION['user']))
         </div>
       </div>
     </div>
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT p.`id`, p.`codigo`, c.`categoria`, p.`descripcion`, pr.`nombre`, pr.`apellido`, p.`precio`, p.`activo` FROM `productos` p inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor WHERE 1 ";
-	/*foreach ($pdo->query($sql) as $row) {
-	?>
-	
-	<?php 
-	}*/
-	Database::disconnect();
-	?>
+
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
@@ -223,39 +214,14 @@ if(empty($_SESSION['user']))
         },
         "columnDefs": [
           {
-          "targets": [0],
-          "searchable": false,
-          "orderable": false,
-        }/*,{
-          "targets": 0,
-          "orderable": false
-        }*/],
+            "targets": [0],
+            "searchable": false,
+            "orderable": false,
+          }
+        ],
         order: [[1, 'desc']],
         initComplete: function(){
           $('[title]').tooltip();
-          /*var b=1;
-          var c=0;
-          this.api().columns.adjust().draw();//Columns sin parentesis
-          this.api().columns().every(function(){//Columns() con parentesis
-            var column=this;
-            var name=$(column.footer()).text();
-            var select=$("<select id='filtro"+name+"' class='form-control form-control-sm filtrosTrato'><option value=''>Todos</option></select>")
-              .appendTo($(column.footer()).empty())
-              .on("change",function(){
-                var val=$.fn.dataTable.util.escapeRegex(
-                  $(this).val()
-                );
-                column.search(val ? '^'+val+'$':'',true,false).draw();
-              });
-            column.data().unique().sort().each(function(d,j){
-              var val=$("<div/>").html(d).text();
-              if(column.search()==='^'+val+'$'){
-                select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
-              }else{
-                select.append("<option value='"+val+"'>"+val+"</option>");
-              }
-            })
-          })*/
         }
 			});
 		});

@@ -30,13 +30,15 @@ if($id_almacen!=0){
 //$tipo_comprobante=$_GET["tipo_comprobante"];
 
 $aCaja=[];
-if($desde<=$hasta and $id_almacen!=0){
+//if($desde<=$hasta and $id_almacen!=0){
+if($desde<=$hasta){
 
   $where=" $filtroFormaPago $filtroAlmacen";
 
+  $filtroHastaSaldoAnterior="AND DATE(fecha_hora)<'$desde'";
+
   //obtenemos los ingresos registrados por los usuarios para el saldo anterior
-  //$sql = "SELECT SUM(mcg.monto) AS ingresos_externos FROM movimientos_caja_grande mcg inner join almacenes a on a.id = mcg.id_almacen inner join forma_pago fp on fp.id = mcg.id_forma_pago WHERE tipo_movimiento='Ingreso' $where AND DATE(fecha_hora)<'$desde'";
-  $sql = "SELECT SUM(mc.monto) AS ingresos_externos FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE tipo_caja='Grande' AND  tipo_movimiento='Ingreso' $where AND DATE(fecha_hora)<'$desde'";
+  $sql = "SELECT SUM(mc.monto) AS ingresos_externos FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Grande' AND tipo_movimiento='Ingreso' $where $filtroHastaSaldoAnterior";
   $q = $pdo->prepare($sql);
   //echo $sql;
   $q->execute(array());
@@ -47,8 +49,7 @@ if($desde<=$hasta and $id_almacen!=0){
   }
 
   //obtenemos las salidas de caja chica a caja grande para el saldo anterior
-  //$sql2 = "SELECT SUM(monto) AS ingresos_caja_chica FROM egresos_caja_chica inner join forma_pago fp on fp.id = id_forma_pago WHERE id_motivo=1 $where AND DATE(fecha_hora)<'$desde'";
-  $sql2 = "SELECT SUM(mc.monto) AS ingresos_caja_chica FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE tipo_caja='Chica' AND tipo_movimiento='Egreso' AND id_motivo=1 $where AND DATE(fecha_hora)<'$desde'";
+  $sql2 = "SELECT SUM(mc.monto) AS ingresos_caja_chica FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' AND id_motivo=1 $where $filtroHastaSaldoAnterior";
   $q2 = $pdo->prepare($sql2);
   //echo $sql2;
   $q2->execute(array());
@@ -59,8 +60,7 @@ if($desde<=$hasta and $id_almacen!=0){
   }
 
   //obtenemos los egresos de caja grande para el saldo anterior
-  //$sql3 = "SELECT SUM(mcg.monto) AS egresos_caja_grande FROM movimientos_caja_grande mcg inner join almacenes a on a.id = mcg.id_almacen inner join forma_pago fp on fp.id = mcg.id_forma_pago WHERE tipo_movimiento='Egreso' $where AND DATE(fecha_hora)<'$desde'";
-  $sql3 = "SELECT SUM(mc.monto) AS egresos_caja_grande FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE tipo_caja='Grande' AND tipo_movimiento='Egreso' $where AND DATE(fecha_hora)<'$desde'";
+  $sql3 = "SELECT SUM(mc.monto) AS egresos_caja_grande FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Grande' AND tipo_movimiento='Egreso' $where $filtroHastaSaldoAnterior";
   $q3 = $pdo->prepare($sql3);
   //echo $sql;
   $q3->execute(array());
@@ -70,10 +70,18 @@ if($desde<=$hasta and $id_almacen!=0){
     $egresos_caja_grande=0;
   }
 
-  $saldo_anterior=0;
-  //$ingresos_caja_chica=0;
+  //obtenemos los pagos a proveedores que se hicieron desde esta caja para el saldo anterior
+  $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id WHERE pagado=1 AND caja_egreso='Grande' $where $filtroHastaSaldoAnterior";
+  $q4 = $pdo->prepare($sql4);
+  //echo $sql4;
+  $q4->execute(array());
+  $data4 = $q4->fetch(PDO::FETCH_ASSOC);
+  $total_pago_proveedores=$data4["total_pago_proveedores"];
+  if(is_null($total_pago_proveedores)){
+    $total_pago_proveedores=0;
+  }
 
-  $saldo_anterior+=$ingresos_externos+$ingresos_caja_chica-$egresos_caja_grande;
+  $saldo_anterior=$ingresos_externos+$ingresos_caja_chica-$egresos_caja_grande-$total_pago_proveedores;
 
   $modo_debug=0;
   if($modo_debug==1){
@@ -104,10 +112,9 @@ if($desde<=$hasta and $id_almacen!=0){
   ];
 
   //obtenemos los egresos de caja chica a caja grande
-  //$sql = " SELECT ech.id AS id_egreso, a.almacen, date_format(ech.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,ech.fecha_hora, fp.forma_pago,ech.monto AS total,msc.motivo,ech.detalle,ech.id_cierre_caja FROM egresos_caja_chica ech inner join almacenes a on a.id = ech.id_almacen inner join forma_pago fp on fp.id = ech.id_forma_pago INNER JOIN motivos_salidas_caja msc ON ech.id_motivo=msc.id WHERE id_motivo=1 $where $filtroDesde $filtroHasta";
-  $sql = " SELECT mc.id AS id_egreso, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE tipo_caja='Chica' AND tipo_movimiento='Egreso' AND id_motivo=1 $where $filtroDesde $filtroHasta";
+  $sql = " SELECT mc.id AS id_egreso, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' AND id_motivo=1 $where $filtroDesde $filtroHasta";
   foreach ($pdo->query($sql) as $row) {
-    $iconVer="<a href='verMovimientoCajaChica.php?id=".$row["id_egreso"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    $iconVer="<a href='verMovimientoCajaGrande.php?id=".$row["id_egreso"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
     $iconEdit="";
 
     $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
@@ -128,9 +135,23 @@ if($desde<=$hasta and $id_almacen!=0){
     ];
   }
 
+  //obtenemos las pagos a proveedoras
+  $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE pagado=1 AND caja_egreso='Grande' $where $filtroDesde $filtroHasta GROUP BY p.id_proveedor";
+  foreach ($pdo->query($sql) as $row) {
+    $aCaja[]=[
+      "id_proveedor"=>$row["id_proveedor"],
+      "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora_pago"])),
+      "detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
+      "forma_pago"=>"Efectivo",
+      "credito"=>0,
+      "debito"=>$row["suma_deuda_proveedor"],
+      "saldo"=>0,
+      "detalle_productos"=>$row["detalle_productos"],
+    ];
+  }
+
   //obtenemos los movimientos de caja grande registrados por los usuarios
-  //$sql = " SELECT mcg.id AS id_movimiento, a.almacen, date_format(mcg.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mcg.fecha_hora, fp.forma_pago,mcg.monto AS total,msc.motivo,mcg.detalle,mcg.id_cierre_caja,mcg.tipo_movimiento FROM movimientos_caja_grande mcg inner join almacenes a on a.id = mcg.id_almacen inner join forma_pago fp on fp.id = mcg.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mcg.id_motivo=msc.id WHERE 1 $where $filtroDesde $filtroHasta";
-  $sql = " SELECT mc.id AS id_movimiento, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE tipo_caja='Grande' $where $filtroDesde $filtroHasta";
+  $sql = " SELECT mc.id AS id_movimiento, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0 AND tipo_caja='Grande' $where $filtroDesde $filtroHasta";
   //echo $sql;
   foreach ($pdo->query($sql) as $row) {
     

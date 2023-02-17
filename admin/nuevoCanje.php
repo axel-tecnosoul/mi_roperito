@@ -65,9 +65,9 @@ if ( !empty($_POST)) {
       $pagado = 1;
     }
     
-    $sql = "INSERT INTO canjes_detalle (id_canje, id_producto, cantidad, precio, subtotal) VALUES (?,?,?,?,?)";
+    $sql = "INSERT INTO canjes_detalle (id_canje, id_producto, cantidad, precio, subtotal,id_modalidad) VALUES (?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($idCanje,$idProducto,$cantidad,$precio,$subtotal));
+    $q->execute(array($idCanje,$idProducto,$cantidad,$precio,$subtotal,$modalidad));
 
     if ($modoDebug==1) {
       $q->debugDumpParams();
