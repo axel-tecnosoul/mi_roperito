@@ -256,7 +256,53 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
                           </label><?php
                         }?>
+                      </div><!-- Caja -->
+
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccione el almacen</h5>
                       </div>
+                      <div class="modal-body">
+                        <div class="col-sm-9">
+                          <select name="id_almacen" id="id_almacen" class="js-example-basic-single" required="required">
+                            <option value="">Seleccione...</option><?php
+                            $pdo = Database::connect();
+                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                            $sqlZon = "SELECT `id`, `almacen` FROM `almacenes` WHERE activo = 1";
+                            if ($_SESSION['user']['id_perfil'] != 1) {
+                              $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
+                            }
+                            $q = $pdo->prepare($sqlZon);
+                            $q->execute();
+                            while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                              echo "<option value='".$fila['id']."'";
+                              echo ">".$fila['almacen']."</option>";
+                            }
+                            Database::disconnect();?>
+                          </select>
+                        </div>
+                      </div><!-- Almacen -->
+
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccione la Forma de Pago</h5>
+                      </div>
+                      <div class="modal-body">
+                      <div class="col-sm-9">
+                              <select name="id_forma_pago" id="id_forma_pago" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT `id`, `forma_pago` FROM `forma_pago` WHERE 1";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['forma_pago']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                      </div><!-- Forma de Pago -->
+
                       <div class="modal-footer">
                         <!-- <a href="#" class="btn btn-primary">Pagar pendientes</a> -->
                         <button type="submit" class="btn btn-primary">Pagar pendientes</button>
