@@ -125,17 +125,6 @@
 								<div class="col-sm-9"><input name="apellido" type="text" maxlength="99" class="form-control" value="<?php echo $data['apellido']; ?>" required="required"></div>
 							</div>
               <div class="form-group row">
-                  <label class="col-sm-3 col-form-label">Crédito</label>
-                  <div class="col-sm-9"><?php
-                    if($_SESSION["user"]["id_perfil"]==1){?>
-                      <input name="credito" type="text" class="form-control" value="<?php echo $data['credito']; ?>"><?php
-                    }else{?>
-                      <input name="credito" type="hidden" value="<?php echo $data['credito']; ?>"><?php
-                      echo $data['credito'];
-                    }?></div>
-              </div>
-
-              <div class="form-group row">
                 <label class="col-sm-3 col-form-label">Almacen</label>
                 <div class="col-sm-9">
                   <select name="id_almacen" id="id_almacen" class="js-example-basic-single col-sm-12" required>
@@ -183,6 +172,16 @@
                     Database::disconnect();?>
                   </select>
                 </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Crédito</label>
+                <div class="col-sm-9"><?php
+                  if($_SESSION["user"]["id_perfil"]==1){?>
+                    <input name="credito" type="text" class="form-control" value="<?php echo $data['credito']; ?>"><?php
+                  }else{?>
+                    <input name="credito" type="hidden" value="<?php echo $data['credito']; ?>"><?php
+                    echo $data['credito'];
+                  }?></div>
               </div>
 
 							<div class="form-group row">
