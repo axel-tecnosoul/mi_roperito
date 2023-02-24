@@ -34,7 +34,7 @@ if(empty($_SESSION['user']))
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Proveedores</li>
+                      <li class="breadcrumb-item">Stock</li>
                     </ol>
                   </div>
                 </div>
@@ -57,61 +57,76 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Proveedores&nbsp;<a href="nuevoProveedorAdmin.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a>&nbsp;<a href="exportProveedores.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a></h5><span>
+                    <h5>Stock
+					&nbsp;<a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
+					&nbsp;<a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
+					&nbsp;<a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
+					</h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>DNI</th>
-						  <th>Nombre</th>
-						  <th>Apellido</th>
-						  <th>E-Mail</th>
-						  <th>Teléfono</th>
-						  <th>Crédito</th>
-						  <th>Almacén</th>
-						  <th>Modalidad</th>
-						  <th>Fecha Alta</th>
-						  <th>Activo</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Proveedor</th>
+                            <th>Almacen</th>
+                            <th>Activo</th>
+                            <th>Modalidad</th>
+                            <th>Cantidad</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
+                        <tfoot>
+                          <tr>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Proveedor</th>
+                            <th>Almacen</th>
+                            <th>Activo</th>
+                            <th>Modalidad</th>
+                            <th>Cantidad</th>
+                            <th>Opciones</th>
+                          </tr>
+                        </tfoot>
                         <tbody>
                           <?php 
 							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT p.id, p.dni, p.nombre, p.apellido, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y'), p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE 1 ";
-							
+							/*$pdo = Database::connect();
+							$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
+							if ($_SESSION['user']['id_perfil'] == 2) {
+								$sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
+							}
+              //echo $sql;
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[7] . '</td>';
-								echo '<td>$'. number_format($row[8],2) . '</td>';
-								echo '<td>'. $row[9] . '</td>';
-								echo '<td>'. $row[10] . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								if ($row[5] == 1) {
-									echo '<td>Si</td>';
-								} else {
-									echo '<td>No</td>';
-								}
+								echo '<td>'. $row["id"] . '</td>';
+								echo '<td>'. $row["codigo"] . '</td>';
+								echo '<td>'. $row["categoria"] . '</td>';
+								echo '<td>'. $row["descripcion"] . '</td>';
+                echo '<td>$'. number_format($row["precio"],2). '</td>';
+								echo '<td>'. $row["nombre"] .' '.$row["apellido"]. '</td>';
+								echo '<td>'. $row["almacen"] . '</td>';
+                if ($row["activo"] == 1) {
+                  echo '<td>Si</td>';
+                } else {
+                  echo '<td>No</td>';
+                }
+								echo '<td>'. $row["modalidad"] . '</td>';
+								echo '<td>'. $row["cantidad"] . '</td>';
 								echo '<td>';
-									echo '<a href="modificarProveedor.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="verProveedor.php?id='.$row[0].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Operaciones"></a>';
-									echo '&nbsp;&nbsp;';
+								echo '<a href="modificarStock.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Ajustar Cantidad" title="Ajustar Cantidad"></a>';
 								echo '</td>';
 								echo '</tr>';
 						   }
-						   Database::disconnect();
+						   Database::disconnect();*/
 						  ?>
                         </tbody>
                       </table>
@@ -129,30 +144,6 @@ if(empty($_SESSION['user']))
         <?php include("footer.php"); ?>
       </div>
     </div>
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT `id`, `dni`, `nombre`, `apellido`, `email`, `activo`, date_format(`fecha_alta`,'%d/%m/%Y'), `telefono` FROM `proveedores` WHERE 1 ";
-	foreach ($pdo->query($sql) as $row) {
-	?>
-	<div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
-			<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-		  </div>
-		  <div class="modal-body">¿Está seguro que desea eliminar el proveedor?</div>
-		  <div class="modal-footer">
-			<a href="eliminarProveedor.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
-			<a onclick="document.location.href='listarProveedores.php'" class="btn btn-light">Volver</a>
-		  </div>
-		</div>
-	  </div>
-	</div>
-	<?php 
-	}
-	Database::disconnect();
-	?>
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
@@ -193,31 +184,80 @@ if(empty($_SESSION['user']))
     <script src="assets/js/script.js"></script>
 	<script>
 		$(document).ready(function() {
-			$('#dataTables-example666').DataTable({
+			let table=$('#dataTables-example666')
+      table.DataTable({
+        'ajax': 'ajaxListarStock.php',
 				stateSave: true,
 				responsive: true,
+        serverSide: true,
+        processing: true,
+        scrollY: false,
 				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
             "first": "Primero",
             "last": "Ultimo",
             "next": "Siguiente",
             "previous": "Anterior"
-				}}
-			});
+          }
+        },
+        initComplete: function(){
+          this.api().columns.adjust().draw();//Columns sin parentesis
+          this.api().columns().every(function(){//Columns() con parentesis
+            var column=this;
+            if(column.footer().innerHTML!="Precio"){
+              var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
+                .appendTo($(column.footer()).empty())
+                .on("change",function(){
+                  var val=$.fn.dataTable.util.escapeRegex(
+                    $(this).val()
+                  );
+                  column.search(val ? '^'+val+'$':'',true,false).draw();
+                });
+              column.data().unique().sort().each(function(d,j){
+                var val=$("<div/>").html(d).text();
+                if(column.search()==='^'+val+'$'){
+                  select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
+                }else{
+                  select.append("<option value='"+val+"'>"+val+"</option>");
+                }
+              })
+            }else{
+              getTotalStock(table)
+            }
+          })
+        }
+			}).on( 'search.dt', function () {
+        getTotalStock(table)
+      } );
 		});
-		
+
+    function getTotalStock(table){
+      let total=0;
+      table=table.DataTable()
+      table.rows( {order:'index', search:'applied'} ).nodes().each(function(d){
+        
+        var val=$(d).find(":nth-child(5)").html();
+        let precio=Number(val.replace(/[^0-9.-]+/g,""));
+
+        var val2=$(d).find(":nth-child(10)").html();
+        let cantidad=Number(val2.replace(/[^0-9.-]+/g,""));
+        total+=(precio*cantidad);
+      })
+      let column_a_cobrar=table.columns(4).footer()
+      $(column_a_cobrar).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total));
+    }
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

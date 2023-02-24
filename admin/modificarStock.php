@@ -18,14 +18,14 @@
 	}
 	
 	if ( !empty($_POST)) {
-		
+	
 		// insert data
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "update `stock` set `cantidad` = ? where id = ?";
+		$sql = "update `stock` set `cantidad` = ?, `id_modalidad` = ? where id = ?";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['nueva_cantidad'],$_GET['id']));
+		$q->execute(array($_POST['nueva_cantidad'],$_POST['id_modalidad'],$_GET['id']));
 		
 		Database::disconnect();
 		
@@ -94,25 +94,46 @@
                   <div class="card-header">
                     <h5>Modificar Stock</h5>
                   </div>
-				  <form class="form theme-form" role="form" method="post" action="modificarStock.php?id=<?php echo $id?>">
+				          <form class="form theme-form" role="form" method="post" action="modificarStock.php?id=<?php echo $id?>">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Cantidad Anterior</label>
-								<div class="col-sm-9"><input name="cantidad_anterior" type="number" class="form-control" value="<?php echo $data['cantidad']; ?>" readonly="readonly"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Nueva Cantidad</label>
-								<div class="col-sm-9"><input name="nueva_cantidad" type="number" step="1" min="0" class="form-control" value="" required="required"></div>
-							</div>
+							            <div class="form-group row">
+								            <label class="col-sm-3 col-form-label">Cantidad Anterior</label>
+								            <div class="col-sm-9"><input name="cantidad_anterior" type="number" class="form-control" value="<?php echo $data['cantidad']; ?>" readonly="readonly"></div>
+							            </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Nueva Cantidad</label>
+                            <div class="col-sm-9"><input name="nueva_cantidad" type="number" step="1" min="0" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Modificar la Modalidad del Producto</label>
+                            <div class="col-sm-9">
+                            <select name="id_modalidad" id="id_modalidad" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT `id`, `modalidad` FROM `modalidades` WHERE 1";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  if ($fila['id'] == $data['id_modalidad']) {
+                                    echo " selected ";
+                                  }
+                                  echo ">".$fila['modalidad']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
                         <button class="btn btn-primary" type="submit">Ajustar</button>
-						<a onclick="document.location.href='listarStock.php'" class="btn btn-light">Volver</a>
+						              <a onclick="document.location.href='listarStock.php'" class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>

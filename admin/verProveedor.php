@@ -19,7 +19,7 @@
 	
 	$pdo = Database::connect();
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT `id`, `email`, `dni`, `nombre`, `apellido`, `activo`, `telefono` FROM `proveedores` WHERE id = ? ";
+	$sql = "SELECT p.id, p.dni, p.nombre, p.apellido, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y'), p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE p.id = ? ";
 	$q = $pdo->prepare($sql);
 	$q->execute(array($id));
 	$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -101,6 +101,14 @@
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Apellido</label>
 								<div class="col-sm-9"><input name="apellido" type="text" maxlength="99" class="form-control" value="<?php echo $data['apellido']; ?>" readonly="readonly"></div>
+							</div>
+              <div class="form-group row">
+								<label class="col-sm-3 col-form-label">Almacen</label>
+								<div class="col-sm-9"><input name="almacen" type="text" maxlength="99" class="form-control" value="<?php echo $data['almacen']; ?>" readonly="readonly"></div>
+							</div>
+              <div class="form-group row">
+								<label class="col-sm-3 col-form-label">Modalidad</label>
+								<div class="col-sm-9"><input name="modalidad" type="text" maxlength="99" class="form-control" value="<?php echo $data['modalidad']; ?>" readonly="readonly"></div>
 							</div>
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
