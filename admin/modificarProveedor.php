@@ -157,9 +157,6 @@
                     $pdo = Database::connect();
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     $sqlZon = "SELECT id, modalidad FROM modalidades";
-                    if ($_SESSION['user']['id_perfil'] != 1) {
-                      $sqlZon .= " and id = ".$_SESSION['user']['id_modalidad']; 
-                    }
                     $q = $pdo->prepare($sqlZon);
                     $q->execute();
                     while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
