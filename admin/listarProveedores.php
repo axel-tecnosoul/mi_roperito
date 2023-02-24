@@ -71,6 +71,8 @@ if(empty($_SESSION['user']))
 						  <th>E-Mail</th>
 						  <th>Teléfono</th>
 						  <th>Crédito</th>
+						  <th>Almacén</th>
+						  <th>Modalidad</th>
 						  <th>Fecha Alta</th>
 						  <th>Activo</th>
 						  <th>Opciones</th>
@@ -80,7 +82,7 @@ if(empty($_SESSION['user']))
                           <?php 
 							include 'database.php';
 							$pdo = Database::connect();
-							$sql = " SELECT `id`, `dni`, `nombre`, `apellido`, `email`, `activo`, date_format(`fecha_alta`,'%d/%m/%Y'), `telefono`, `credito` FROM `proveedores` WHERE 1 ";
+							$sql = " SELECT p.id, p.dni, p.nombre, p.apellido, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y'), p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE 1 ";
 							
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
@@ -91,6 +93,8 @@ if(empty($_SESSION['user']))
 								echo '<td>'. $row[4] . '</td>';
 								echo '<td>'. $row[7] . '</td>';
 								echo '<td>$'. number_format($row[8],2) . '</td>';
+								echo '<td>'. $row[9] . '</td>';
+								echo '<td>'. $row[10] . '</td>';
 								echo '<td>'. $row[6] . '</td>';
 								if ($row[5] == 1) {
 									echo '<td>Si</td>';
@@ -102,7 +106,7 @@ if(empty($_SESSION['user']))
 									echo '&nbsp;&nbsp;';
 									echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
 									echo '&nbsp;&nbsp;';
-									echo '<a href="verProveedor.php?id='.$row[0].'"><img src="img/eye.png" width="30" border="0" alt="Ver Operaciones" title="Ver Operaciones"></a>';
+									echo '<a href="verProveedor.php?id='.$row[0].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Operaciones"></a>';
 									echo '&nbsp;&nbsp;';
 								echo '</td>';
 								echo '</tr>';

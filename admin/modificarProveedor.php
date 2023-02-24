@@ -23,9 +23,9 @@
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "update `proveedores` set `email` = ?, `dni` = ?, `nombre` = ?, `apellido` = ?, `activo` = ?, `telefono` = ?, `credito` = ? where id = ?";
+		$sql = "UPDATE `proveedores` set `email` = ?, `dni` = ?, `nombre` = ?, `apellido` = ?, `activo` = ?, `telefono` = ?, `credito` = ?, `id_almacen` = ?, `id_modalidad` = ? where id = ?";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['email'],$_POST['dni'],$_POST['nombre'],$_POST['apellido'],$_POST['activo'],$_POST['telefono'],$_POST['credito'],$_GET['id']));
+		$q->execute(array($_POST['email'],$_POST['dni'],$_POST['nombre'],$_POST['apellido'],$_POST['activo'],$_POST['telefono'],$_POST['credito'],$_POST['id_almacen'],$_POST['id_modalidad'],$_GET['id']));
 		
 		if (!empty($_POST['clave'])) {
 			$sql = "update `proveedores` set `clave`=? where id =?";
@@ -41,7 +41,7 @@
 		
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT `id`, `email`, `dni`, `nombre`, `apellido`, `activo`, `telefono`, `credito` FROM `proveedores` WHERE id = ? ";
+		$sql = "SELECT `id`, `email`, `dni`, `nombre`, `apellido`, `activo`, `telefono`, `credito`, `id_almacen`, `id_modalidad` FROM `proveedores` WHERE id = ? ";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -133,21 +133,74 @@
                       <input name="credito" type="hidden" value="<?php echo $data['credito']; ?>"><?php
                       echo $data['credito'];
                     }?></div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Almacen</label>
+                <div class="col-sm-9">
+                  <select name="id_almacen" id="id_almacen" class="js-example-basic-single col-sm-12" required>
+                    <option value="">Seleccione...</option><?php
+                    $pdo = Database::connect();
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $sqlZon = "SELECT id, almacen FROM almacenes WHERE activo = 1";
+                    if ($_SESSION['user']['id_perfil'] != 1) {
+                      $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
+                    }
+                    $q = $pdo->prepare($sqlZon);
+                    $q->execute();
+                    while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                      $selected="";
+                      if($fila['id']==$data["id_almacen"]){
+                        $selected="selected";
+                      }
+                      echo "<option value='".$fila['id']."' $selected>".$fila['almacen']."</option>";
+                     }
+                    Database::disconnect();?>
+                  </select>
                 </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Modalidad</label>
+                <div class="col-sm-9">
+                  <select name="id_modalidad" id="id_modalidad" class="js-example-basic-single col-sm-12" required>
+                    <option value="">Seleccione...</option><?php
+                    $pdo = Database::connect();
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $sqlZon = "SELECT id, modalidad FROM modalidades";
+                    if ($_SESSION['user']['id_perfil'] != 1) {
+                      $sqlZon .= " and id = ".$_SESSION['user']['id_modalidad']; 
+                    }
+                    $q = $pdo->prepare($sqlZon);
+                    $q->execute();
+                    while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                      $selected="";
+                      if($fila['id']==$data["id_modalidad"]){
+                        $selected="selected";
+                      }
+                      echo "<option value='".$fila['id']."' $selected>".$fila['modalidad']."</option>";
+                     }
+                    Database::disconnect();?>
+                  </select>
+                </div>
+              </div>
+
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
 								<div class="col-sm-9">
-								<select name="activo" id="activo" class="js-example-basic-single col-sm-12" required="required">
-								<option value="">Seleccione...</option>
-								<option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
-								<option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
-								</select>
+                  <select name="activo" id="activo" class="js-example-basic-single col-sm-12" required="required">
+                  <option value="">Seleccione...</option>
+                  <option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
+                  <option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
+                  </select>
 								</div>
 							</div>
+
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Contraseña</label>
 								<div class="col-sm-9"><input class="form-control" name="clave" id="password" type="password"></div>
 							</div>
+
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Repetir Contraseña</label>
 								<div class="col-sm-9"><input class="form-control" name="clave2" id="confirm_password" type="password"></div>
