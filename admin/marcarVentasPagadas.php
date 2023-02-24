@@ -20,9 +20,9 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $array = explode(',', $_GET['id']);
 foreach ($array as $value)	{
-  $sql = "UPDATE ventas_detalle set pagado = 1, fecha_hora_pago = NOW(), caja_egreso = ? WHERE id = ?";
+  $sql = "UPDATE ventas_detalle set pagado = 1, fecha_hora_pago = NOW(), caja_egreso = ?, id_forma_pago = ?, id_almacen = ? WHERE id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST["tipo_caja"],$value));
+  $q->execute(array($_POST["tipo_caja"], $_POST["id_forma_pago"], $_POST["id_almacen"],$value));
   /*$q->debugDumpParams();
   echo "<br><br>Afe: ".$q->rowCount();*/
 }
