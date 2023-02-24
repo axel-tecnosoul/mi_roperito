@@ -22,10 +22,16 @@
 		// insert data
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    if($_POST["nueva_cantidad"]>0){
+      $sql = "UPDATE stock set cantidad = ? where id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($_POST['nueva_cantidad'],$_GET['id']));
+    }
 		
-		$sql = "update `stock` set `cantidad` = ?, `id_modalidad` = ? where id = ?";
+		$sql = "UPDATE stock set id_modalidad = ? where id = ?";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['nueva_cantidad'],$_POST['id_modalidad'],$_GET['id']));
+		$q->execute(array($_POST['id_modalidad'],$_GET['id']));
 		
 		Database::disconnect();
 		
@@ -35,7 +41,7 @@
 		
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT `id`, `id_producto`, `id_almacen`, `cantidad`, `id_modalidad` FROM `stock` WHERE id = ? ";
+		$sql = "SELECT id, id_producto, id_almacen, cantidad, id_modalidad FROM stock WHERE id = ? ";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -104,10 +110,10 @@
 							            </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Nueva Cantidad</label>
-                            <div class="col-sm-9"><input name="nueva_cantidad" type="number" step="1" min="0" class="form-control" value="" required="required"></div>
+                            <div class="col-sm-9"><input name="nueva_cantidad" type="number" step="1" min="0" class="form-control" value=""></div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Modificar la Modalidad del Producto</label>
+                            <label class="col-sm-3 col-form-label">Modalidad</label>
                             <div class="col-sm-9">
                             <select name="id_modalidad" id="id_modalidad" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option><?php

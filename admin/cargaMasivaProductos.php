@@ -308,8 +308,26 @@ if ( !empty($_POST)) {
     <!-- Plugin used-->
 	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
-    
     <script type="text/javascript">
+      
+      $(document).ready(function () {
+        $("#id_proveedor").on("change",function(){
+          let id_proveedor=this.value;
+          console.log(id_proveedor);
+          $.ajax({
+            type: "POST",
+            url: "getDataProveedor.php",
+            data: "id_proveedor="+id_proveedor,
+            dataType: "json",
+            success: function (response) {
+              console.log(response);
+              $("#id_modalidad").val(response.id_modalidad).trigger('change');
+              $("#id_almacen").val(response.id_almacen).trigger('change');
+            }
+          });
+        })
+      });
+
       $(document).ready(function(){
           $("#addRowEmail").on('click', function(event) {
             event.preventDefault();
