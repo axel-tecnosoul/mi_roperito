@@ -262,23 +262,20 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         <h5 class="modal-title" id="exampleModalLabel">Seleccione el almacen</h5>
                       </div>
                       <div class="modal-body">
-                        <div class="col-sm-9">
-                          <select name="id_almacen" id="id_almacen" class="js-example-basic-single" required="required">
-                            <option value="">Seleccione...</option><?php
-                            $pdo = Database::connect();
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $sqlZon = "SELECT `id`, `almacen` FROM `almacenes` WHERE activo = 1";
-                            if ($_SESSION['user']['id_perfil'] != 1) {
-                              $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
-                            }
-                            $q = $pdo->prepare($sqlZon);
-                            $q->execute();
-                            while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                              echo "<option value='".$fila['id']."'";
-                              echo ">".$fila['almacen']."</option>";
-                            }
-                            Database::disconnect();?>
-                          </select>
+                        <div class="col-sm-9"><?php
+                        if ($_SESSION['user']['id_perfil'] == 1) {?>
+                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="0">Seleccione</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, almacen FROM almacenes";
+                                foreach ($pdo->query($sql) as $row) {?>
+                                  <option value="<?=$row["id"]?>"<?php //if($row["id"]==6) echo "selected"?>><?=$row["almacen"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select><?php
+                            }else{?>
+                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                            }?>
                         </div>
                       </div><!-- Almacen -->
 
@@ -286,21 +283,21 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         <h5 class="modal-title" id="exampleModalLabel">Seleccione la Forma de Pago</h5>
                       </div>
                       <div class="modal-body">
-                      <div class="col-sm-9">
-                              <select name="id_forma_pago" id="id_forma_pago" class="js-example-basic-single col-sm-12" required="required">
-                                <option value="">Seleccione...</option><?php
-                                $pdo = Database::connect();
-                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT `id`, `forma_pago` FROM `forma_pago` WHERE 1";
-                                $q = $pdo->prepare($sqlZon);
-                                $q->execute();
-                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                                  echo "<option value='".$fila['id']."'";
-                                  echo ">".$fila['forma_pago']."</option>";
-                                }
-                                Database::disconnect();?>
-                              </select>
-                            </div>
+                        <div class="col-sm-9">
+                            <select name="id_forma_pago" id="id_forma_pago" class="js-example-basic-single col-sm-12" required="required">
+                              <option value="">Seleccione...</option><?php
+                              $pdo = Database::connect();
+                              $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                              $sqlZon = "SELECT `id`, `forma_pago` FROM `forma_pago` WHERE 1";
+                              $q = $pdo->prepare($sqlZon);
+                              $q->execute();
+                              while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<option value='".$fila['id']."'";
+                                echo ">".$fila['forma_pago']."</option>";
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </div>
                       </div><!-- Forma de Pago -->
 
                       <div class="modal-footer">
