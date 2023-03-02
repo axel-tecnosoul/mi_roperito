@@ -17,7 +17,16 @@
 		$sql = "INSERT INTO `descuentos`(`descripcion`, `vigencia_desde`, `vigencia_hasta`, `minimo_compra`, `minimo_cantidad_prendas`, `monto_fijo`, `porcentaje`, `activo`) VALUES (?,?,?,?,?,?,?,1)";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($_POST['descripcion'],$_POST['vigencia_desde'],$_POST['vigencia_hasta'],$_POST['minimo_compra'],$_POST['minimo_cantidad_prendas'],$_POST['monto_fijo'],$_POST['porcentaje']));
+    $id_descuento = $pdo->lastInsertId();
 		
+    $formas_pago = $_POST['forma_pago'];
+    foreach($formas_pago as $valor) {
+      $sql = "INSERT INTO `descuentos_x_formapago`(`id_descuento`, `id_forma_pago`, `fecha_hora`) VALUES (?,?, NOW())";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($id_descuento, $valor));
+
+    }
+    
 		Database::disconnect();
 		
 		header("Location: listarDescuentos.php");
@@ -107,6 +116,19 @@
 								<label class="col-sm-3 col-form-label">Porcentaje Descuento</label>
 								<div class="col-sm-9"><input name="porcentaje" type="number" step="0.1" maxlength="99" class="form-control" value="0" required="required"></div>
 							</div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Forma de Pago</label>
+                <div class="col-sm-9">
+                <select name="forma_pago[]" id="forma_pago" class="form-control form-control-sm forma_pago selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                  $pdo = Database::connect();
+                  $sql = " SELECT id, forma_pago FROM forma_pago";
+                  foreach ($pdo->query($sql) as $row) {?>
+                    <option value="<?=$row["id"]?>" <?php //if($row["id"]==1) echo "selected"?>><?=$row["forma_pago"]?></option><?php
+                  }
+                  Database::disconnect();?>
+                </select>
+                </div>
+              </div>
 							
                         </div>
                       </div>
@@ -153,5 +175,10 @@
     <!-- Plugin used-->
 	<script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      $(document).ready(function() {
+          $('.forma_pago').select2();
+      });
+    </script>
   </body>
 </html>
