@@ -20,12 +20,27 @@
 	if ( !empty($_POST)) {
 		
 		// insert data
+    //var_dump($_POST);
+    //die;
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "update `descuentos` set `descripcion` = ?, `vigencia_desde` = ?, `vigencia_hasta` = ?, `minimo_compra` = ?, `minimo_cantidad_prendas` = ?, `monto_fijo` = ?, `porcentaje` = ?, `activo` = ? where id = ?";
+		$sql = "UPDATE `descuentos` set `descripcion` = ?, `vigencia_desde` = ?, `vigencia_hasta` = ?, `minimo_compra` = ?, `minimo_cantidad_prendas` = ?, `monto_fijo` = ?, `porcentaje` = ?, `activo` = ? where id = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($_POST['descripcion'],$_POST['vigencia_desde'],$_POST['vigencia_hasta'],$_POST['minimo_compra'],$_POST['minimo_cantidad_prendas'],$_POST['monto_fijo'],$_POST['porcentaje'],$_POST['activo'],$_GET['id']));
+
+    $sql2 = "DELETE from `descuentos_x_formapago` WHERE `id_descuento` = ?";
+    $q2 = $pdo->prepare($sql2);
+    $q2->execute(array($_GET['id']));
+
+    $formas_pago = $_POST['forma_pago'];
+    $id_descuento = $_GET['id'];
+    foreach($formas_pago as $valor) {
+      $sql3 = "INSERT INTO `descuentos_x_formapago`(`id_descuento`, `id_forma_pago`, `fecha_hora`) VALUES (?,?, NOW())";
+      $q3 = $pdo->prepare($sql3);
+      $q3->execute(array($id_descuento, $valor));
+
+    }
 		
 		Database::disconnect();
 		
@@ -35,7 +50,7 @@
 		
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT id, descripcion, vigencia_desde, vigencia_hasta, minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje, activo FROM descuentos WHERE id = ? ";
+		$sql = "SELECT d.id, d.descripcion, d.vigencia_desde, d.vigencia_hasta, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, d.activo, GROUP_CONCAT(dfp.id_forma_pago SEPARATOR ',') as array_fdp FROM descuentos d inner JOIN descuentos_x_formapago dfp on id_descuento = d.id WHERE d.id = ? ";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -127,6 +142,27 @@
 								<label class="col-sm-3 col-form-label">Porcentaje Descuento</label>
 								<div class="col-sm-9"><input name="porcentaje" type="number" step="0.1" maxlength="99" class="form-control" value="<?php echo $data['porcentaje']; ?>" required="required"></div>
 							</div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Forma de Pago</label>
+                <div class="col-sm-9">
+                <select name="forma_pago[]" id="forma_pago" class="form-control form-control-sm forma_pago selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                  $pdo = Database::connect();
+                  $sql = " SELECT id, forma_pago FROM forma_pago WHERE 1";
+                  $q = $pdo->prepare($sql);
+                  $q->execute();
+                  $array_fdp = $data['array_fdp'];
+                  $array_fdp = explode(",", $array_fdp);
+                  while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<option value='".$fila['id']."'";
+                    if (in_array($fila['id'], $array_fdp)) {
+                      echo " selected ";
+                    }
+                    echo ">".$fila['forma_pago']."</option>";
+                  }
+                  Database::disconnect();?>
+                </select>
+                </div>
+              </div>
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
 								<div class="col-sm-9">
@@ -182,5 +218,10 @@
     <!-- Plugin used-->
 	<script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      $(document).ready(function() {
+          $('.forma_pago').select2();
+      });
+    </script>
   </body>
 </html>
