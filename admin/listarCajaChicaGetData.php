@@ -21,8 +21,8 @@ if($hasta!=""){
 }
 $forma_pago=$_GET["forma_pago"];
 $filtroFormaPago="";
-if($forma_pago!=0){
-  $filtroFormaPago="AND id_forma_pago IN ($forma_pago)";
+if($forma_pago!=""){
+  $filtroFormaPago="AND fp.id IN ($forma_pago)";
 }
 $id_almacen=$_GET["id_almacen"];
 $filtroAlmacen="";
@@ -76,9 +76,13 @@ if($desde<=$hasta){
     //echo $sql;
     $q->execute(array());
     $data = $q->fetch(PDO::FETCH_ASSOC);
-    $total_facturas_recibos=$data["total_ventas"];
+    /*$total_facturas_recibos=$data["total_ventas"];
     if(is_null($total_facturas_recibos)){
       $total_facturas_recibos=0;
+    }*/
+    $total_facturas_recibos=0;
+    if($data){
+      $total_facturas_recibos=$data["total_ventas"];
     }
   }
 
@@ -90,9 +94,13 @@ if($desde<=$hasta){
     //echo $sql;
     $q->execute(array());
     $data = $q->fetch(PDO::FETCH_ASSOC);
-    $total_notas_credito=$data["total_notas_credito"];
+    /*$total_notas_credito=$data["total_notas_credito"];
     if(is_null($total_notas_credito)){
       $total_notas_credito=0;
+    }*/
+    $total_notas_credito=0;
+    if($data){
+      $total_notas_credito=$data["total_notas_credito"];
     }
   }
 
@@ -102,9 +110,13 @@ if($desde<=$hasta){
   //echo $sql2;
   $q2->execute(array());
   $data2 = $q2->fetch(PDO::FETCH_ASSOC);
-  $ingresos_externos=$data2["ingresos_externos"];
+  /*$ingresos_externos=$data2["ingresos_externos"];
   if(is_null($ingresos_externos)){
     $ingresos_externos=0;
+  }*/
+  $ingresos_externos=0;
+  if($data2){
+    $ingresos_externos=$data2["ingresos_externos"];
   }
 
   //obtenemos los movimientos registrados como egresos de caja chica para el saldo anterior
@@ -113,23 +125,32 @@ if($desde<=$hasta){
   //echo $sql;
   $q3->execute(array());
   $data3 = $q3->fetch(PDO::FETCH_ASSOC);
-  $egresos_caja_chica=$data3["egresos_caja_chica"];
+  /*$egresos_caja_chica=$data3["egresos_caja_chica"];
   if(is_null($egresos_caja_chica)){
     $egresos_caja_chica=0;
+  }*/
+  $egresos_caja_chica=0;
+  if($data3){
+    $egresos_caja_chica=$data3["egresos_caja_chica"];
   }
 
   $total_pago_proveedores=0;
   //if($filtroMotivo==""){
   if($mostrarPagoProveedores==1){
     //obtenemos los pagos a proveedores que se hicieron desde esta caja para el saldo anterior
-    $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroHastaSaldoAnteriorPagoProv";
+    $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroHastaSaldoAnteriorPagoProv";
     $q4 = $pdo->prepare($sql4);
     //echo $sql4;
     $q4->execute(array());
     $data4 = $q4->fetch(PDO::FETCH_ASSOC);
-    $total_pago_proveedores=$data4["total_pago_proveedores"];
+    //var_dump($data4);
+    /*$total_pago_proveedores=$data4["total_pago_proveedores"];
     if(is_null($total_pago_proveedores)){
       $total_pago_proveedores=0;
+    }*/
+    $total_pago_proveedores=0;
+    if($data4){
+      $total_pago_proveedores=$data4["total_pago_proveedores"];
     }
   }
 
@@ -170,6 +191,7 @@ if($desde<=$hasta){
   if($filtroMotivo==""){
     //obtenemos las ventas
     $sql = " SELECT v.id AS id_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,v.fecha_hora, fp.forma_pago,(SELECT GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.subtotal,2,'de_DE') SEPARATOR '<br>') FROM ventas_detalle vd inner join productos p on p.id = vd.id_producto WHERE vd.id_venta=v.id) AS detalle_productos,v.total_con_descuento,v.id_cierre_caja,tipo_comprobante FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE 1 $whereVentas $filtroDesde $filtroHasta";
+    //echo $sql;
     foreach ($pdo->query($sql) as $row) {
       $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
       if($row["id_cierre_caja"]==0){
@@ -199,7 +221,7 @@ if($desde<=$hasta){
 
   if($mostrarPagoProveedores==1){
     //obtenemos las pagos a proveedoras
-    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor";
+    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor";
     //echo $sql;
     foreach ($pdo->query($sql) as $row) {
       $aCaja[]=[
