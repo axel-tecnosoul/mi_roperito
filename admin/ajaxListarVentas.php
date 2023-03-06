@@ -57,7 +57,7 @@ $where = "v.anulada = 0";
 if ($_SESSION['user']['id_perfil'] != 1) {
   $where.=" and a.id = ".$_SESSION['user']['id_almacen']; 
 }
-$whereFiltered=$where.$filtroDesde.$filtroHasta.$filtroAlmacen.$filtroFormaPago.$filtroTipoComprobante;
+//$whereFiltered=$where.$filtroDesde.$filtroHasta.$filtroAlmacen.$filtroFormaPago.$filtroTipoComprobante;
 
 foreach ($columns as $k => $column) {
     if ($search = $column['search']['value']) {
@@ -68,6 +68,8 @@ foreach ($columns as $k => $column) {
 //$where = substr($where, 0, -5);
 
 $globalSearch = $_GET['search'];
+//var_dump($globalSearch);
+
 /*if ( $globalSearchValue = $globalSearch['value'] ) {
 	$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
 }*/
@@ -77,16 +79,20 @@ if ( $globalSearchValue = $globalSearch['value'] ) {
     $aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
     //$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
   }
-  $where .= '('.implode(' OR ', $aWhere).')';
+  $where .= ' AND ('.implode(' OR ', $aWhere).')';
 }
+
+$whereFiltered=$where.$filtroDesde.$filtroHasta.$filtroAlmacen.$filtroFormaPago.$filtroTipoComprobante;
 
 $length = $_GET['length'];
 $start = $_GET['start'];
 
 //OBTENEMOS EL TOTAL DE REGISTROS
-$countSql = "SELECT count(v.id) as Total $from WHERE $where";
-$countSt = $pdo->query($countSql);
+//$countSql = "SELECT count(v.id) as Total $from WHERE $where";
+$countSql = "SELECT count(v.id) as Total $from WHERE v.anulada=0";
 //echo $countSql;
+$countSt = $pdo->query($countSql);
+//var_dump($countSql);
 $total = $countSt->fetch()['Total'];
 
 
@@ -145,6 +151,7 @@ if ($st) {
       'length' => $length,
       'start' => $start,
       'query' => $sql,
+      'query_total_facturas_recibos' => $sql2,
       'total_facturas_recibos'=>$total_facturas_recibos,
     ];
 } else {
