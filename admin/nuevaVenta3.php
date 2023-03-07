@@ -577,12 +577,10 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <label class="col-sm-3 col-form-label">Descuentos Vigentes</label>
                             <div class="col-sm-9">
                               <select name="id_descuento" id="id_descuento" disabled class="js-example-basic-single col-sm-12">
-                                
                                 <option value="">Seleccione...</option><?php
-                                /*
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT d.id, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, dfp.id_forma_pago, f.forma_pago FROM descuentos_x_formapago dfp INNER JOIN descuentos d on d.id = dfp.id_descuento INNER JOIN forma_pago f on f.id = dfp.id_forma_pago WHERE vigencia_desde <= now() and vigencia_hasta >= now() ";
+                                $sqlZon = "SELECT id, descripcion, minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje FROM descuentos WHERE activo = 1 and vigencia_desde <= now() and vigencia_hasta >= now() ";
                                 $q = $pdo->prepare($sqlZon);
                                 $q->execute();
                                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
@@ -593,16 +591,15 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                                   /*if($fila['monto_fijo']>0){
                                     $detalle.=" ($".number_format($fila['monto_fijo'],0,",",".").")";
                                   }*/
-                                  /*if($fila['minimo_cantidad_prendas']>0){
+                                  if($fila['minimo_cantidad_prendas']>0){
                                     $detalle.=" Cantidad prendas minimo: ".$fila['minimo_cantidad_prendas'];
                                   }
                                   if($fila['minimo_compra']>0){
                                     $detalle.=" Compra minima: $".number_format($fila['minimo_compra'],0,",",".");
                                   }
-                                  echo "<option value='".$fila['id']."' data-porcentaje='".$fila['porcentaje'].$detalle."</option>";
+                                  echo "<option value='".$fila['id']."' data-porcentaje='".$fila['porcentaje']."'>".$fila['descripcion'].$detalle."</option>";
                                 }
-                                Database::disconnect();*/?>
-                                
+                                Database::disconnect();?>
                               </select>
                             </div>
                           </div>
@@ -837,65 +834,31 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
 
         changeTipoDNI();
       })
-      
+
       $("#id_forma_pago").on("change",function(){
-
-          var formaPagoId = $(this).val();
-          
-          if (formaPagoId) {
-            $.ajax({
-              url: 'obtener_descuentos.php', 
-              method: 'POST',
-              data: { forma_pago_id: formaPagoId }, 
-              dataType: 'json', 
-            }).done(function(data){
-              
-              var descuentosSelect = $('#id_descuento');
-              
-              var descuentos = $(data);
-              
-              if (descuentos.length) {
-                console.log(descuentos);
-                $.each(descuentos, function(i, descuento) {
-                  descuentosSelect.append('<option value="' + descuento.id + '">' + descuento.nombre + '</option>');
-                });
-                  
-                descuentosSelect.prop('disabled', false); 
-              } else {
-                descuentosSelect.append('<option value="">No se encontraron descuentos</option>');
-                descuentosSelect.prop('disabled', true);
-              }
-
-              //Descuento por defecto 10%
-              
-            }).fail(function(data){
-              console.log(data);
-              alert('Error al obtener las descuentos');
-            });
-          } else {
-            $('#id_descuento').empty().prop('disabled', true);
-          }
- 
-        /*let habilitarOFF=0;
-        if(this.value){
+        let id_descuento=$("#id_descuento");
+        //let id_descuento=document.getElementById("id_descuento")
+        let habilitarDiezPorCientoOFF=0;
+        if(this.value==1){
           //id_descuento.value=0;
           id_descuento.prop("disabled",false);
           if(id_descuento.find("option").length==2){
-            habilitarOFF=1;
+            habilitarDiezPorCientoOFF=1;
           }
         }else{
           //id_descuento.value=0;
           id_descuento.prop("disabled",true);
         }
 
-        if(habilitarOFF==1){
+        if(habilitarDiezPorCientoOFF==1){
           id_descuento.val(1).trigger('change');
           //mostrarTotalDescuento()
           actualizarMontoTotal();
         }else{
           id_descuento.val(null).trigger('change');
-        }*/
+        }
       })
+
 		});
 
     $("#id_descuento").on("change",function(){
@@ -977,8 +940,13 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     $(document).on("click",".btnEliminar",function(){
       $(this).parent().parent().remove();
       actualizarMontoTotal()
-    });
+    })
 
+    /*function cargarTabla(){
+      $('#dataTables-example666').DataTable({
+				
+			});
+    }*/
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
 		
