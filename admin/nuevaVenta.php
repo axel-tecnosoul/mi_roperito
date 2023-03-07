@@ -443,7 +443,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                                 <option value="">Seleccione...</option><?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT id, forma_pago FROM forma_pago WHERE 1 ORDER BY forma_pago";
+                                $sqlZon = "SELECT id, forma_pago FROM forma_pago WHERE activo = 1 ORDER BY forma_pago";
                                 $q = $pdo->prepare($sqlZon);
                                 $q->execute();
                                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {

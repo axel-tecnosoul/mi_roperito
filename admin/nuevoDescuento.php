@@ -121,7 +121,7 @@
                 <div class="col-sm-9">
                 <select name="forma_pago[]" id="forma_pago" class="form-control form-control-sm forma_pago selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
                   $pdo = Database::connect();
-                  $sql = " SELECT id, forma_pago FROM forma_pago";
+                  $sql = " SELECT id, forma_pago FROM forma_pago WHERE activo = 1";
                   foreach ($pdo->query($sql) as $row) {?>
                     <option value="<?=$row["id"]?>" <?php //if($row["id"]==1) echo "selected"?>><?=$row["forma_pago"]?></option><?php
                   }
