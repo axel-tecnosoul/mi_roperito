@@ -147,7 +147,7 @@
                 <div class="col-sm-9">
                 <select name="forma_pago[]" id="forma_pago" class="form-control form-control-sm forma_pago selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
                   $pdo = Database::connect();
-                  $sql = " SELECT id, forma_pago FROM forma_pago WHERE 1";
+                  $sql = " SELECT id, forma_pago FROM forma_pago WHERE activo = 1";
                   $q = $pdo->prepare($sql);
                   $q->execute();
                   $array_fdp = $data['array_fdp'];
