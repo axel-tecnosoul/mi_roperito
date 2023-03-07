@@ -66,17 +66,23 @@ if(empty($_SESSION['user']))
                           <tr>
                             <th>ID</th>
                             <th>Forma de pago</th>
+                            <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, forma_pago FROM forma_pago";
+                          $sql = " SELECT id, forma_pago,activo FROM forma_pago";
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row[0] . '</td>';
                             echo '<td>'. $row[1] . '</td>';
+                            if ($row[2] == 1) {
+                              echo '<td>Si</td>';
+                            } else {
+                              echo '<td>No</td>';
+                            }
                             echo '<td>';
                             if($row[0]!=1){
                               echo '<a href="modificarFormaPago.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
