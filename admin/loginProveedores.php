@@ -3,7 +3,7 @@
 	require 'database.php';
     $submitted_username = ''; 
     if(!empty($_POST)){ 
-        $query = "SELECT `id`, `email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `telefono` FROM `proveedores` WHERE activo = 1 and email = :user"; 
+        $query = "SELECT `id`, `email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `telefono` FROM `proveedores` WHERE activo = 1 and email = :user";
         $query_params = array(':user' => $_POST['user']); 
         
         try{ 
@@ -13,8 +13,9 @@
         catch(PDOException $ex){ die("Failed to run query: " . $ex->getMessage()); } 
         $login_ok = false; 
         $row = $stmt->fetch(); 
-        if($row){ 
-            $check_pass = $_POST['pass']; 
+        
+        if($row){
+            $check_pass = $_POST['pass'];
             if($check_pass === $row['clave']){
                 $login_ok = true;
             } 
@@ -24,7 +25,7 @@
             unset($row['clave']); 
             $_SESSION['proveedor'] = $row;  
 			
-			header("Location: dashboardProveedor.php"); 
+			      header("Location: dashboardProveedor.php"); 
             die("Redirecting to: dashboardProveedor.php"); 
 			
         } 

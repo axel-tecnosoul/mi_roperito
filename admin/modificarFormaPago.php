@@ -21,9 +21,9 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "UPDATE forma_pago set forma_pago = ? where id = ?";
+  $sql = "UPDATE forma_pago set forma_pago = ?, activo = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['forma_pago'],$_GET['id']));
+  $q->execute(array($_POST['forma_pago'],$_POST['activo'],$_GET['id']));
   
   Database::disconnect();
   
@@ -33,7 +33,7 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT id, forma_pago FROM forma_pago WHERE id = ? ";
+  $sql = "SELECT id, forma_pago, activo FROM forma_pago WHERE id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -100,6 +100,16 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="forma_pago" type="text" maxlength="99" class="form-control" value="<?php echo $data['forma_pago']; ?>" required="required"></div>
                           </div>
 
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Activo</label>
+                            <div class="col-sm-9">
+                            <select name="activo" id="activo" class="js-example-basic-single col-sm-12" required="required">
+                            <option value="">Seleccione...</option>
+                            <option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
+                            <option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
+                            </select>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
