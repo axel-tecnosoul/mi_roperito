@@ -20,7 +20,7 @@ if(empty($_SESSION['user'])){
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	
 	$array = explode(',', $_GET['id']);
-	echo "<div class='contenedor' style='max-width: 40%;  margin: 0;'>";
+	echo "<div class='contenedor' style='max-width: 60%;  margin: 0;'>";
 	echo "<div style='display: grid; grid-template-columns: repeat(2, 1fr); justify-content: space-evenly; gap: 0.5rem;'>";
 	foreach ($array as $value)	{
 		
