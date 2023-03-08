@@ -20,7 +20,7 @@ if(empty($_SESSION['user'])){
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	
 	$array = explode(',', $_GET['id']);
-	echo "<div class='contenedor' style='max-width: 60%;  margin: 0;'>";
+	echo "<div class='contenedor' style='max-width: 70%;  margin: 0;'>";
 	echo "<div style='display: grid; grid-template-columns: repeat(2, 1fr); justify-content: space-evenly; gap: 0.5rem;'>";
 	foreach ($array as $value)	{
 		
@@ -34,13 +34,13 @@ if(empty($_SESSION['user'])){
 		$precio = $data['precio'];
 		$cb = $data['cb'];
 		
-		echo "<div class='row' style='border: solid 1px black; border-radius: 10px; max-width: 350px; max-heigth: 200px;'>";
+		echo "<div class='row' style='border: solid 1px black; border-radius: 10px; max-width: 100%; max-heigth: 400px;'>";
 		echo "<div class='col'>";
-		echo "<p style='text-align: center; margin: 0; font-size: 9px;'>".$codigo."</p>";
+		echo "<p style='text-align: center; margin: 0; font-size: 20px;'>".$codigo."</p>";
 		echo "<div style='display:flex; justify-content: center; ;'>";
-		echo "<div><img style='max-width:100%; display: block;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=".$cb."&print=true'/></div>";
+		echo "<div><img style='max-width:100%; display: block; ' alt='testing' src='barcode.php?codetype=Code39&size=50&text=         ".$cb."&print=true'/></div>";
 		echo "</div>";
-		echo "<p style='text-align: center; margin: 0; font-size: 9px;'>$".number_format($precio,2)."</p>";
+		echo "<p style='text-align: center; margin: 0; font-size: 20px;'>$".number_format($precio,2)."</p>";
 		echo "</div>";
 		echo "</div>";
 
