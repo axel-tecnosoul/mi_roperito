@@ -10,7 +10,7 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "INSERT INTO forma_pago(forma_pago) VALUES (?)";
+  $sql = "INSERT INTO forma_pago(forma_pago, activo) VALUES (?,1)";
   $q = $pdo->prepare($sql);
   $q->execute(array($_POST['forma_pago']));
   

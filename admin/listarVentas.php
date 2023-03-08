@@ -373,8 +373,19 @@ include_once("funciones.php");?>
           {"data": "email"},
           {"data": "telefono"},
         ],
-        initComplete: function(settings, json){
+        /*initComplete: function(settings, json){
           let total_facturas_recibos=json.queryInfo.total_facturas_recibos
+
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+
+          $('[title]').tooltip();
+        }*/
+        drawCallback: function(settings, json){
+          console.log(settings);
+          console.log(settings.json.queryInfo.total_facturas_recibos);
+          let total_facturas_recibos=settings.json.queryInfo.total_facturas_recibos
 
           var api = this.api();
           // Update footer
