@@ -70,7 +70,10 @@ if(empty($_SESSION['user']))
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-                            <th>Movimiento</th>
+                            <th>Producto</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Cantidad</th>
                             <th>Usuario</th>
                             <th>Fecha y hora</th>
                             <th>Opciones</th>
@@ -79,21 +82,20 @@ if(empty($_SESSION['user']))
                         <tbody><?php 
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT sm.id,u.usuario,sm.fecha_hora FROM stock_movimientos sm INNER JOIN usuarios u ON sm.id_usuario=u.id ORDER BY sm.fecha_hora ASC";
+                          $sql = " SELECT sm.id,p.descripcion,(SELECT almacen FROM almacenes a WHERE a.id=sm.id_almacen_origen) AS almacen_origen,(SELECT almacen FROM almacenes a WHERE a.id=sm.id_almacen_destino) AS almacen_destino,cantidad,u.usuario,fecha_hora FROM stock_movimientos_detalle sm INNER JOIN productos p ON sm.id_producto=p.id INNER JOIN usuarios u ON sm.id_usuario=u.id ORDER BY fecha_hora ASC";
                           /*if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
                           }*/
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
-                            echo '<td>'. $row["id"] . '</td>';
+                            echo '<td>'. $row["descripcion"] . '</td>';
+                            echo '<td>'. $row["almacen_origen"] . '</td>';
+                            echo '<td>'. $row["almacen_destino"] . '</td>';
+                            echo '<td>'. $row["cantidad"] . '</td>';
                             echo '<td>'. $row["usuario"].'</td>';
                             echo '<td>'. date("d M Y H:i",strtotime($row["fecha_hora"])) . '</td>';
                             echo '<td>';
-                            echo '<a href="verMovimientoStockDetalle.php?id='.$row["id"].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Detalle"></a>';
-                            echo '&nbsp;&nbsp;';
-                            echo '<a href="imprimirMovimientoStockTotal.php?id='.$row["id"].'"><img src="img/print.png" width="30" height="30" border="0" alt="imprimir Movimiento Stock Total" title="Imrpimir Total de Prendas"></a>';
-                            echo '&nbsp;&nbsp;';
-                           
+                            echo '<a target="_blank" href="imprimirMovimientoStock.php?id='.$row["id"].'"><img src="img/print.png" width="24" height="25" border="0" alt="Imprimir" title="Imprimir"></a>';
                             echo '</td>';
                             echo '</tr>';
                           }
@@ -157,6 +159,8 @@ if(empty($_SESSION['user']))
 			$('#dataTables-example666').DataTable({
 				stateSave: true,
 				responsive: true,
+        "order": [[ 5, "asc" ]], //or asc 
+        "columnDefs" : [{"targets":5, "type":"date-es"}],
 				language: {
          "decimal": "",
         "emptyTable": "No hay información",
