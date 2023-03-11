@@ -7,7 +7,7 @@ if(empty($_SESSION['user'])){
 require 'database.php';
 	
 if ( !empty($_POST)) {
-  
+  $idStockMovimiento = 0;
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -81,10 +81,20 @@ if ( !empty($_POST)) {
       }
 
     }
+    
+    if($idStockMovimiento == 0) {
+      $sql4 = "INSERT INTO stock_movimientos (id_usuario, fecha_hora) VALUES (?,NOW())";
+      $q4 = $pdo->prepare($sql4);
+      $q4->execute(array($id_usuario));
+      $idStockMovimiento = $pdo->lastInsertId();
+    }
+    
 
-    $sql4 = "INSERT INTO stock_movimientos (id_producto, id_almacen_origen, id_almacen_destino, cantidad, id_usuario, fecha_hora) VALUES (?,?,?,?,?,NOW())";
-    $q4 = $pdo->prepare($sql4);
-    $q4->execute(array($id_producto,$_POST['id_almacen_origen'],$_POST['id_almacen_destino'],$cantidad,$id_usuario));
+    $sql5 = "INSERT INTO stock_movimientos_detalle (id_producto, id_almacen_origen, id_almacen_destino, cantidad, id_stock_movimiento, id_usuario, fecha_hora) VALUES (?,?,?,?,?,?,NOW())";
+    $q5 = $pdo->prepare($sql5);
+    $q5->execute(array($id_producto,$_POST['id_almacen_origen'],$_POST['id_almacen_destino'],$cantidad,$idStockMovimiento,$id_usuario));
+    
+    
 
     if ($modoDebug==1) {
       $q4->debugDumpParams();

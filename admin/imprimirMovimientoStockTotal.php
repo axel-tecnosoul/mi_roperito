@@ -6,6 +6,10 @@ if(empty($_SESSION['user']))
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
 
 ?>
 <!DOCTYPE html>
@@ -20,55 +24,60 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <a href="verMovimientoStockDetalle.php" class="btn btn-secondary">VOLVER</a>
             <div class="row"><?php
-              include 'database.php';
-
-              $stringMovimientoStock=$_GET["id"];
-              $aMovimientoStock=explode("i",$stringMovimientoStock);
-              foreach ($aMovimientoStock as $id) {?>
-                <div class="col-6">
+              include 'database.php';?>
+                <div class="col-12">
                   <div class="card">
                     <div class="card-header text-center" style="padding: 20px;">
-                      <h5>Movimiento de Stock</h5>
+                      <h5>Movimiento de Stock Nº <?php echo $id; ?></h5>
                     </div>
-                    <div class="card-body" style="padding: 20px;">
-                      <div class="dt-ext table-responsive"><?php 
+                    <div class="row">
+                    <?php 
                         $pdo = Database::connect();
-                        $sql = " SELECT sm.id,p.descripcion,(SELECT almacen FROM almacenes a WHERE a.id=sm.id_almacen_origen) AS almacen_origen,(SELECT almacen FROM almacenes a WHERE a.id=sm.id_almacen_destino) AS almacen_destino,cantidad,u.usuario,fecha_hora FROM stock_movimientos_detalle sm INNER JOIN productos p ON sm.id_producto=p.id INNER JOIN usuarios u ON sm.id_usuario=u.id WHERE sm.id = ?";
+                        $sql = "SELECT smd.id,p.descripcion,(SELECT almacen FROM almacenes a WHERE a.id=smd.id_almacen_origen) AS almacen_origen,(SELECT almacen FROM almacenes a WHERE a.id=smd.id_almacen_destino) AS almacen_destino, (SELECT sm.id FROM stock_movimientos sm WHERE sm.id=smd.id_stock_movimiento) AS Movimiento_Stock, cantidad,u.usuario,fecha_hora FROM stock_movimientos_detalle smd INNER JOIN productos p ON smd.id_producto=p.id INNER JOIN usuarios u ON smd.id_usuario=u.id WHERE smd.id_stock_movimiento = ?";
                         $q = $pdo->prepare($sql);
                         $q->execute(array($id));
-                        $data = $q->fetch(PDO::FETCH_ASSOC);
                         
+                        while( $data = $q->fetch(PDO::FETCH_ASSOC)){
+                          
+                          echo "<div class='col-sm-6' style='padding: 10px;'>";
+                          echo "<div class='card-body' style='padding: 20px;'>";
+                          echo "<div class='dt-ext table-responsive'>";
+                          echo "<table class='table table-bordered display' id='dataTables-example666'>";
+                          echo "<tbody>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Producto</th>";
+                              echo "<td style='width: 70%;'>".$data["descripcion"]."</td>";
+                            echo "</tr>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Origen</th>";
+                              echo "<td style='width: 70%;'>".$data["almacen_origen"]."</td>";
+                            echo "</tr>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Destino</th>";
+                              echo "<td style='width: 70%;'>".$data["almacen_destino"]."</td>";
+                            echo "</tr>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Cantidad</th>";
+                              echo "<td style='width: 70%;'>".$data["cantidad"]."</td>";
+                            echo "</tr>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Usuario</th>";
+                              echo "<td style='width: 70%;'>".$data["usuario"]."</td>";
+                            echo "</tr>";
+                            echo "<tr>";
+                              echo "<th style='width: 30%;'>Fecha y Hora</th>";
+                              echo "<td style='width: 70%;'>".date("d M Y H:i",strtotime($data["fecha_hora"]))."</td>";
+                            echo "</tr>";
+                          echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
+                        
+                        
+                        }
                         Database::disconnect();?>
-                        <table class="table table-bordered display" id="dataTables-example666">
-                          <tbody>
-                            <tr>
-                              <th style="width: 30%;">Producto</th>
-                              <td style="width: 70%;"><?=$data["descripcion"]?></td>
-                            </tr>
-                            <tr>
-                              <th style="width: 30%;">Origen</th>
-                              <td style="width: 70%;"><?=$data["almacen_origen"]?></td>
-                            </tr>
-                            <tr>
-                              <th style="width: 30%;">Destino</th>
-                              <td style="width: 70%;"><?=$data["almacen_destino"]?></td>
-                            </tr>
-                            <tr>
-                              <th style="width: 30%;">Cantidad</th>
-                              <td style="width: 70%;"><?=$data["cantidad"]?></td>
-                            </tr>
-                            <tr>
-                              <th style="width: 30%;">Usuario</th>
-                              <td style="width: 70%;"><?=$data["usuario"]?></td>
-                            </tr>
-                            <tr>
-                              <th style="width: 30%;">Fecha y Hora</th>
-                              <td style="width: 70%;"><?=date("d M Y H:i",strtotime($data["fecha_hora"]))?></td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    </div> 
                     <div class="card-footer" style="padding: 20px;">
                       <div class="row">
                         <div class="col-6">
@@ -80,8 +89,7 @@ if(empty($_SESSION['user']))
                       </div>
                     </div>
                   </div>
-                </div><?php
-              }?>
+                </div>
             </div>
           </div>
           <!-- Container-fluid Ends-->

@@ -1,10 +1,20 @@
 <?php 
-session_start(); 
-if(empty($_SESSION['user']))
-{
-	header("Location: index.php");
-	die("Redirecting to index.php"); 
+require("config.php");
+if(empty($_SESSION['user'])){
+    header("Location: index.php");
+    die("Redirecting to index.php"); 
 }
+require 'funciones.php';
+
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
+
+if ( null==$id ) {
+  header("Location: listarMovimientoStock.php");
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -57,7 +67,7 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Movimientos de Stock</h5>
+                    <h5>Detalle Movimiento Stock ID #<?php echo $id; ?> &nbsp;<a href="imprimirMovimientoStockTotal.php?id=<?php echo $id; ?>"><img src="img/print.png" width="40" height="30" border="0" alt="imprimir Movimiento Stock Total" title="Imrpimir Total de Prendas"></a></h5>
                   </div><?php
                   /*$ar=["facebook_user_info"=>["info1"=>"value1","info2"=>"value2"],"form_info"=>["id"=>1,"campo1"=>"valor1","campo2"=>"valor2"]];
                   var_dump($ar);
@@ -71,6 +81,10 @@ if(empty($_SESSION['user']))
                         <thead>
                           <tr>
                             <th>Movimiento</th>
+                            <th>Producto</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Cantidad</th>
                             <th>Usuario</th>
                             <th>Fecha y hora</th>
                             <th>Opciones</th>
@@ -79,21 +93,21 @@ if(empty($_SESSION['user']))
                         <tbody><?php 
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT sm.id,u.usuario,sm.fecha_hora FROM stock_movimientos sm INNER JOIN usuarios u ON sm.id_usuario=u.id ORDER BY sm.fecha_hora ASC";
+                          $sql = " SELECT smd.id,p.descripcion,(SELECT almacen FROM almacenes a WHERE a.id=smd.id_almacen_origen) AS almacen_origen,(SELECT almacen FROM almacenes a WHERE a.id=smd.id_almacen_destino) AS almacen_destino,cantidad,u.usuario,smd.fecha_hora,(SELECT sm.id FROM stock_movimientos sm WHERE sm.id=smd.id_stock_movimiento) AS Movimiento_Stock FROM stock_movimientos_detalle smd INNER JOIN stock_movimientos sm ON smd.id_stock_movimiento = sm.id INNER JOIN productos p ON smd.id_producto=p.id INNER JOIN usuarios u ON smd.id_usuario=u.id WHERE smd.id_stock_movimiento = $id ORDER BY smd.fecha_hora ASC";
                           /*if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
                           }*/
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
-                            echo '<td>'. $row["id"] . '</td>';
+                            echo '<td>'. $row["Movimiento_Stock"] . '</td>';
+                            echo '<td>'. $row["descripcion"] . '</td>';
+                            echo '<td>'. $row["almacen_origen"] . '</td>';
+                            echo '<td>'. $row["almacen_destino"] . '</td>';
+                            echo '<td>'. $row["cantidad"] . '</td>';
                             echo '<td>'. $row["usuario"].'</td>';
                             echo '<td>'. date("d M Y H:i",strtotime($row["fecha_hora"])) . '</td>';
                             echo '<td>';
-                            echo '<a href="verMovimientoStockDetalle.php?id='.$row["id"].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Detalle"></a>';
-                            echo '&nbsp;&nbsp;';
-                            echo '<a href="imprimirMovimientoStockTotal.php?id='.$row["id"].'"><img src="img/print.png" width="30" height="30" border="0" alt="imprimir Movimiento Stock Total" title="Imrpimir Total de Prendas"></a>';
-                            echo '&nbsp;&nbsp;';
-                           
+                            echo '<a target="_blank" href="imprimirMovimientoStock.php?id='.$row["id"].'"><img src="img/print.png" width="24" height="25" border="0" alt="Imprimir" title="Imprimir"></a>';
                             echo '</td>';
                             echo '</tr>';
                           }
@@ -101,6 +115,11 @@ if(empty($_SESSION['user']))
                         </tbody>
                       </table>
                     </div>
+                  </div>
+                  <div class="card-footer">
+                    
+                      <a href='listarMovimientoStock.php' class="btn btn-light">Volver</a>
+                    
                   </div>
                 </div>
               </div>
@@ -157,6 +176,8 @@ if(empty($_SESSION['user']))
 			$('#dataTables-example666').DataTable({
 				stateSave: true,
 				responsive: true,
+        "order": [[ 5, "asc" ]], //or asc 
+        "columnDefs" : [{"targets":5, "type":"date-es"}],
 				language: {
          "decimal": "",
         "emptyTable": "No hay información",
