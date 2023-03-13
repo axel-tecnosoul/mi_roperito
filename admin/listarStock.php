@@ -1,16 +1,22 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css">
   </head>
+  <style>
+    .multiselect{
+      color:#212529 !important;
+      background-color:#fff;
+      border-color:#ccc;
+    }
+  </style>
   <body class="light-only">
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
@@ -58,12 +64,73 @@ if(empty($_SESSION['user']))
                 <div class="card">
                   <div class="card-header">
                     <h5>Stock
-					&nbsp;<a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
-					&nbsp;<a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
-					&nbsp;<a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
-					</h5>
+                      &nbsp;<a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
+                      &nbsp;<a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
+                      &nbsp;<a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
+                    </h5>
                   </div>
                   <div class="card-body">
+                    <div class="row mb-2">
+                      <table class="table">
+                        <tr>
+                          <td class="text-right border-0 p-1">Proveedor:</td>
+                          <td class="border-0 p-1">
+                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                              include 'database.php';
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS proveedor FROM proveedores";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["proveedor"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td class="text-right border-0 p-1">Modalidad:</td>
+                          <td class="border-0 p-1">
+                            <select id="modalidad" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, modalidad FROM modalidades";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["modalidad"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td class="text-right border-0 p-1">Categoria:</td>
+                          <td class="border-0 p-1">
+                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, categoria FROM categorias";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["categoria"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td class="text-right border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {
+                              echo "Almacen: ";
+                            }?>
+                            <!-- Tipo comprobante: -->
+                          </td>
+                          <td class="border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {?>
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                                <option value="0">- Todos -</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, almacen FROM almacenes";
+                                foreach ($pdo->query($sql) as $row) {?>
+                                  <option value="<?=$row["id"]?>"><?=$row["almacen"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select><?php
+                            }else{?>
+                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                            }?>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
@@ -72,33 +139,32 @@ if(empty($_SESSION['user']))
                             <th>Código</th>
                             <th>Categoría</th>
                             <th>Descripción</th>
+                            <th>Cantidad</th>
                             <th>Precio</th>
                             <th>Proveedor</th>
                             <th>Almacen</th>
-                            <th>Activo</th>
                             <th>Modalidad</th>
-                            <th>Cantidad</th>
+                            <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tfoot>
                           <tr>
-                            <th>ID</th>
-                            <th>Código</th>
-                            <th>Categoría</th>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Proveedor</th>
-                            <th>Almacen</th>
-                            <th>Activo</th>
-                            <th>Modalidad</th>
-                            <th>Cantidad</th>
-                            <th>Opciones</th>
+                            <th style="text-align: right;">Total</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                           </tr>
                         </tfoot>
-                        <tbody>
-                          <?php 
-							include 'database.php';
+                        <tbody><?php
+							/*include 'database.php';
 							$pdo = Database::connect();
 							$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 							if ($_SESSION['user']['id_perfil'] == 2) {
@@ -126,7 +192,7 @@ if(empty($_SESSION['user']))
 								echo '</td>';
 								echo '</tr>';
 						   }
-						   Database::disconnect();
+						   Database::disconnect();*/
 						  ?>
                         </tbody>
                       </table>
@@ -155,6 +221,9 @@ if(empty($_SESSION['user']))
     <!-- Sidebar jquery-->
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
+
+    <script src="vendor/bootstrap-select-1.13.14/dist/js/bootstrap-select.js"></script>
+    <script src="vendor/bootstrap-select-1.13.14/js/i18n/defaults-es_ES.js"></script>
     <!-- Plugins JS start-->
     <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
@@ -184,8 +253,65 @@ if(empty($_SESSION['user']))
     <script src="assets/js/script.js"></script>
 	<script>
 		$(document).ready(function() {
-			let table=$('#dataTables-example666')
+      getStock();
+      $(".filtraTabla").on("change",getStock);
+		});
+
+    function getStock(){
+
+      /*let table=$('#dataTables-example666')
       table.DataTable({
+        'ajax': 'ajaxListarStock.php',
+				stateSave: true,
+				responsive: true,
+        serverSide: true,
+        processing: true,
+        scrollY: false,
+				language: {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
+            "first": "Primero",
+            "last": "Ultimo",
+            "next": "Siguiente",
+            "previous": "Anterior"
+          }
+        },
+        drawCallback: function(settings, json){
+          let total_stock=settings.json.queryInfo.total_stock
+
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_stock));
+
+          $('[title]').tooltip();
+        }
+			})*/
+
+      let proveedor=$("#proveedor").val();
+      let modalidad=$("#modalidad").val();
+      let categoria=$("#categoria").val();
+      let id_almacen=$("#id_almacen").val();
+
+      let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+
+      let table=$('#dataTables-example666')
+      table.DataTable().destroy();
+      table.DataTable({
+        //dom: 'rtip',
+        serverSide: true,
+        processing: true,
+        ajax:{url:'ajaxListarStock.php?proveedor='+proveedor+'&modalidad='+modalidad+'&categoria='+categoria+'&id_almacen='+id_almacen},
 				stateSave: true,
 				responsive: true,
 				language: {
@@ -208,53 +334,72 @@ if(empty($_SESSION['user']))
               "previous": "Anterior"
           }
         },
-        initComplete: function(){
-          this.api().columns.adjust().draw();//Columns sin parentesis
-          this.api().columns().every(function(){//Columns() con parentesis
-            var column=this;
-            if(column.footer().innerHTML!="Precio"){
-              var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
-                .appendTo($(column.footer()).empty())
-                .on("change",function(){
-                  var val=$.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                  );
-                  column.search(val ? '^'+val+'$':'',true,false).draw();
-                });
-              column.data().unique().sort().each(function(d,j){
-                var val=$("<div/>").html(d).text();
-                if(column.search()==='^'+val+'$'){
-                  select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
-                }else{
-                  select.append("<option value='"+val+"'>"+val+"</option>");
-                }
-              })
-            }else{
-              getTotalStock(table)
+        /*"columns":[
+          {"data": "id_venta"},
+          {render: function(data, type, row, meta) {
+            return row.fecha_hora+"hs";
+          }},
+          {render: function(data, type, row, meta) {
+            let estado=row.estado;
+            let clase="";
+            if(estado=="A"){
+              clase="badge badge-success";
             }
-          })
+            if(estado=="R" || estado=="E"){
+              clase="badge badge-danger";
+            }
+            return '<span class="'+clase+'">'+row.tipo_comprobante+'</span>';
+          }},
+          {"data": "almacen"},
+          {"data": "forma_pago"},
+          {
+            render: function(data, type, row, meta) {
+              return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.total_con_descuento);
+            },
+            className: 'dt-body-right text-right',
+          },
+          {render: function(data, type, row, meta) {
+            let btnVer='<a href="verVenta.php?id='+row.id_venta+'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta"></a>&nbsp;&nbsp;'
+            let btnAnular="";
+            if((id_perfil=="1" || row.id_cierre_caja==0) && row.tipo_comprobante=="Recibo"){
+              //btnAnular='<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'+row["id"]+'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Anular" title="Anular"></a>&nbsp;&nbsp;'
+              btnAnular='<a href="#" title="Eliminar" onclick="openModalEliminarVenta('+row.id_venta+')"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>&nbsp;&nbsp;'
+            }
+            return btnVer+btnAnular;
+          }},
+          { render: function(data, type, row, meta) {
+              return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.total);
+            },
+            className: 'dt-body-right text-right',
+          },
+          {"data": "descuento"},
+          {"data": "nombre_cliente"},
+          {"data": "dni"},
+          {"data": "direccion"},
+          {"data": "email"},
+          {"data": "telefono"},
+        ],*/
+        /*initComplete: function(settings, json){
+          let total_facturas_recibos=json.queryInfo.total_facturas_recibos
+
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+
+          $('[title]').tooltip();
+        }*/
+        drawCallback: function(settings, json){
+          let total_stock=settings.json.queryInfo.total_stock
+
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_stock));
+
+          $('[title]').tooltip();
         }
-			}).on( 'search.dt', function () {
-        getTotalStock(table)
-      } );
-		});
-
-    function getTotalStock(table){
-      let total=0;
-      table=table.DataTable()
-      table.rows( {order:'index', search:'applied'} ).nodes().each(function(d){
-        
-        var val=$(d).find(":nth-child(5)").html();
-        let precio=Number(val.replace(/[^0-9.-]+/g,""));
-
-        var val2=$(d).find(":nth-child(10)").html();
-        let cantidad=Number(val2.replace(/[^0-9.-]+/g,""));
-        total+=(precio*cantidad);
-      })
-      let column_a_cobrar=table.columns(4).footer()
-      $(column_a_cobrar).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total));
+			})
     }
-		
+
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

@@ -20,13 +20,6 @@ if ( !empty($_POST)) {
   }
 
   $id_usuario=$_SESSION["user"]["id"];
-  $id_almacen_destino=$_POST['id_almacen_destino'];
-  $id_almacen_origen=$_POST['id_almacen_origen'];
-
-  $sql4 = "INSERT INTO stock_movimientos (id_usuario, fecha_hora, id_almacen_origen, id_almacen_destino) VALUES (?,NOW(),?,?)";
-  $q4 = $pdo->prepare($sql4);
-  $q4->execute(array($id_usuario,$id_almacen_destino,$id_almacen_origen));
-  $idStockMovimiento = $pdo->lastInsertId();
   
   //egresar stock
   //$sql = " SELECT `id`, `id_producto`, `cantidad`, `id_modalidad` FROM `stock` WHERE `id_almacen` = ".$_POST['id_almacen_origen'];
@@ -56,7 +49,7 @@ if ( !empty($_POST)) {
     //ingresar stock
     $sql2 = "SELECT id from stock where id_producto = ? and id_almacen = ? and id_modalidad = ?";
     $q2 = $pdo->prepare($sql2);
-    $q2->execute(array($id_producto,$id_almacen_destino,$modalidad));
+    $q2->execute(array($id_producto,$_POST['id_almacen_destino'],$modalidad));
     $data = $q2->fetch(PDO::FETCH_ASSOC);
 
     if ($modoDebug==1) {
@@ -79,7 +72,7 @@ if ( !empty($_POST)) {
     } else {
       $sql3 = "INSERT INTO stock (id_producto, id_almacen, cantidad,id_modalidad) VALUES (?,?,?,?)";
       $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($id_producto,$id_almacen_destino,$cantidad,$modalidad));
+      $q3->execute(array($id_producto,$_POST['id_almacen_destino'],$cantidad,$modalidad));
 
       if ($modoDebug==1) {
         $q3->debugDumpParams();
@@ -88,11 +81,20 @@ if ( !empty($_POST)) {
       }
 
     }
+    
+    if($idStockMovimiento == 0) {
+      $sql4 = "INSERT INTO stock_movimientos (id_usuario, fecha_hora) VALUES (?,NOW())";
+      $q4 = $pdo->prepare($sql4);
+      $q4->execute(array($id_usuario));
+      $idStockMovimiento = $pdo->lastInsertId();
+    }
+    
 
     $sql5 = "INSERT INTO stock_movimientos_detalle (id_producto, id_almacen_origen, id_almacen_destino, cantidad, id_stock_movimiento, id_usuario, fecha_hora) VALUES (?,?,?,?,?,?,NOW())";
     $q5 = $pdo->prepare($sql5);
-    $q5->execute(array($id_producto,$id_almacen_origen,$id_almacen_destino,$cantidad,$idStockMovimiento,$id_usuario));
-    $id_movimiento_stock=$pdo->lastInsertId();
+    $q5->execute(array($id_producto,$_POST['id_almacen_origen'],$_POST['id_almacen_destino'],$cantidad,$idStockMovimiento,$id_usuario));
+    
+    
 
     if ($modoDebug==1) {
       $q4->debugDumpParams();
@@ -100,6 +102,7 @@ if ( !empty($_POST)) {
       echo "<br><br>";
     }
 
+    $id_movimiento_stock=$pdo->lastInsertId();
     $aMovimientoStock[]=$id_movimiento_stock;
     //}
   }

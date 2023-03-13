@@ -99,7 +99,7 @@ if(empty($_SESSION['user']))
                         <tbody>
                           <?php 
 							include 'database.php';
-							/*$pdo = Database::connect();
+							$pdo = Database::connect();
 							$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 							if ($_SESSION['user']['id_perfil'] == 2) {
 								$sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
@@ -126,7 +126,7 @@ if(empty($_SESSION['user']))
 								echo '</td>';
 								echo '</tr>';
 						   }
-						   Database::disconnect();*/
+						   Database::disconnect();
 						  ?>
                         </tbody>
                       </table>
@@ -186,12 +186,8 @@ if(empty($_SESSION['user']))
 		$(document).ready(function() {
 			let table=$('#dataTables-example666')
       table.DataTable({
-        'ajax': 'ajaxListarStock.php',
 				stateSave: true,
 				responsive: true,
-        serverSide: true,
-        processing: true,
-        scrollY: false,
 				language: {
           "decimal": "",
           "emptyTable": "No hay información",
@@ -206,10 +202,10 @@ if(empty($_SESSION['user']))
           "search": "Buscar:",
           "zeroRecords": "No hay resultados",
           "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
           }
         },
         initComplete: function(){
@@ -258,6 +254,7 @@ if(empty($_SESSION['user']))
       let column_a_cobrar=table.columns(4).footer()
       $(column_a_cobrar).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total));
     }
+		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

@@ -161,7 +161,7 @@ if ( !empty($_POST)) {
   }
 
   $id_descuento=NULL;
-  if(isset($_POST['id_descuento'])){
+  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
     $id_descuento=$_POST['id_descuento'];
   }
 

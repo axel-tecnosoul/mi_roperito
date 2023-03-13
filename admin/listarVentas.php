@@ -74,7 +74,7 @@ include_once("funciones.php");?>
                     </h5>
                   </div>
                   <div class="card-body">
-                  <div class="row">
+                    <div class="row">
                       <table class="table">
                         <tr>
                           <td class="text-right border-0 p-1">Desde: </td>
