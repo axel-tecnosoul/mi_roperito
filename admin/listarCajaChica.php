@@ -20,6 +20,16 @@ if(empty($_SESSION['user'])){
       background-color:#fff;
       border-color:#ccc;
     }
+    .ver{
+      cursor: pointer;
+    }
+    .modal-dialog{
+      overflow-y: initial !important
+    }
+    .modal-body{
+      height: 80vh;
+      overflow-y: auto;
+    }
   </style>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -52,7 +62,7 @@ if(empty($_SESSION['user'])){
                 <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
-                      <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
+                      <li><a target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
                     </ul>
                   </div>
                 </div>
@@ -161,12 +171,30 @@ if(empty($_SESSION['user'])){
                     </div>
                   </div>
 
+                  <!-- MODAL VER -->
+                  <div class="modal fade" id="modalVer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable" role="document" style="max-width: 800px;">
+                      <div class="modal-content">
+                        <!-- <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel"></h5>
+                          <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        </div> -->
+                        <div class="modal-body">Ya no podrá anular ventas ni modificar los egresos</div>
+                        <!-- <div class="modal-footer">
+                          <a href="#" id="btnConfirmCerrarCaja" class="btn btn-primary">Cerrar Caja</a>
+                          <button data-dismiss="modal" class="btn btn-light">Volver</button>
+                        </div> -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- FIN MODAL VER -->
+
                   <!-- MODAL CERRAR CAJA -->
-                  <div class="modal fade" id="modalCerrarCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal fade" id="modalCerrarCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">¿Está seguro que desea cerrar la caja?</h5>
+                          <h5 class="modal-title" id="exampleModalLabel2">¿Está seguro que desea cerrar la caja?</h5>
                           <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">Ya no podrá anular ventas ni modificar los egresos</div>
@@ -179,12 +207,12 @@ if(empty($_SESSION['user'])){
                   </div>
                   <!-- FIN MODAL CERRAR CAJA -->
 
-                  <!-- MODAL CERRAR CAJA -->
-                  <div class="modal fade" id="modalElijaAlmacen" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <!-- MODAL ELEJIR ALMACEN PARA CERRAR CAJA -->
+                  <div class="modal fade" id="modalElijaAlmacen" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Atención</h5>
+                          <h5 class="modal-title" id="exampleModalLabel3">Atención</h5>
                           <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">Por favor seleccione un almacen para cerrar la caja</div>
@@ -194,7 +222,7 @@ if(empty($_SESSION['user'])){
                       </div>
                     </div>
                   </div>
-                  <!-- FIN MODAL CERRAR CAJA -->
+                  <!-- FIN MODAL ELEJIR ALMACEN PARA CERRAR CAJA -->
 
                 </div>
               </div>
@@ -265,6 +293,54 @@ if(empty($_SESSION['user'])){
             $("#modalCerrarCaja").modal("show");
             $("#btnConfirmCerrarCaja").attr("href","cerrarCajaChica.php?id_almacen="+id_almacen)
           }
+        })
+
+        $(document).on("click",".ver",function(){
+          let id=this.dataset.id;
+          let tipo=this.dataset.tipo;
+          let url="cardVerMovimientoCajaChica.php?id="+id;
+          if(tipo=="venta"){
+            url="cardVerVenta.php?id="+id;
+          }
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: "modal=1",
+            //dataType: "json",
+            success: function (response) {
+              console.log(response);
+              let modal=$("#modalVer")
+              modal.find(".modal-body").html(response)
+              modal.modal("show")
+
+              if(tipo=="venta"){
+                $('#tableVentaProductos').DataTable({
+                  stateSave: true,
+                  responsive: true,
+                  language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+                    "infoFiltered": "(Filtrado de _MAX_ total registros)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Registros",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No hay resultados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                  }
+                });
+              }
+            }
+          });
         })
 
       });

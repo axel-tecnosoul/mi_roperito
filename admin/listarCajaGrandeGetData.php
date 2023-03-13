@@ -146,7 +146,8 @@ if($desde<=$hasta){
   //obtenemos los egresos de caja chica a caja grande
   $sql = " SELECT mc.id AS id_egreso, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' AND id_motivo=1 $where $filtroDesde $filtroHasta";
   foreach ($pdo->query($sql) as $row) {
-    $iconVer="<a href='verMovimientoCajaGrande.php?id=".$row["id_egreso"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    //$iconVer="<a href='verMovimientoCajaGrande.php?id=".$row["id_egreso"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    $iconVer="<span data-id='".$row["id_egreso"]."' data-tipo='movimiento' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span>";
     $iconEdit="";
 
     $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
@@ -192,7 +193,8 @@ if($desde<=$hasta){
   //echo $sql;
   foreach ($pdo->query($sql) as $row) {
     
-    $iconVer="<a href='verMovimientoCajaGrande.php?id=".$row["id_movimiento"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    //$iconVer="<a href='verMovimientoCajaGrande.php?id=".$row["id_movimiento"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    $iconVer="<span data-id='".$row["id_movimiento"]."' data-tipo='movimiento' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span>";
     $iconEdit="";
     $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
     if($row["id_cierre_caja"]==0){

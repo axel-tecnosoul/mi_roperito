@@ -208,7 +208,8 @@ if($desde<=$hasta){
       $aCaja[]=[
         "id_venta"=>$row["id_venta"],
         "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora"])),
-        "detalle"=>$cerrado."<a href='verVenta.php?id=".$row["id_venta"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a> ".$tipo_comprobante." ID ".$row["id_venta"]."",
+        //"detalle"=>$cerrado."<a href='verVenta.php?id=".$row["id_venta"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a> ".$tipo_comprobante." ID ".$row["id_venta"]."",
+        "detalle"=>$cerrado."<span data-id='".$row["id_venta"]."' data-tipo='venta' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span> ".$tipo_comprobante." ID ".$row["id_venta"]."",
         "forma_pago"=>$row["forma_pago"],
         "credito"=>$credito,
         "debito"=>$debito,
@@ -242,7 +243,8 @@ if($desde<=$hasta){
   //echo $sql;
   foreach ($pdo->query($sql) as $row) {
     
-    $iconVer="<a href='verMovimientoCajaChica.php?id=".$row["id_movimiento"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    //$iconVer="<a href='verMovimientoCajaChica.php?id=".$row["id_movimiento"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+    $iconVer="<span data-id='".$row["id_movimiento"]."' data-tipo='movimiento' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span>";
 
     $iconEdit="";
     $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
