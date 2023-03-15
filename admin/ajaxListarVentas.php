@@ -9,7 +9,7 @@ $columns = $_GET['columns'];
 
 //$data_columns = ["","p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];//PARA EL ORDENAMIENTO
 
-$data_columns = $fields = ['v.id','date_format(v.fecha_hora,"%d/%m/%Y %H:%i")','v.tipo_comprobante','a.almacen','fp.forma_pago','v.total_con_descuento','v.nombre_cliente','v.dni','v.direccion','v.email','v.telefono','v.total','d.descripcion','v.id_cierre_caja','v.estado'];
+$data_columns = $fields = ['v.id','date_format(v.fecha_hora,"%d/%m/%Y %H:%i")','v.tipo_comprobante','a.almacen','fp.forma_pago','v.total_con_descuento','v.modalidad_venta','v.nombre_cliente','v.dni','v.direccion','v.email','v.telefono','v.total','d.descripcion','v.id_cierre_caja','v.estado'];
 
 $from="FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id";
 
@@ -139,6 +139,7 @@ if ($st) {
         "total"=>$row['total'],
         "descuento"=>$row['descripcion'],
         "id_cierre_caja"=>$row['id_cierre_caja'],
+        "modalidad_venta"=>$row["modalidad_venta"],
         "estado"=>$row['estado']
       ];
     }
