@@ -45,6 +45,9 @@
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarTurnos.php"><i data-feather="calendar"></i><span>Turnos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
+		if ($id_perfil != 3) {?>
+			<li><a class="sidebar-header" href="listarEmpleados.php"><i data-feather="user"></i><span>Empleados</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
+		  }
 		if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarUsuarios.php"><i data-feather="user"></i><span>Usuarios</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
@@ -68,6 +71,7 @@
           }?>
           <li><a href="listarAlmacenes.php"><i class="fa fa-circle"></i>Almacenes</a></li>
           <li><a href="listarFormasPago.php"><i class="fa fa-circle"></i>Formas de Pago</a></li>
+		  <li><a href="listarTiposMotivos.php"><i class="fa fa-circle"></i>Tipos de Motivos</a></li>
           <li><a href="listarMotivosCaja.php"><i class="fa fa-circle"></i>Motivos Caja</a></li>
         </ul>
       </li><?php 
