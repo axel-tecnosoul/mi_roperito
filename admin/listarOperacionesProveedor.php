@@ -1,15 +1,13 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['proveedor']))
-{
+if(empty($_SESSION['proveedor'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -58,8 +56,8 @@ if(empty($_SESSION['proveedor']))
                 <div class="card">
                   <div class="card-header">
                     <h5>Mis Ventas
-					&nbsp;<a href="exportOperacionesProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Ventas" title="Exportar Mis Ventas"></a>
-					</h5>
+					            &nbsp;<a href="exportOperacionesProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Ventas" title="Exportar Mis Ventas"></a>
+					          </h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
@@ -104,22 +102,49 @@ if(empty($_SESSION['proveedor']))
                           foreach ($pdo->query($sql) as $row) {
                             //$row["deuda_proveedor"]=1120.50;
                             echo '<tr>';
-                            echo '<td>'. $row["id"] . '</td>';
-                            echo '<td>'. $row["almacen"] . '</td>';
-                            echo '<td>'. $row["fecha_hora"] . 'hs</td>';
-                            echo '<td>'. $row["codigo"] . '</td>';
-                            echo '<td>'. $row["categoria"] . '</td>';
-                            echo '<td>'. $row["descripcion"] . '</td>';
-                            echo '<td>'. $row["cantidad"] . '</td>';
-                            /*echo '<td>$'. number_format($row["precio"],2) . '</td>';
-                            echo '<td>$'. number_format($row["subtotal"],2) . '</td>';*/
-                            echo '<td>$'. number_format($row["deuda_proveedor"],2) . '</td>';
-                            echo '<td>'. $row["modalidad"] . '</td>';
+                            echo '<td>V# '.$row["id"].'</td>';
+                            echo '<td>'.$row["almacen"].'</td>';
+                            echo '<td>'.$row["fecha_hora"].'hs</td>';
+                            echo '<td>'.$row["codigo"].'</td>';
+                            echo '<td>'.$row["categoria"].'</td>';
+                            echo '<td>'.$row["descripcion"].'</td>';
+                            echo '<td>'.$row["cantidad"].'</td>';
+                            /*echo '<td>$'.number_format($row["precio"],2).'</td>';
+                            echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
+                            echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td>'.$row["modalidad"].'</td>';
                             if ($row["pagado"] == 1) {
                               echo '<td>Si</td>';	
                             } else {
                               echo '<td>No</td>';	
                             }
+                            echo '</tr>';
+                          }
+
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad WHERE anulado = 0 AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          //echo $sql;
+                        
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>C# '.$row["id"].'</td>';
+                            echo '<td>'.$row["almacen"].'</td>';
+                            echo '<td>'.$row["fecha_hora"].'hs</td>';
+                            echo '<td>'.$row["codigo"].'</td>';
+                            echo '<td>'.$row["categoria"].'</td>';
+                            echo '<td>'.$row["descripcion"].'</td>';
+                            echo '<td>'.$row["cantidad"].'</td>';
+                            /*echo '<td>$'.number_format($row["precio"],2).'</td>';
+                            echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
+                            //echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td> </td>';
+                            echo '<td>'.$row["modalidad"].'</td>';
+                            echo '<td>';
+                            /*if ($row["pagado"] == 1) {
+                              echo 'Si';	
+                            } else {
+                              echo 'No';	
+                            }*/
+                            echo '</td>';
                             echo '</tr>';
                           }
                           Database::disconnect();?>

@@ -1,48 +1,45 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
-    }
-	
-	require 'database.php';
+require("config.php");
+if(empty($_SESSION['user'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
 
-	$id = null;
-	if ( !empty($_GET['id'])) {
-		$id = $_REQUEST['id'];
-	}
-	
-	if ( null==$id ) {
-		header("Location: listarProveedores.php");
-	}
-	
-	$pdo = Database::connect();
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT p.id, p.dni, p.nombre, p.apellido, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y'), p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE p.id = ? ";
-	$q = $pdo->prepare($sql);
-	$q->execute(array($id));
-	$data = $q->fetch(PDO::FETCH_ASSOC);
-		
-	Database::disconnect();
-	
-?>
+require 'database.php';
+
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
+
+if ( null==$id ) {
+  header("Location: listarProveedores.php");
+}
+
+$pdo = Database::connect();
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$sql = "SELECT p.id, p.dni, p.nombre, p.apellido, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y'), p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE p.id = ? ";
+$q = $pdo->prepare($sql);
+$q->execute(array($id));
+$data = $q->fetch(PDO::FETCH_ASSOC);
+  
+Database::disconnect();?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/datatables.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/datatables.css">
   </head>
   <body class="light-only">
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
-	  <?php include('header.php');?>
+  	  <?php include('header.php');?>
 	  
       <!-- Page Header Start-->
       <div class="page-body-wrapper">
-		<?php include('menu.php');?>
+	    	<?php include('menu.php');?>
         <!-- Page Sidebar Start-->
         <!-- Right sidebar Ends-->
         <div class="page-body">
@@ -78,7 +75,7 @@
                   <div class="card-header">
                     <h5>Ver Proveedor</h5>
                   </div>
-				  <form class="form theme-form" role="form" method="post" action="#">
+				          <form class="form theme-form" role="form" method="post" action="#">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
@@ -121,8 +118,10 @@
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Compras</label>
-								<div class="col-sm-9">
+								<label class="col-sm-12 col-form-label"><b>Compras</b></label>
+              </div>
+							<div class="form-group row">
+								<div class="col-sm-12">
 									<div class="dt-ext table-responsive">
 									  <table class="display" id="dataTables-example666">
 										<thead>
@@ -137,10 +136,9 @@
 										  <th>Cantidad</th>
 										  </tr>
 										</thead>
-										<tbody>
-										  <?php 
+										<tbody><?php
 											$pdo = Database::connect();
-											$sql = " SELECT cd.`id`, c.id nro_oc, date_format(c.`fecha`,'%d/%m/%Y') fecha, m.modalidad, p.codigo, cat.categoria, p.descripcion, cd.`precio`, cd.`cantidad` FROM `compras_detalle` cd inner join compras c on c.id = cd.id_compra inner join modalidades m on m.id = c.id_modalidad inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria WHERE c.id_proveedor = ".$id;
+											$sql = " SELECT cd.id, c.id nro_oc, date_format(c.fecha,'%d/%m/%Y') fecha, m.modalidad, p.codigo, cat.categoria, p.descripcion, cd.precio, cd.cantidad FROM compras_detalle cd inner join compras c on c.id = cd.id_compra inner join modalidades m on m.id = c.id_modalidad inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria WHERE c.id_proveedor = ".$id;
 											
 											foreach ($pdo->query($sql) as $row) {
 												echo '<tr>';
@@ -154,17 +152,158 @@
 												echo '<td>'. $row[8] . '</td>';
 												echo '</tr>';
 										   }
-										   Database::disconnect();
-										  ?>
+										   Database::disconnect();?>
 										</tbody>
 									  </table>
 									</div>
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Ventas</label>
-								<div class="col-sm-9">
-								
+								<label class="col-sm-12 col-form-label"><b>Ventas</b></label>
+              </div>
+							<div class="form-group row">
+								<div class="col-sm-12">
+                  <div class="dt-ext table-responsive">
+									  <table class="display" id="dataTables-example667">
+                      <thead>
+                        <tr>
+                          <th>Venta</th>
+                          <th>Fecha</th>
+                          <th>Código</th>
+                          <th>Categoría</th>
+                          <th>Descripción</th>
+                          <th>Precio</th>
+                          <th>Cantidad</th>
+                          <th>Almacen</th>
+                          <th>Pagado</th>
+                        </tr>
+                      </thead>
+                      <tbody><?php
+                        $pdo = Database::connect();
+                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.precio,vd.cantidad,vd.pagado,a.almacen FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pr.id = ".$id;
+                        
+                        foreach ($pdo->query($sql) as $row) {
+                          echo '<tr>';
+                          echo '<td>';
+                          echo "<a href='verVenta.php?id=".$row["id"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a> ".$row["id"];
+                          echo '</td>';
+                          echo '<td>'.$row["fecha_hora"].'</td>';
+                          echo '<td>'.$row["codigo"].'</td>';
+                          echo '<td>'.$row["categoria"].'</td>';
+                          echo '<td>'.$row["descripcion"].'</td>';
+                          echo '<td>$'.number_format($row["precio"],2,',','.').'</td>';
+                          echo '<td>'.$row["cantidad"].'</td>';
+                          echo '<td>'.$row["almacen"].'</td>';
+                          echo '<td>';
+                          if($row["pagado"]==1){
+                            echo "Si";
+                          }else{
+                            echo "No";
+                          }
+                          echo '</td>';
+                          echo '</tr>';
+                        }
+                        Database::disconnect();?>
+                      </tbody>
+									  </table>
+									</div>
+								</div>
+							</div>
+              <div class="form-group row">
+								<label class="col-sm-12 col-form-label"><b>Canjes</b></label>
+              </div>
+							<div class="form-group row">
+								<div class="col-sm-12">
+                  <div class="dt-ext table-responsive">
+                    <table class="display" id="dataTables-example669">
+                      <thead>
+                        <tr>
+                          <th>Canje</th>
+                          <th>Fecha</th>
+                          <th>Código</th>
+                          <th>Categoría</th>
+                          <th>Descripción</th>
+                          <th>Precio</th>
+                          <th>Cantidad</th>
+                          <th>Almacen</th>
+                        </tr>
+                      </thead>
+                      <tbody><?php
+                        $pdo = Database::connect();
+                        $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen WHERE anulado = 0 AND p.id_proveedor = ".$id;
+                        if ($_SESSION['user']['id_perfil'] == 2) {
+                          $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
+                        }
+                        foreach ($pdo->query($sql) as $row) {
+                          echo '<tr>';
+                          echo '<td>';
+                          echo "<a href='verCanje.php?id=".$row["id"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a> ".$row["id"];
+                          echo '</td>';
+                          echo '<td>'.$row["fecha_hora"].'hs</td>';
+                          echo '<td>'. $row["codigo"] . '</td>';
+                          echo '<td>'. $row["categoria"] . '</td>';
+                          echo '<td>'. $row["descripcion"] . '</td>';
+                          echo '<td>$'. number_format($row["subtotal"],2,',','.') . '</td>';
+                          echo '<td>'. $row["cantidad"] . '</td>';
+                          echo '<td>'.$row["almacen"].'</td>';
+                          echo '</tr>';
+                        }
+                        Database::disconnect();?>
+                      </tbody>
+                    </table>
+									</div>
+								</div>
+							</div>
+              <div class="form-group row">
+								<label class="col-sm-12 col-form-label"><b>En stock</b></label>
+              </div>
+							<div class="form-group row">
+								<div class="col-sm-12">
+                  <div class="dt-ext table-responsive">
+									  <table class="display" id="dataTables-example668">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Código</th>
+                          <th>Categoría</th>
+                          <th>Descripción</th>
+                          <th>Cantidad</th>
+                          <th>Precio</th>
+                          <th>Almacen</th>
+                          <th>Modalidad</th>
+                          <th>Activo</th>
+                        </tr>
+                      </thead>
+                      <tbody><?php
+                        $pdo = Database::connect();
+                        //$sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.precio,vd.cantidad,vd.pagado FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id WHERE pr.id = ".$id;
+                        $sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 AND p.id_proveedor = ".$id;
+                        if ($_SESSION['user']['id_perfil'] == 2) {
+                          $sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
+                        }
+                        foreach ($pdo->query($sql) as $row) {
+                          echo '<tr>';
+                          echo '<td>'.$row["id"].'</td>';
+                          echo '<td>'.$row["codigo"] .'</td>';
+                          echo '<td>'.$row["categoria"] .'</td>';
+                          echo '<td>'.$row["descripcion"] .'</td>';
+                          echo '<td>'.$row["cantidad"] .'</td>';
+                          echo '<td>$'.number_format($row["precio"],2,',','.') .'</td>';
+                          echo '<td>'.$row["almacen"] .'</td>';
+                          echo '<td>'.$row["modalidad"] .'</td>';
+                          echo '<td>';
+                          if($row["activo"]==1){
+                            echo "Si";
+                          }else{
+                            echo "No";
+                          }
+                          echo '</td>';
+                          echo '</tr>';
+                        }
+                        Database::disconnect();?>
+                      </tbody>
+									  </table>
+									</div>
 								</div>
 							</div>
                         </div>
@@ -172,7 +311,7 @@
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
-						<a onclick="document.location.href='listarProveedores.php'" class="btn btn-light">Volver</a>
+						          <a href='listarProveedores.php' class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
@@ -183,7 +322,7 @@
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-		<?php include("footer.php"); ?>
+		    <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->
@@ -198,20 +337,15 @@
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-	<script src="assets/js/select2/select2.full.min.js"></script>
+	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
-	<script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+	  <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/jszip.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/buttons.colVis.min.js"></script>
@@ -239,7 +373,7 @@
 
 	<script>
 		$(document).ready(function() {
-			$('#dataTables-example666').DataTable({
+      let basicDataTable={
 				stateSave: true,
 				responsive: true,
 				language: {
@@ -261,7 +395,11 @@
             "next": "Siguiente",
             "previous": "Anterior"
 				}}
-			});
+			}
+			$('#dataTables-example666').DataTable(basicDataTable);
+      $('#dataTables-example667').DataTable(basicDataTable);
+      $('#dataTables-example668').DataTable(basicDataTable);
+      $('#dataTables-example669').DataTable(basicDataTable);
 		});
 		
 		</script>

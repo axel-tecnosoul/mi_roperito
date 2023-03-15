@@ -142,6 +142,7 @@ include_once("funciones.php");?>
                             <th>Opciones</th>
                             <th class="none">Subtotal</th>
                             <th class="none">Descuento</th>
+                            <th class="none">Modalidad venta</th>
                             <th class="none">Cliente</th>
                             <th class="none">DNI</th>
                             <th class="none">Dirección</th>
@@ -153,7 +154,7 @@ include_once("funciones.php");?>
                           <tr>
                             <th colspan="5">Total</th>
                             <th>Total</th>
-                            <th colspan="8">Opciones</th>
+                            <th colspan="9">Opciones</th>
                           </tr>
                         </tfoot>
                         <tbody><?php
@@ -367,6 +368,7 @@ include_once("funciones.php");?>
             className: 'dt-body-right text-right',
           },
           {"data": "descuento"},
+          {"data": "modalidad_venta"},
           {"data": "nombre_cliente"},
           {"data": "dni"},
           {"data": "direccion"},

@@ -28,9 +28,9 @@ if ( !empty($_POST)) {
   $telefono=($_POST['telefono']) ?: "";
   $tipo_comprobante=$_POST["tipo_comprobante"];
   
-  $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago) VALUES (now(),?,?,?,?,?,?,0,?,?,?)";
+  $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,0,?,?,?,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago']));
+  $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago'],$_POST["modalidad_venta"]));
   $idVenta = $pdo->lastInsertId();
 
   if ($modoDebug==1) {
@@ -353,6 +353,17 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Modalidad de venta</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input class="radio_animated" value="Presencial" checked required id="edo-ani" type="radio" name="modalidad_venta"><label for="edo-ani">Presencial</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input class="radio_animated" value="Online" required id="edo-ani1" type="radio" name="modalidad_venta"><label for="edo-ani1">Online</label>
+                              </label>
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Almacen</label>
                             <div class="col-sm-9">
