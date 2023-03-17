@@ -10,9 +10,9 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "INSERT INTO motivos_salidas_caja(motivo) VALUES (?)";
+  $sql = "INSERT INTO motivos_salidas_caja (motivo,id_tipo_motivo) VALUES (?,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['motivo']));
+  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"]));
   
   Database::disconnect();
   
@@ -73,6 +73,24 @@ if ( !empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Tipo de motivo</label>
+                            <div class="col-sm-9">
+                              <select name="id_tipo_motivo" id="id_tipo_motivo" class="js-example-basic-single col-sm-12" required>
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, nombre FROM tipos_motivos ORDER BY nombre";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['nombre']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Motivo egreso de caja</label>
                             <div class="col-sm-9"><input name="motivo" type="text" maxlength="99" class="form-control" value="" required="required"></div>

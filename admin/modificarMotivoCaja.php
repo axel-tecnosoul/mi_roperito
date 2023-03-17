@@ -21,9 +21,9 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "UPDATE motivos_salidas_caja set motivo = ? where id = ?";
+  $sql = "UPDATE motivos_salidas_caja set motivo = ?, id_tipo_motivo = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['motivo'],$_GET['id']));
+  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"],$_GET['id']));
   
   Database::disconnect();
   
@@ -33,7 +33,7 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT id, motivo FROM motivos_salidas_caja WHERE id = ? ";
+  $sql = "SELECT id, motivo, id_tipo_motivo FROM motivos_salidas_caja WHERE id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -94,7 +94,27 @@ if ( !empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-						
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Tipo de motivo</label>
+                            <div class="col-sm-9">
+                              <select name="id_tipo_motivo" id="id_tipo_motivo" class="js-example-basic-single col-sm-12" required>
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, nombre FROM tipos_motivos ORDER BY nombre";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  if($data["id_tipo_motivo"]==$fila['id']){
+                                    echo "selected";
+                                  }
+                                  echo ">".$fila['nombre']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Motivo egreso de caja</label>
                             <div class="col-sm-9"><input name="motivo" type="text" maxlength="99" class="form-control" value="<?php echo $data['motivo']; ?>" required="required"></div>

@@ -1,7 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -9,7 +8,7 @@ if(empty($_SESSION['user']))
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -34,7 +33,7 @@ if(empty($_SESSION['user']))
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Motivos egresos de caja</li>
+                      <li class="breadcrumb-item">Motivos movimiento de caja</li>
                     </ol>
                   </div>
                 </div>
@@ -57,7 +56,7 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Motivos egresos de caja&nbsp;<a href="nuevoMotivoCaja.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a></h5><span>
+                    <h5>Motivos movimiento de caja&nbsp;<a href="nuevoMotivoCaja.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a></h5><span>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
@@ -65,30 +64,32 @@ if(empty($_SESSION['user']))
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th>Motivo egreso de caja</th>
+                            <th>Motivo movimiento de caja</th>
+                            <th>Tipo de Motivo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, motivo FROM motivos_salidas_caja WHERE 1 ";
+                          $sql = " SELECT msc.id, msc.motivo, tm.nombre FROM motivos_salidas_caja msc LEFT JOIN tipos_motivos tm ON msc.id_tipo_motivo=tm.id WHERE 1";
                           
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
-                            echo '<td>'. $row[0] . '</td>';
-                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row["id"] . '</td>';
+                            echo '<td>'. $row["motivo"] . '</td>';
+                            echo '<td>'. $row["nombre"] . '</td>';
                             echo '<td>';
-                            if($row[0]>2){
-                              echo '<a href="modificarMotivoCaja.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            if($row["id"]>2){
+                              echo '<a href="modificarMotivoCaja.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
                               echo '&nbsp;&nbsp;';
-                              echo '<a href="#" data-toggle="modal" data-original-title="Eliminar" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>';
+                              echo '<a href="#" data-toggle="modal" data-original-title="Eliminar" data-target="#eliminarModal_'.$row["id"].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>';
                               echo '&nbsp;&nbsp;';
                             }
                             echo '</td>';
                             echo '</tr>';?>
 
-                            <div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="eliminarModal_<?php echo $row["id"];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                               <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                   <div class="modal-header">
@@ -97,7 +98,7 @@ if(empty($_SESSION['user']))
                                   </div>
                                   <div class="modal-body">¿Está seguro que desea eliminar el motivo?</div>
                                   <div class="modal-footer">
-                                    <a href="eliminarMotivoCaja.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
+                                    <a href="eliminarMotivoCaja.php?id=<?php echo $row["id"];?>" class="btn btn-primary">Eliminar</a>
                                     <button data-dismiss="modal" class="btn btn-light">Volver</button>
                                   </div>
                                 </div>
