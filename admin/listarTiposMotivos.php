@@ -57,7 +57,7 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Motivos&nbsp;<a href="nuevoTipoMotivo.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a></h5><span>
+                    <h5>Tipo de Motivo&nbsp;<a href="nuevoTipoMotivo.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a></h5><span>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
@@ -65,7 +65,7 @@ if(empty($_SESSION['user']))
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th>Motivo</th>
+                            <th>Tipo de Motivo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
@@ -117,7 +117,7 @@ if(empty($_SESSION['user']))
 			<h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
 			<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 		  </div>
-		  <div class="modal-body">¿Está seguro que desea eliminar el motivo?</div>
+		  <div class="modal-body">¿Está seguro que desea eliminar el tipo motivo?</div>
 		  <div class="modal-footer">
 			<a href="eliminarTipoMotivo.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
 			<a onclick="document.location.href='listarTiposMotivos.php'" class="btn btn-light">Volver</a>

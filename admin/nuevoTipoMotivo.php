@@ -50,7 +50,7 @@
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Nuevo Motivo</li>
+                      <li class="breadcrumb-item">Nuevo Tipo de Motivo</li>
                     </ol>
                   </div>
                 </div>
@@ -72,7 +72,7 @@
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Nuevo Motivo</h5>
+                    <h5>Nuevo Tipo de Motivo</h5>
                   </div>
 				          <form class="form theme-form" role="form" method="post" action="nuevoTipoMotivo.php">
                     <div class="card-body">
@@ -80,7 +80,7 @@
                         <div class="col">
 						
 							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Motivo</label>
+								<label class="col-sm-3 col-form-label">Tipo de Motivo</label>
 								<div class="col-sm-9"><input name="nombre" type="text" maxlength="99" class="form-control" value="" required="required"></div>
 							</div>
 
