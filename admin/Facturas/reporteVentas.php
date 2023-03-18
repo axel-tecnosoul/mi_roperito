@@ -17,8 +17,26 @@ class PDF extends FPDF
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
+
       
-      $this->Image('img/header-facturas.png',2,5,205,90); //header,moverDerecha,moverAbajo,tamañoIMG
+      /* LINEAS HORIZONTALES*/
+      $this->Line(10, 5,201,5);
+      $this->Line(98, 24,113,24);
+      $this->Line(10, 67,201,67);
+      $this->Line(10, 76,201,76);
+      $this->Line(10, 77,201,77);
+      $this->Line(10, 95,201,95);
+      $this->Line(10, 254,201,254);
+      $this->Line(10, 283,201,283);
+
+      /* LINEAS VERTICALES*/
+      $this->Line(10, 5,10,76);
+      $this->Line(98, 5,98,24);
+      $this->Line(113, 5,113,24);
+      $this->Line(201, 5,201,76);
+      $this->Line(201, 77,201,95);
+      $this->Line(10, 77,10,95);
+      /* Filas */
       $this->SetFont('Arial', 'B', 19); //tipo fuente, negrita(B-I-U-BIU), tamañoTexto
       $this->Cell(110); // Movernos a la derecha
       $this->SetTextColor(0, 0, 0); //color
@@ -28,7 +46,7 @@ class PDF extends FPDF
       $this->SetTextColor(103); //color
       
       /* TIPO COMPROBANTE*/
-      $this->Cell(90);  // mover a la derecha
+      $this->Cell(91);  // mover a la derecha
       $this->SetFont('Arial', 'B', 25);
       $this->Cell(0, -10, utf8_decode($data['tipo_comprobante']));
       $this->Ln(5);
@@ -126,10 +144,9 @@ class PDF extends FPDF
       $this->Cell(110);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
       $this->Cell(85, -20, utf8_decode("Domicilio Comercial: " . $data['direccion']), 0, 0, '', 0);
-      $this->Ln(1);
+      $this->Ln(-5);
 
       /* CAMPOS DE LA TABLA */
-      //color
       $this->SetFillColor(160, 160, 160); //colorFondo
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
@@ -164,9 +181,9 @@ class PDF extends FPDF
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(40, 10, utf8_decode("Subtotal: ". "$".$subtotal), 0, 0, '', 1);
-      $this->Cell(40, 10, utf8_decode("Total Venta: ". "$".$subtotal), 0, 0, '', 1);
-      $this->Ln(20);
+      $this->Cell(80, 8, utf8_decode("Subtotal: ". "$". "                                                  ".$subtotal), 0, 5, '', 1);
+      $this->Cell(80, 8, utf8_decode("Total Venta: ". "$". "                                             ".$subtotal), 0, 0, '', 1);
+      $this->Ln(10);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
       $this->Cell(190, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
@@ -199,7 +216,7 @@ $pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->por
 $pdf->AliasNbPages(); //muestra la pagina / y total de paginas
 
 $i = 0;
-$pdf->SetFont('Arial', '', 8);
+$pdf->SetFont('Arial', 'B', 8);
 $pdf->SetDrawColor(0, 0, 0); //colorBorde
 
 
