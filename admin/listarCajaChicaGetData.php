@@ -105,7 +105,7 @@ if($desde<=$hasta){
   }
 
   //obtenemos los movimientos registrados como ingresos a caja chica para el saldo anterior
-  $sql2 = "SELECT SUM(mc.monto) AS ingresos_externos FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Chica' AND  tipo_movimiento='Ingreso' $where $filtroHastaSaldoAnterior $filtroMotivo";
+  $sql2 = "SELECT SUM(mc.monto) AS ingresos_externos FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Chica' AND  tipo_movimiento='Ingreso' $where $filtroHastaSaldoAnterior $filtroMotivo";
   $q2 = $pdo->prepare($sql2);
   //echo $sql2;
   $q2->execute(array());
@@ -120,7 +120,7 @@ if($desde<=$hasta){
   }
 
   //obtenemos los movimientos registrados como egresos de caja chica para el saldo anterior
-  $sql3 = "SELECT SUM(mc.monto) AS egresos_caja_chica FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' $where $filtroHastaSaldoAnterior $filtroMotivo";
+  $sql3 = "SELECT SUM(mc.monto) AS egresos_caja_chica FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' $where $filtroHastaSaldoAnterior $filtroMotivo";
   $q3 = $pdo->prepare($sql3);
   //echo $sql;
   $q3->execute(array());
@@ -239,7 +239,7 @@ if($desde<=$hasta){
   }
 
   //obtenemos los movimientos de la caja chica y segun si son ingresos o egresos los mostramos en crédio o débito
-  $sql = " SELECT mc.id AS id_movimiento, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0 AND tipo_caja='Chica' $where $filtroDesde $filtroHasta $filtroMotivo";
+  $sql = " SELECT mc.id AS id_movimiento, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0 AND tipo_caja='Chica' $where $filtroDesde $filtroHasta $filtroMotivo";
   //echo $sql;
   foreach ($pdo->query($sql) as $row) {
     

@@ -14,9 +14,9 @@ if ( !empty($_POST)) {
   $fecha_hora=$_POST['fecha']." ".$_POST['hora'];
 
   //$sql = "INSERT INTO movimientos_caja_grande (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen,tipo_movimiento) VALUES (?,?,?,?,?,?,?,?)";
-  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,'Grande')";
+  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,'Grande')";
   $q = $pdo->prepare($sql);
-  $q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen"],$_POST["tipo_movimiento"]));
+  $q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen_egreso"],$_POST["id_almacen_corresponde"],$_POST["tipo_movimiento"]));
   
   Database::disconnect();
   
@@ -93,9 +93,29 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="hora" type="time" value="<?=date("H:i")?>" class="form-control" required></div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Almacen</label>
+                            <label class="col-sm-3 col-form-label">Almacen egreso de Dinero</label>
                             <div class="col-sm-9">
-                              <select name="id_almacen" id="id_almacen" class="form-control" required>
+                              <select name="id_almacen_egreso" id="id_almacen_egreso" class="form-control" required>
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, almacen FROM almacenes WHERE activo = 1";
+                                if ($_SESSION['user']['id_perfil'] != 1) {
+                                  $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
+                                }
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'>".$fila['almacen']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Almacen correspondiente</label>
+                            <div class="col-sm-9">
+                              <select name="id_almacen_corresponde" id="id_almacen_corresponde" class="form-control" required>
                                 <option value="">Seleccione...</option><?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

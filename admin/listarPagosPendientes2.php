@@ -60,7 +60,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         <!-- Page Sidebar Ends-->
         <!-- Right sidebar Start-->
         <!-- Right sidebar Ends-->
-        <div class="page-body">
+        <div class="page-body" style="background-color: rgb(255 0 0 / 50%);">
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
@@ -93,7 +93,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 <div class="card">
                   <div class="card-header">
                     <h5>Pagos Pendientes
-                      &nbsp;<a href="#"><img src="img/dolar.png" width="24" height="25" border="0" alt="Marcar Ventas Rendidas" id="pagado-masivo" title="Marcar Ventas Rendidas"></a>
+                      <!-- &nbsp;<a href="#"><img src="img/dolar.png" width="24" height="25" border="0" alt="Marcar Ventas Rendidas" id="pagado-masivo" title="Marcar Ventas Rendidas"></a> -->
                       &nbsp;<a href="exportPagosPendientes.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Pagos Pendientes" title="Exportar Pagos Pendientes"></a>
                       <!-- <div id="total_pagos_pendientes" class="mr-2 d-inline"></div> -->
                     </h5>
@@ -113,7 +113,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               $pdo = Database::connect();
                               $whereAlmacen="";
                               if ($_SESSION['user']['id_perfil'] == 2) {
-                                $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
+                                $whereAlmacen= " AND v.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
                               $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
                               echo $sql;
@@ -195,8 +195,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         </thead>
                         <tbody><?php
                           $pdo = Database::connect();
-                          //$sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
-                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
@@ -241,35 +240,31 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
 
               <!-- MODAL CERRAR CAJA -->
               <div class="modal fade" id="modalElijaCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document" style="max-width: 800px;">
+                <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <form method="post" action="">
                       <div class="modal-header">
-                        <!-- <h5 class="modal-title" id="exampleModalLabel">Seleccione de que caja egresa el dinero</h5> -->
-                        <h5 class="modal-title" id="exampleModalLabel">Complete la información con respecto al egreso del dinero</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccione de que caja egresa el dinero</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                       </div>
                       <div class="modal-body">
-                        <div class="form-group row mb-0">
-                          <div class="col-sm-3">Caja: </div>
-                          <div class="col-sm-9"><?php
-                            $checkedCajaChica="checked='checked'";
-                            if ($id_perfil == 1) {
-                              $checkedCajaChica="";?>
-                              <label class="d-block" for="edo-ani1">
-                                <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
-                              </label><?php
-                            }?>
-                            <label class="d-block" for="edo-ani">
-                              <input class="radio_animated" value="Chica" required <?=$checkedCajaChica?> id="edo-ani" type="radio" name="tipo_caja"><label for="edo-ani">Chica</label>
-                            </label>
-                          </div>
-                        </div>
-							          <div class="form-group row"><?php
-                          if ($_SESSION['user']['id_perfil'] == 1) {?>
-                            <div class="col-sm-3">Almacen: </div>
-                            <div class="col-sm-9">
-                              <select name="id_almacen" style="width: 100%;" class="js-example-basic-single" required="required">
+                        <label class="d-block" for="edo-ani">
+                          <input class="radio_animated" value="Chica" required id="edo-ani" type="radio" name="tipo_caja"><label for="edo-ani">Chica</label>
+                        </label><?php
+                        if ($id_perfil == 1) {?>
+                          <label class="d-block" for="edo-ani1">
+                            <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
+                          </label><?php
+                        }?>
+                      </div><!-- Caja -->
+
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccione el almacen</h5>
+                      </div>
+                      <div class="modal-body">
+                        <div class="col-sm-9"><?php
+                        if ($_SESSION['user']['id_perfil'] == 1) {?>
+                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="0">Seleccione</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
@@ -277,16 +272,19 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                   <option value="<?=$row["id"]?>"<?php //if($row["id"]==6) echo "selected"?>><?=$row["almacen"]?></option><?php
                                 }
                                 Database::disconnect();?>
-                              </select>
-                            </div><?php
-                          }else{?>
-                            <input type="hidden" name="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
-                          }?>
+                              </select><?php
+                            }else{?>
+                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                            }?>
                         </div>
-							          <div class="form-group row">
-                          <div class="col-sm-3">Forma de Pago: </div>
-                          <div class="col-sm-9">
-                            <select name="id_forma_pago" id="id_forma_pago" style="width: 100%;" class="js-example-basic-single" required="required">
+                      </div><!-- Almacen -->
+
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccione la Forma de Pago</h5>
+                      </div>
+                      <div class="modal-body">
+                        <div class="col-sm-9">
+                            <select name="id_forma_pago" id="id_forma_pago" class="js-example-basic-single col-sm-12" required="required">
                               <option value="">Seleccione...</option><?php
                               $pdo = Database::connect();
                               $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -300,8 +298,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               Database::disconnect();?>
                             </select>
                           </div>
-                        </div>
-                      </div>
+                      </div><!-- Forma de Pago -->
 
                       <div class="modal-footer">
                         <!-- <a href="#" class="btn btn-primary">Pagar pendientes</a> -->
@@ -373,7 +370,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         let hasta=$("#hasta").val();
         let id_proveedor=$("#id_proveedor").val();
         let id_almacen=$("#id_almacen").val();
-        window.location.href="listarPagosPendientes.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
+        window.location.href="listarPagosPendientes2.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
       }
 
       function calcular_total_seleccionado(){
@@ -387,8 +384,6 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
       }
 
       $(document).ready(function() {
-
-        //$("#modalElijaCaja").modal("show")
 
         $("#total_pagos_pendientes").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(<?=$total_deuda?>))
 
@@ -422,6 +417,26 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
 
         /* Formatting function for child row details */
         function format ( d ) {
+          //console.log(d);
+          // `d` is the original data object for the row
+          /*return '<table cellpadding="0" cellspacing="0" border="0" style="padding-left:50px;">'+
+              '<tr>'+
+                  '<td>Forma de pago:</td>'+
+                  '<td>'+d[8]+'</td>'+
+              '</tr>'+
+              '<tr>'+
+                  '<td>Almacen:</td>'+
+                  '<td>'+d[9]+'</td>'+
+              '</tr>'+
+              '<tr>'+
+                  '<td>Código:</td>'+
+                  '<td>'+d[10]+'</td>'+
+              '</tr>'+
+              '<tr>'+
+                  '<td>Categoría:</td>'+
+                  '<td>'+d[11]+'</td>'+
+              '</tr>'+
+          '</table>';*/
           return `
             <b>Forma de pago: </b>${d[8]}<br>
             <b>Almacen: </b>${d[9]}<br>

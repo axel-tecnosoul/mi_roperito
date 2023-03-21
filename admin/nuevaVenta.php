@@ -439,7 +439,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de comprobante</label>
                             <div class="col-sm-9">
-                            <select name="tipo_comprobante" id="tipo_comprobante" class="js-example-basic-single col-sm-12" required="required">
+                              <select name="tipo_comprobante" id="tipo_comprobante" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
                                 <!-- <option value="A" class="cbte_only_punto_venta" disabled>Factura A</option> -->
                                 <option value="B" class="cbte_only_punto_venta">Factura B</option>
