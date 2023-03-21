@@ -18,7 +18,19 @@ class PDF extends FPDF
       $q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
 
-      
+      /* Variables*/
+      $punto_venta = "4";
+      $cuit = "27-27032771-6";
+      $fecha_inicio_actividad = "01/09/2017";
+      $fecha_vto_pago = "05/04/2023";
+      $ingresos_brutos = "27-27032771-6";
+      $observaciones = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique vel dui sed suscipit. Vivamus interdum tempor elit, et finibus mi euismod sed. Donec varius ex eu mattis fringilla. Integer interdum arcu ut magna consectetur molestie. Nunc sit amet purus sed felis aliquet facilisis. Phasellus eu lorem sit amet tellus tincidunt sollicitudin non ut ex. Cras ut tincidunt nisi. Donec in facilisis lorem, ac sagittis ex. Vestibulum vitae pretium dui. Nulla facilisi.
+
+      Morbi luctus tortor arcu, ac dapibus sapien pharetra fermentum. Nulla hendrerit sem id metus vulputate finibus. Cras venenatis elementum felis, sit amet tristique turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non urna vitae purus convallis convallis. Etiam scelerisque a orci quis sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam malesuada, tortor ut vestibulum sodales, turpis ligula vehicula dolor, quis blandit turpis odio id massa. Sed hendrerit placerat eros sit amet pharetra. Maecenas lacinia ex id ante maximus, eu auctor magna dapibus. Aliquam luctus orci diam, ac aliquet sem aliquam eu.";
+      $obs=$observaciones;
+      if(strlen($obs)>100){
+      $obs=substr($observaciones,0,100)."[...]";
+      }
       /* LINEAS HORIZONTALES*/
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(10, 4,201,4);
@@ -38,6 +50,8 @@ class PDF extends FPDF
       $this->Line(10, 265,201,265);
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(10, 283,201,283);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      
       
 
       /* LINEAS VERTICALES*/
@@ -85,7 +99,7 @@ class PDF extends FPDF
       /* Domicilio */
       $this->Cell(1);  // mover a la derecha
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, 5, utf8_decode("Riobamba 2751 - 1653 - VILLA BALLESTER - BS.AS"), 0, 0, '', 0);
+      $this->Cell(0, 4, utf8_decode("Riobamba 2751 - 1653 - VILLA BALLESTER - BS.AS"), 0, 0, '', 0);
       $this->Ln(1);
 
       /* Correo */
@@ -126,7 +140,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(174);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -24, utf8_decode($data['numero_comprobante']), 0, 0, '', 0);
+      $this->Cell(0, -24, utf8_decode(str_pad($data['numero_comprobante'],8,"0",STR_PAD_LEFT)), 0, 0, '', 0);
       $this->Ln(2);
       
 
@@ -137,7 +151,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(132);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -28, utf8_decode("124"), 0, 0, '', 0);
+      $this->Cell(0, -28, utf8_decode(str_pad($punto_venta,4,"0",STR_PAD_LEFT)), 0, 0, '', 0);
       $this->Ln(0);
 
       /* Fecha de emisión */
@@ -157,7 +171,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(119);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -17, utf8_decode("27-27032771-6"), 0, 0, '', 0);
+      $this->Cell(0, -17, utf8_decode($cuit), 0, 0, '', 0);
       $this->Ln(5);
 
 
@@ -168,7 +182,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(134);  // mover a la derecha
       $this->SetFont('Arial', '', 8);
-      $this->Cell(85, -19, utf8_decode("27-27032771-6"), 0, 0, '', 0);
+      $this->Cell(85, -19, utf8_decode($ingresos_brutos), 0, 0, '', 0);
       $this->Ln(5);
 
       /* Fecha de Inicio de Actividades */
@@ -178,7 +192,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(153);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -20, utf8_decode("01/09/2017"), 0, 0, '', 0);
+      $this->Cell(0, -20, utf8_decode($fecha_inicio_actividad), 0, 0, '', 0);
       $this->Ln(1);
 
 
@@ -189,7 +203,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(148);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -6, utf8_decode("05/04/2023"), 0, 0, '', 0);
+      $this->Cell(0, -6, utf8_decode($fecha_vto_pago), 0, 0, '', 0);
       $this->Ln(10);
 
       /* Apellido y Nombre / Razon Social */
@@ -254,7 +268,11 @@ class PDF extends FPDF
       foreach ($pdo->query($sql2) as $row){
          
          $this->Cell(13, 7, utf8_decode($row[0]), 1, 0, 'C', 0);
-         $this->Cell(103, 7, utf8_decode($row[1]), 1, 0, 'L', 0);
+         $descripcion=$row[1];
+         if(strlen($descripcion)>77){
+            $descripcion=substr($row[1],0,77)."[...]";
+         }
+         $this->Cell(103, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
          $this->Cell(15, 7, utf8_decode($row[3]), 1, 0, 'C', 0);
          $this->Cell(24, 7, utf8_decode("$".number_format($row[2], 2,',', '.')), 1, 0, 'C', 0);
          $this->Cell(18, 7, utf8_decode("$450,00"), 1, 0, 'C', 0);
@@ -271,15 +289,21 @@ class PDF extends FPDF
       $this->SetFont('Arial', '', 8); 
       $this->Cell(0, 8, utf8_decode("  Subtotal"), 0, 5, '', 1);
       $this->Ln(-4);
-      $this->Cell(176);
+      $this->Cell(175);
       $this->Cell(0, 0, utf8_decode("$".number_format($subtotal,2, ',', '.')));
       $this->Ln(1);
       $this->Cell(110);
       $this->SetFont('Arial', 'B', 10);
       $this->Cell(0, 8, utf8_decode("  Total Venta"), 0, 0, '', 1);
       $this->Ln(0);
-      $this->Cell(173);
+      $this->Cell(172);
       $this->Cell(0, 8, utf8_decode("$".number_format($subtotal,2, ',', '.')));
+      /* Lineas Horizontales */
+      $this->Line(120, 230,200,230);
+      $this->Line(120, 243,200,243);
+      /* Lineas Verticales */
+      $this->Line(120, 230,120,243);
+      $this->Line(200, 230,200,243);
       $this->Ln(10);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
@@ -287,7 +311,7 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(30);
       $this->SetFont('Arial', '', 10);
-      $this->Cell(190, 12, utf8_decode("-"), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode($obs), 0, 0, '', 0);
       $this->Ln(20);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
