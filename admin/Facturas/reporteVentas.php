@@ -20,77 +20,113 @@ class PDF extends FPDF
 
       
       /* LINEAS HORIZONTALES*/
-      $this->Line(10, 2,201,2);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 4,201,4);
+      //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(10, 14,201,14);
-      $this->Line(98, 30,113,30);
-      $this->Line(10, 67,201,67);
-      $this->Line(10, 76,201,76);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(98, 30,114,30);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 50,201,50);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 58,201,58);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 59,201,59);
+      //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(10, 77,201,77);
-      $this->Line(10, 95,201,95);
-      $this->Line(10, 254,201,254);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 265,201,265);
+      //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(10, 283,201,283);
+      
 
       /* LINEAS VERTICALES*/
-      $this->Line(10, 2,10,76);
-      $this->Line(98, 14,98,30);
-      $this->Line(113, 14,113,30);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(106, 30,106,67);
-      $this->Line(201, 2,201,76);
-      $this->Line(201, 77,201,95);
-      $this->Line(10, 77,10,95);
+      $this->Line(10, 4,10,58);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(98, 14,98,30);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(114, 14,114,30);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(106, 30,106,50);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(201, 4,201,58);
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(201, 59,201,77);
+      
+      //$this->SetDrawColor(0, 0, 255, 0);
+      $this->Line(10, 59,10,77);
 
       /* ORIGINAL */
-      $this->Cell(80);  // mover a la derecha
-      $this->SetFont('Arial', 'B', 20);
+      $this->Cell(86);  // mover a la derecha
+      $this->SetFont('Arial', 'B', 10);
       $this->Cell(0, -2, utf8_decode("ORIGINAL"));
       $this->Ln(5);
 
       /* Filas */
       
       /* TIPO COMPROBANTE*/
-      $this->Cell(91);  // mover a la derecha
+      $this->Cell(92);  // mover a la derecha
       $this->SetFont('Arial', 'B', 25);
       $this->Cell(0, 15, utf8_decode($data['tipo_comprobante']));
       $this->Ln(5);
       /* Tipo de Factura */
-      $this->SetFont('Arial', 'B', 19); //tipo fuente, negrita(B-I-U-BIU), tamañoTexto
+      $this->SetFont('Arial', 'B', 16); //tipo fuente, negrita(B-I-U-BIU), tamañoTexto
       $this->Cell(110); // Movernos a la derecha
       //creamos una celda o fila
-      $this->Cell(110, 5, utf8_decode('FACTURA')); // AnchoCelda,AltoCelda,titulo,borde(1-0),saltoLinea(1-0),posicion(L-C-R),ColorFondo(1-0)
+      $this->Cell(110, 0, utf8_decode('FACTURA')); // AnchoCelda,AltoCelda,titulo,borde(1-0),saltoLinea(1-0),posicion(L-C-R),ColorFondo(1-0)
       $this->Ln(8); // Salto de línea
       /* NOMBRE */
       $this->Cell(1);  // mover a la derecha
-      $this->SetFont('Arial', 'B', 10);
-      $this->Cell(96, 20, utf8_decode("CINTIA ROMINA GIRBINO"), 0, 0, '', 0);
-      $this->Ln(5);
-
-      /* Direccion */
-      $this->Cell(1);  // mover a la derecha
-      $this->SetFont('Arial', '',  8);
-      $this->Cell(96, 24, utf8_decode("RioBamba 2751 - 1653 - Villa Ballester- BSAS"), 0, 0, '', 0);
-      $this->Ln(5);
-
-      /* Tel */
+      $this->SetFont('Arial', 'B', 16);
+      $this->Cell(0, -15, utf8_decode("CINTIA ROMINA GIRBINO"), 0, 0, '', 0);
+      $this->Ln(1);
+      
+      /* Domicilio */
       $this->Cell(1);  // mover a la derecha
       $this->SetFont('Arial', '', 8);
-      $this->Cell(96, 26, utf8_decode("Tel: 1140467012"), 0, 0, '', 0);
-      $this->Ln(5);
+      $this->Cell(0, 5, utf8_decode("Riobamba 2751 - 1653 - VILLA BALLESTER - BS.AS"), 0, 0, '', 0);
+      $this->Ln(1);
 
-      /* Email */
+      /* Correo */
       $this->Cell(1);  // mover a la derecha
+      $this->SetFont('Arial', 'B', 8);
+      $this->Cell(0, 10, utf8_decode("Email: "), 0, 0, '', 0);
+      $this->Ln(1);
+      $this->Cell(10);  // mover a la derecha
       $this->SetFont('Arial', '', 8);
-      $this->Cell(96, 28, utf8_decode("miroperitooficial@gmail.com"), 0, 0, '', 0);
-      $this->Ln(5);
+      $this->Cell(0, 8, utf8_decode("miroperitooficial@gmail.com"), 0, 0, '', 0);
+      $this->Ln(1);
+
+      /* TEL */
+      $this->Cell(1);  // mover a la derecha
+      $this->SetFont('Arial', 'B', 8);
+      $this->Cell(0, 13, utf8_decode("Tel: "), 0, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(7);  // mover a la derecha
+      $this->SetFont('Arial', '', 8);
+      $this->Cell(0, 13, utf8_decode("1140467012"), 0, 0, '', 0);
+      $this->Ln(1);
+      
+
+      /* Condición IVA */
+      $this->Cell(1);  // mover a la derecha
+      $this->SetFont('Arial', 'B', 8);
+      $this->Cell(0, 18, utf8_decode("Condición frente al IVA: "), 0, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(34);
+      $this->SetFont('Arial', '', 8);
+      $this->Cell(0, 18, utf8_decode("Monotributista"), 0, 0, '', 0);
+      $this->Ln(6);
 
       /* Comp Nº */
       $this->Cell(160);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(59, -26, utf8_decode("Comp Nº: "), 0, 0, '', 0);
+      $this->Cell(59, -24, utf8_decode("Comp Nº: "), 0, 0, '', 0);
       $this->Ln(0);
       $this->Cell(174);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -26, utf8_decode($data['numero_comprobante']), 0, 0, '', 0);
+      $this->Cell(0, -24, utf8_decode($data['numero_comprobante']), 0, 0, '', 0);
       $this->Ln(2);
       
 
@@ -107,28 +143,32 @@ class PDF extends FPDF
       /* Fecha de emisión */
       $this->Cell(110);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(85, -20, utf8_decode("Fecha de Emisión: "), 0, 0, '', 0);
+      $this->Cell(85, -15, utf8_decode("Fecha de Emisión: "), 0, 0, '', 0);
       $this->Ln(0);
       $this->Cell(136);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -20, utf8_decode(date('d/m/Y')), 0, 0, '', 0);
+      $this->Cell(0, -15, utf8_decode(date('d/m/Y')), 0, 0, '', 0);
       $this->Ln(5);
 
       /* CUIT */
       $this->Cell(110);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(85, -20, utf8_decode("CUIT: "), 0, 0, '', 0);
+      $this->Cell(85, -17, utf8_decode("CUIT: "), 0, 0, '', 0);
       $this->Ln(0);
       $this->Cell(119);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -20, utf8_decode("27-27032771-6"), 0, 0, '', 0);
+      $this->Cell(0, -17, utf8_decode("27-27032771-6"), 0, 0, '', 0);
       $this->Ln(5);
 
 
       /* Ingresos Brutos */
       $this->Cell(110);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(85, -20, utf8_decode("Ingresos Brutos: 27-27032771-6"), 0, 0, '', 0);
+      $this->Cell(85, -19, utf8_decode("Ingresos Brutos: "), 0, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(134);  // mover a la derecha
+      $this->SetFont('Arial', '', 8);
+      $this->Cell(85, -19, utf8_decode("27-27032771-6"), 0, 0, '', 0);
       $this->Ln(5);
 
       /* Fecha de Inicio de Actividades */
@@ -139,26 +179,17 @@ class PDF extends FPDF
       $this->Cell(153);
       $this->SetFont('Arial', '', 8);
       $this->Cell(0, -20, utf8_decode("01/09/2017"), 0, 0, '', 0);
-      $this->Ln(5);
+      $this->Ln(1);
 
-      /* Condición IVA */
-      $this->Cell(110);  // mover a la derecha
-      $this->SetFont('Arial', 'B', 8);
-      $this->Cell(85, -20, utf8_decode("Condición IVA: "), 0, 0, '', 0);
-      $this->Ln(0);
-      $this->Cell(131);
-      $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -20, utf8_decode("Monotributista"), 0, 0, '', 0);
-      $this->Ln(6);
 
       /* Fecha de Vencimiento */
       $this->Cell(110);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(85, -10, utf8_decode("Fecha de Vto. para el pago: "), 0, 0, '', 0);
+      $this->Cell(85, -6, utf8_decode("Fecha de Vto. para el pago: "), 0, 0, '', 0);
       $this->Ln(0);
       $this->Cell(148);
       $this->SetFont('Arial', '', 8);
-      $this->Cell(0, -10, utf8_decode("05/04/2023"), 0, 0, '', 0);
+      $this->Cell(0, -6, utf8_decode("05/04/2023"), 0, 0, '', 0);
       $this->Ln(10);
 
       /* Apellido y Nombre / Razon Social */
@@ -199,7 +230,7 @@ class PDF extends FPDF
       $this->Cell(139);
       $this->SetFont('Arial', '', 8);
       $this->Cell(0, -20, utf8_decode($data['direccion']), 0, 0, '', 0);
-      $this->Ln(-5);
+      $this->Ln(-3);
 
       /* CAMPOS DE LA TABLA */
       $this->SetFillColor(160, 160, 160); //colorFondo
@@ -217,39 +248,62 @@ class PDF extends FPDF
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
       $this->SetFont('Arial', '', 8);
+      $lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dui mi, semper ut dignissim ut, tincidunt mollis magna. Suspendisse felis arcu, molestie sed hendrerit quis, ultricies in lectus. Etiam ac rhoncus odio. Quisque et vehicula arcu. Sed non sollicitudin neque, et pharetra tortor.";
       $sql2 = " SELECT p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio as precio_vd, vd.subtotal FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id ";
       $subtotal = 0;
       foreach ($pdo->query($sql2) as $row){
+         
          $this->Cell(13, 7, utf8_decode($row[0]), 1, 0, 'C', 0);
-         $this->Cell(103, 7, utf8_decode($row[1]), 1, 0, 'C', 0);
+         $this->Cell(103, 7, utf8_decode($row[1]), 1, 0, 'L', 0);
          $this->Cell(15, 7, utf8_decode($row[3]), 1, 0, 'C', 0);
-         $this->Cell(24, 7, utf8_decode("$".$row[2]), 1, 0, 'C', 0);
+         $this->Cell(24, 7, utf8_decode("$".number_format($row[2], 2,',', '.')), 1, 0, 'C', 0);
          $this->Cell(18, 7, utf8_decode("$450,00"), 1, 0, 'C', 0);
-         $this->Cell(18, 7, utf8_decode("$".$row[5]), 1, 1, 'C', 0);
+         $this->Cell(18, 7, utf8_decode("$".number_format($row[5], 2,',', '.')), 1, 1, 'C', 0);
          $subtotal= $row[5] + $subtotal;
-        
+         
       }
 
-      $this->Ln(90);
+      $this->Ln(123);
       $this->Cell(110);
       $this->SetFillColor(160, 160, 160); //colorFondo
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
+      $this->SetFont('Arial', '', 8); 
+      $this->Cell(0, 8, utf8_decode("  Subtotal"), 0, 5, '', 1);
+      $this->Ln(-4);
+      $this->Cell(176);
+      $this->Cell(0, 0, utf8_decode("$".number_format($subtotal,2, ',', '.')));
+      $this->Ln(1);
+      $this->Cell(110);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(80, 8, utf8_decode("Subtotal: ". "$". "                                                  ".$subtotal), 0, 5, '', 1);
-      $this->Cell(80, 8, utf8_decode("Total Venta: ". "$". "                                             ".$subtotal), 0, 0, '', 1);
+      $this->Cell(0, 8, utf8_decode("  Total Venta"), 0, 0, '', 1);
+      $this->Ln(0);
+      $this->Cell(173);
+      $this->Cell(0, 8, utf8_decode("$".number_format($subtotal,2, ',', '.')));
       $this->Ln(10);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(190, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
+      $this->Cell(0, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(30);
+      $this->SetFont('Arial', '', 10);
+      $this->Cell(190, 12, utf8_decode("-"), 0, 0, '', 0);
       $this->Ln(20);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(190, 12, utf8_decode("CAE Nº: ".$data['cae']), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode("CAE Nº: "), 0, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(15);
+      $this->SetFont('Arial', '', 10);
+      $this->Cell(190, 12, utf8_decode($data['cae']), 0, 0, '', 0);
       $this->Ln(5);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(190, 12, utf8_decode("Fecha de Vto CAE: ".$data['fecha_vencimiento_cae']), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode("Fecha de Vto CAE: "), 0, 0, '', 0);
+      $this->Ln(0);
+      $this->Cell(34);
+      $this->SetFont('Arial', '', 10);
+      $this->Cell(190, 12, utf8_decode($data['fecha_vencimiento_cae']), 0, 0, '', 0);
    }
 
    // Pie de página
@@ -261,7 +315,7 @@ class PDF extends FPDF
 
       $this->SetY(-15); // Posición: a 1,5 cm del final
       $this->SetFont('Arial', 'I', 8); //tipo fuente, cursiva, tamañoTexto
-      $this->Cell(0, 10, utf8_decode('2023 @ Desarrollado por MISS'), 0, 0, 'C'); // pie de pagina(fecha de pagina)
+      $this->Cell(0, 10, utf8_decode('2023 @ Desarrollado por Misiones Software'), 0, 0, 'C'); // pie de pagina(fecha de pagina)
    }
 }
 
