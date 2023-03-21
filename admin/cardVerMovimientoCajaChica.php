@@ -9,7 +9,8 @@ if (empty($id) or !empty($_GET['id'])) {
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 //$sql = "SELECT ech.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,a.almacen FROM egresos_caja_chica ech INNER JOIN almacenes a ON ech.id_almacen=a.id INNER JOIN forma_pago fp ON ech.id_forma_pago=fp.id INNER JOIN usuarios u ON ech.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON ech.id_motivo=msc.id WHERE ech.id = ? ";
-$sql = "SELECT mc.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,a.almacen,fecha_hora,tipo_movimiento,mc.anulado FROM movimientos_caja mc INNER JOIN almacenes a ON mc.id_almacen=a.id INNER JOIN forma_pago fp ON mc.id_forma_pago=fp.id INNER JOIN usuarios u ON mc.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE mc.id = ? ";
+$sql = "SELECT mc.monto,fp.forma_pago,u.usuario,msc.motivo,detalle,(SELECT almacen FROM almacenes a WHERE mc.id_almacen_egreso=a.id) AS almacen_egreso,(SELECT almacen FROM almacenes a WHERE mc.id_almacen_corresponde=a.id) AS almacen_corresponde,fecha_hora,tipo_movimiento,mc.anulado FROM movimientos_caja mc INNER JOIN forma_pago fp ON mc.id_forma_pago=fp.id INNER JOIN usuarios u ON mc.id_usuario=u.id INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE mc.id = ? ";
+//echo $sql;
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
 $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -32,8 +33,12 @@ Database::disconnect();?>
           <div class="col-sm-9"><?=date("H:i",strtotime($data["fecha_hora"]))?></div>
         </div>
         <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Almacen</label>
-          <div class="col-sm-9"><?=$data["almacen"]?></div>
+          <label class="col-sm-3 col-form-label">Almacen egreso de Dinero</label>
+          <div class="col-sm-9"><?=$data["almacen_egreso"]?></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Almacen correspondiente</label>
+          <div class="col-sm-9"><?=$data["almacen_corresponde"]?></div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Forma de pago</label>
