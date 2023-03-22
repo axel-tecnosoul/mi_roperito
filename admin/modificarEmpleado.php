@@ -23,9 +23,9 @@
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "UPDATE empleados set nombre = ?, apellido = ?, dni = ?, telefono = ?, domicilio = ?, email = ?, nro_legajo = ? where id = ?";
+		$sql = "UPDATE empleados set nombre = ?, apellido = ?, dni = ?, telefono = ?, domicilio = ?, email = ?, nro_legajo = ?, activo = ? where id = ?";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['nombre'],$_POST['apellido'],$_POST['dni'],$_POST['telefono'],$_POST['domicilio'],$_POST['email'],$_POST['nro_legajo'],$_GET['id']));
+		$q->execute(array($_POST['nombre'],$_POST['apellido'],$_POST['dni'],$_POST['telefono'],$_POST['domicilio'],$_POST['email'],$_POST['nro_legajo'],$_POST['activo'],$_GET['id']));
 		
 		Database::disconnect();
 		
@@ -35,7 +35,7 @@
 		
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT id, nombre, apellido, dni, telefono, domicilio, email, nro_legajo FROM empleados WHERE id = ? ";
+		$sql = "SELECT id, nombre, apellido, dni, telefono, domicilio, email, nro_legajo, activo FROM empleados WHERE id = ? ";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -126,6 +126,16 @@
               <div class="form-group row">
 								<label class="col-sm-3 col-form-label">Nº de Legajo</label>
 								<div class="col-sm-9"><input name="nro_legajo" type="text" maxlength="99" class="form-control" value="<?php echo $data['nro_legajo']; ?>" required="required"></div>
+							</div>
+              <div class="form-group row">
+								<label class="col-sm-3 col-form-label">Activo</label>
+								<div class="col-sm-9">
+								<select name="activo" id="activo" class="js-example-basic-single col-sm-12" required="required">
+								<option value="">Seleccione...</option>
+								<option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
+								<option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
+								</select>
+								</div>
 							</div>
               
                         </div>

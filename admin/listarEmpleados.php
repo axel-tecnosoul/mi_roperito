@@ -72,6 +72,7 @@ if(empty($_SESSION['user']))
                             <th>Domicilio</th>
                             <th>Mail</th>
                             <th>Nº de Legajo</th>
+                            <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
@@ -79,7 +80,7 @@ if(empty($_SESSION['user']))
                           <?php 
 							include 'database.php';
 							$pdo = Database::connect();
-							$sql = " SELECT id, nombre, apellido, dni, telefono, domicilio, email, nro_legajo FROM empleados WHERE 1 ";
+							$sql = " SELECT id, nombre, apellido, dni, telefono, domicilio, email, nro_legajo, activo FROM empleados WHERE 1 ";
 							
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
@@ -91,6 +92,11 @@ if(empty($_SESSION['user']))
 								echo '<td>'. $row[5] . '</td>';
 								echo '<td>'. $row[6] . '</td>';
 								echo '<td>'. $row[7] . '</td>';
+                if($row[8] == '1'){
+                  echo '<td>SI</td>';
+                }else{
+                  echo '<td>NO</td>';
+                }
 								echo '<td>';
 									echo '<a href="modificarEmpleado.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
 									echo '&nbsp;&nbsp;';
