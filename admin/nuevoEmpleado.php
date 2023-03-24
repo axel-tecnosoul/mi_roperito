@@ -14,7 +14,7 @@
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "INSERT INTO empleados(nombre, apellido, dni, telefono, domicilio, email, nro_legajo) VALUES (?,?,?,?,?,?,?)";
+		$sql = "INSERT INTO empleados(nombre, apellido, dni, telefono, domicilio, email, nro_legajo, activo) VALUES (?,?,?,?,?,?,?,1)";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($_POST['nombre'], $_POST['apellido'], $_POST['dni'], $_POST['telefono'], $_POST['domicilio'], $_POST['email'], $_POST['nro_legajo']));
 		
