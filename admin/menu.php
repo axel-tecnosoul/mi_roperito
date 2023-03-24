@@ -28,7 +28,8 @@
 		  <li><a class="sidebar-header" href="listarDescuentos.php"><i data-feather="flag"></i><span>Descuentos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
-		  <li><a class="sidebar-header" href="listarPagosPendientes.php"><i data-feather="maximize"></i><span>Pagos Pendientes</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
+		  <li><a class="sidebar-header" href="listarPagosPendientes.php"><i data-feather="maximize"></i><span>Pagos Pendientes</span><i class="fa fa-angle-right pull-right"></i></a></li>
+      <li><a class="sidebar-header" href="listarPagosRealizados.php"><i data-feather="check-square"></i><span>Pagos Realizados</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarCanjes.php"><i data-feather="alert-circle"></i><span>Canjes Crédito</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 

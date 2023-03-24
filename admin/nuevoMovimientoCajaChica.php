@@ -12,13 +12,17 @@ if ( !empty($_POST)) {
   
   $id_usuario=$_SESSION['user']["id"];
   $fecha_hora=$_POST['fecha']." ".$_POST['hora'];
+  $id_empleado=null;
+  if(isset($_POST["id_empleado"]) and $_POST["id_empleado"]>0){
+    $id_empleado=$_POST["id_empleado"];
+  }
 
   //$sql = "INSERT INTO egresos_caja_chica (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen) VALUES (?,?,?,?,?,?,?)";
-  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,'Chica')";
+  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,'Chica')";
   
   $q = $pdo->prepare($sql);
   //$q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen"]));
-  $q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen_egreso"],$_POST["id_almacen_corresponde"],$_POST["tipo_movimiento"]));
+  $q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$id_empleado,$_POST['detalle'],$_POST["id_almacen_egreso"],$_POST["id_almacen_corresponde"],$_POST["tipo_movimiento"]));
   
   Database::disconnect();
   
@@ -29,17 +33,26 @@ if ( !empty($_POST)) {
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+	  <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+    <style>
+      .select2-container{
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .select2-container--default .select2-results__option[aria-disabled=true] {
+        display: none;
+      }
+    </style>
   </head>
   <body class="light-only">
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
-	  <?php include('header.php');?>
+	    <?php include('header.php');?>
 	  
       <!-- Page Header Start-->
       <div class="page-body-wrapper">
-		<?php include('menu.php');?>
+		    <?php include('menu.php');?>
         <!-- Page Sidebar Start-->
         <!-- Right sidebar Ends-->
         <div class="page-body">
@@ -164,14 +177,42 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="monto" type="number" maxlength="99" class="form-control" required></div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Motivo</label>
+                            <label class="col-sm-3 col-form-label">Tipo de Motivo</label>
                             <div class="col-sm-9">
-                              <select name="id_motivo" id="id_motivo" class="form-control" required>
+                              <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control js-example-basic-single" required>
                                 <option value="0">- Seleccione -</option><?php
                                 $pdo = Database::connect();
-                                $sql = " SELECT id, motivo FROM motivos_salidas_caja WHERE id!=2";
+                                $sql = " SELECT id, nombre FROM tipos_motivos";
                                 foreach ($pdo->query($sql) as $row) {?>
-                                  <option value="<?=$row["id"]?>"><?=$row["motivo"]?></option><?php
+                                  <option value="<?=$row["id"]?>"><?=$row["nombre"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Motivo</label>
+                            <div class="col-sm-9">
+                              <select name="id_motivo" id="id_motivo" class="form-control js-example-basic-single" required>
+                                <option value="0">- Seleccione -</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, motivo, id_tipo_motivo FROM motivos_salidas_caja WHERE id!=2";
+                                foreach ($pdo->query($sql) as $row) {?>
+                                  <option value="<?=$row["id"]?>" data-id-tipo-motivo="<?=$row["id_tipo_motivo"]?>"><?=$row["motivo"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
+                          <div id="row_select_empleados" class="form-group row">
+                            <label class="col-sm-3 col-form-label">Empleado</label>
+                            <div class="col-sm-9">
+                              <select name="id_empleado" id="id_empleado" class="form-control js-example-basic-single" required>
+                                <option value="0">- Seleccione -</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS empleado FROM empleados WHERE 1";
+                                foreach ($pdo->query($sql) as $row) {?>
+                                  <option value="<?=$row["id"]?>"><?=$row["empleado"]?></option><?php
                                 }
                                 Database::disconnect();?>
                               </select>
@@ -223,6 +264,7 @@ if ( !empty($_POST)) {
     <script src="assets/js/select2/select2-custom.js"></script>
     <script>
       $(document).ready(function () {
+
         $("input[name='tipo_movimiento']").on("change",function(){
           let selectMotivo=$("#id_motivo");
           selectMotivo.val(0);
@@ -231,6 +273,28 @@ if ( !empty($_POST)) {
             optionSalidaCajaGrande.attr("disabled",true);
           }else{
             optionSalidaCajaGrande.attr("disabled",false);
+          }
+          selectMotivo.select2()
+        })
+
+        $("#id_tipo_motivo").on("change",function(){
+          let id_tipo_motivo=this.value;
+          let selectMotivo=$("#id_motivo")
+          selectMotivo.find("option").each(function(){
+            let disabled=true;
+            if(id_tipo_motivo==this.dataset.idTipoMotivo){
+              disabled=false;
+            }
+            this.disabled=disabled;
+          })
+          selectMotivo.select2()
+
+          let row_select_empleados=$("#row_select_empleados");
+          row_select_empleados.find("#id_empleado").val(0).trigger("change")
+          if(id_tipo_motivo==12){//12 -> Sueldos
+            row_select_empleados.removeClass("d-none")
+          }else{
+            row_select_empleados.addClass("d-none")
           }
         })
       });

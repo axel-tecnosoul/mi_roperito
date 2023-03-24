@@ -101,7 +101,7 @@ Database::disconnect();?>
                 </thead>
                 <tbody><?php
                   $pdo = Database::connect();
-                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada = 0 and vd.id_venta = ".$data['id'];
+                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE vd.id_venta = ".$data['id'];
                   //var_dump($sql);
                   
                   foreach ($pdo->query($sql) as $row) {

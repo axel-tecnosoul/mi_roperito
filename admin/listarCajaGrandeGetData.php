@@ -101,7 +101,7 @@ if($desde<=$hasta){
   //if($filtroMotivo==""){
     if($mostrarPagoProveedores==1){
       //obtenemos los pagos a proveedores que se hicieron desde esta caja para el saldo anterior
-      $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Grande' $wherePagoProv $filtroHastaSaldoAnteriorPagoProv";
+      $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN almacenes a ON vd.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Grande' $wherePagoProv $filtroHastaSaldoAnteriorPagoProv";
       $q4 = $pdo->prepare($sql4);
       //echo $sql4."<br>";
       $q4->execute(array());
@@ -171,7 +171,7 @@ if($desde<=$hasta){
   //if($filtroMotivo==""){
     if($mostrarPagoProveedores==1){
       //obtenemos las pagos a proveedoras
-      $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Grande' $wherePagoProv $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor";
+      $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id WHERE pagado=1 AND caja_egreso='Grande' $wherePagoProv $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor";
       //echo $sql."<br>";
       foreach ($pdo->query($sql) as $row) {
         $aCaja[]=[
