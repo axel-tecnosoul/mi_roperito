@@ -40,10 +40,10 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
     <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css">
     <style>
-       .select2-container{
+      .select2-container{
         border: 1px solid #ccc;
         border-radius: 5px;
-       }
+      }
     </style>
   </head>
   <body class="light-only">

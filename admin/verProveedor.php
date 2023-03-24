@@ -176,11 +176,16 @@ Database::disconnect();?>
                           <th>Cantidad</th>
                           <th>Almacen</th>
                           <th>Pagado</th>
+                          <th>Deuda</th>
+                          <th>Fecha de pago</th>
+                          <th>Caja egreso de dinero</th>
+                          <th>Almacen egreso de dinero</th>
+                          <th>Forma de pago</th>
                         </tr>
                       </thead>
                       <tbody><?php
                         $pdo = Database::connect();
-                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id WHERE pr.id = ".$id;
+                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,forma_pago,deuda_proveedor FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id LEFT JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pr.id = ".$id;
                         
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
@@ -201,6 +206,11 @@ Database::disconnect();?>
                             echo "No";
                           }
                           echo '</td>';
+                          echo '<td>$'.number_format($row["deuda_proveedor"],2,',','.').'</td>';
+                          echo '<td>'.$row["fecha_hora_pago"].'hs</td>';
+                          echo '<td>'.$row["caja_egreso"].'</td>';
+                          echo '<td>'.$row["almacen_egreso_dinero"].'</td>';
+                          echo '<td>'.$row["forma_pago"].'</td>';
                           echo '</tr>';
                         }
                         Database::disconnect();?>

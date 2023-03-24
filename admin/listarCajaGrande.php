@@ -27,7 +27,7 @@ if(empty($_SESSION['user'])){
       overflow-y: initial !important
     }
     .modal-body{
-      height: 80vh;
+      max-height: 80vh;
       overflow-y: auto;
     }
   </style>
