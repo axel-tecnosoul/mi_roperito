@@ -13,7 +13,7 @@ if(isset($_GET["d"]) and $_GET["d"]!=""){
   $filtroDesde=" AND DATE(v.fecha_hora)>='".$desde."'";
 }
 //$hasta=date("Y-m-d");
-$hasta=date("Y-m-t",strtotime(date("Y-m-d")." -1 month"));
+$hasta=date("Y-m-t",strtotime(date("Y-m-01")." -1 month"));
 $filtroHasta="";
 if(isset($_GET["h"]) and $_GET["h"]!=""){
   $hasta=$_GET["h"];
@@ -93,7 +93,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 <div class="card">
                   <div class="card-header">
                     <h5>Pagos Pendientes
-                      &nbsp;<a href="#"><img src="img/dolar.png" width="24" height="25" border="0" alt="Marcar Ventas Rendidas" id="pagado-masivo" title="Marcar Ventas Rendidas"></a>
+                      &nbsp;<a href="#" id="marcarVentasRendidas" class="disabled"><img src="img/dolar.png" width="24" height="25" border="0" alt="Marcar Ventas Rendidas" id="pagado-masivo" title="Marcar Ventas Rendidas"></a>
                       &nbsp;<a href="exportPagosPendientes.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Pagos Pendientes" title="Exportar Pagos Pendientes"></a>
                       <!-- <div id="total_pagos_pendientes" class="mr-2 d-inline"></div> -->
                     </h5>
@@ -115,14 +115,14 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
-                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
+                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor,pr.id_almacen FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
                               echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
                                   $selected="selected";
                                 }?>
-                                <option value="<?=$row["id"]?>" <?=$selected?>><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
+                                <option value="<?=$row["id"]?>" <?=$selected?> data-id-almacen="<?=$row["id_almacen"]?>"><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
@@ -237,40 +237,47 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                     </div>
                   </div>
                 </div>
-              </div>
+              </div><?php
+              $inicio_sesion_admin=0;
+              $style_modal="";
+              if ($_SESSION['user']['id_perfil'] == 1) {
+                $inicio_sesion_admin=1;
+                $style_modal="max-width: 800px;";
+              }?>
 
               <!-- MODAL CERRAR CAJA -->
               <div class="modal fade" id="modalElijaCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document" style="max-width: 800px;">
+                <div class="modal-dialog" role="document" style="<?=$style_modal?>">
                   <div class="modal-content">
                     <form method="post" action="">
                       <div class="modal-header">
                         <!-- <h5 class="modal-title" id="exampleModalLabel">Seleccione de que caja egresa el dinero</h5> -->
-                        <h5 class="modal-title" id="exampleModalLabel">Complete la información con respecto al egreso del dinero</h5>
+                        <h5 class="modal-title" id="exampleModalLabel"><?php
+                        if ($inicio_sesion_admin == 1) {
+                          echo "Complete la información con respecto al egreso del dinero";
+                        }else{
+                          echo "Confirmación";
+                        }?></h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                       </div>
-                      <div class="modal-body">
-                        <div class="form-group row mb-0">
-                          <div class="col-sm-3">Caja: </div>
-                          <div class="col-sm-9"><?php
-                            $checkedCajaChica="checked='checked'";
-                            if ($id_perfil == 1) {
-                              $checkedCajaChica="";?>
+                      <div class="modal-body"><?php
+                        if ($inicio_sesion_admin == 1) {?>
+                          <div class="form-group row mb-0">
+                            <div class="col-sm-3">Caja: </div>
+                            <div class="col-sm-9">
                               <label class="d-block" for="edo-ani1">
                                 <input class="radio_animated" value="Grande" required id="edo-ani1" type="radio" name="tipo_caja"><label for="edo-ani1">Grande</label>
-                              </label><?php
-                            }?>
-                            <label class="d-block" for="edo-ani">
-                              <input class="radio_animated" value="Chica" required <?=$checkedCajaChica?> id="edo-ani" type="radio" name="tipo_caja"><label for="edo-ani">Chica</label>
-                            </label>
+                              </label>
+                              <label class="d-block" for="edo-ani">
+                                <input class="radio_animated" value="Chica" required id="edo-ani" type="radio" name="tipo_caja"><label for="edo-ani">Chica</label>
+                              </label>
+                            </div>
                           </div>
-                        </div>
-							          <div class="form-group row"><?php
-                          if ($_SESSION['user']['id_perfil'] == 1) {?>
+                          <div class="form-group row">
                             <div class="col-sm-3">Almacen: </div>
                             <div class="col-sm-9">
                               <select name="id_almacen" style="width: 100%;" class="js-example-basic-single" required="required">
-                                <option value="0">Seleccione</option><?php
+                                <option value="">Seleccione</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
                                 foreach ($pdo->query($sql) as $row) {?>
@@ -278,29 +285,34 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 }
                                 Database::disconnect();?>
                               </select>
-                            </div><?php
-                          }else{?>
-                            <input type="hidden" name="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
-                          }?>
-                        </div>
-							          <div class="form-group row">
-                          <div class="col-sm-3">Forma de Pago: </div>
-                          <div class="col-sm-9">
-                            <select name="id_forma_pago" id="id_forma_pago" style="width: 100%;" class="js-example-basic-single" required="required">
-                              <option value="">Seleccione...</option><?php
-                              $pdo = Database::connect();
-                              $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                              $sqlZon = "SELECT `id`, `forma_pago` FROM `forma_pago` WHERE 1";
-                              $q = $pdo->prepare($sqlZon);
-                              $q->execute();
-                              while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<option value='".$fila['id']."'";
-                                echo ">".$fila['forma_pago']."</option>";
-                              }
-                              Database::disconnect();?>
-                            </select>
+                            </div>
                           </div>
-                        </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Forma de Pago: </div>
+                            <div class="col-sm-9">
+                              <select name="id_forma_pago" id="id_forma_pago" style="width: 100%;" class="js-example-basic-single" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT `id`, `forma_pago` FROM `forma_pago` WHERE 1";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['forma_pago']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div><?php
+                        }else{?>
+                          ¿Está seguro que desea pagar los pendientes?
+                          <input type="hidden" name="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>">
+                          <!-- id_forma_pago = ! -> Efectivo -->
+                          <input type="hidden" name="id_forma_pago" value="1">
+                          <!-- tipo_caja = ! -> Chica -->
+                          <input type="hidden" name="tipo_caja" value="Chica"><?php
+                        }?>
                       </div>
 
                       <div class="modal-footer">
@@ -521,7 +533,29 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
           }
 
         });
+
+        checkProveedor();
+        /*$("#id_proveedor").on("change",function(){
+          checkProveedor();
+        })*/
+
+        let id_proveedor=$("#id_proveedor");
+        if(id_proveedor.val()>0){
+          //checkProveedor();
+          console.log(id_proveedor.val());
+          id_almacen=id_proveedor.find("option[value='"+id_proveedor.val()+"']").data("idAlmacen");
+          $("#modalElijaCaja").find("select[name='id_almacen']").val(id_almacen).trigger("change")
+        }
+
       });
+
+      function checkProveedor(){
+        if ($("#id_proveedor").val()==0) {
+          $("#marcarVentasRendidas").addClass("disabled")
+        }else{
+          $("#marcarVentasRendidas").removeClass("disabled")
+        }
+      }
       
       $('.customer-selector').on('click', function () {
         $('.toggle-checkboxes').prop('checked', false);
@@ -529,17 +563,22 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
 
       $('#pagado-masivo').on('click', function (e) {
         e.preventDefault();
-        if ($('.customer-selector:checked').length < 1) {
-          alert("Debe seleccionar una operación como mínimo");
+
+        if ($("#id_proveedor").val()==0) {
+          alert("Debe seleccionar un proveedor para continuar");
         } else {
-          var arr = [];
-          $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
+          if ($('.customer-selector:checked').length < 1) {
+            alert("Debe seleccionar una operación como mínimo");
+          } else {
+            var arr = [];
+            $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
 
-          let modal=$("#modalElijaCaja")
-          modal.modal("show")
-          modal.find("form").attr("action","marcarVentasPagadas.php?id=" + arr.join(","))
+            let modal=$("#modalElijaCaja")
+            modal.modal("show")
+            modal.find("form").attr("action","marcarVentasPagadas.php?id=" + arr.join(","))
 
-          //window.location.href= window.location.href.replace("listarPagosPendientes.php", "marcarVentasPagadas.php?id=" + arr.join(",") );
+            //window.location.href= window.location.href.replace("listarPagosPendientes.php", "marcarVentasPagadas.php?id=" + arr.join(",") );
+          } 
         }
       });
 

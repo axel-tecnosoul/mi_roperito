@@ -24,8 +24,10 @@ foreach ($array as $value)	{
   $q = $pdo->prepare($sql);
   $q->execute(array($_POST["tipo_caja"], $_POST["id_forma_pago"], $_POST["id_almacen"],$value));
   /*$q->debugDumpParams();
-  echo "<br><br>Afe: ".$q->rowCount();*/
+  echo "<br><br>Afe: ".$q->rowCount()."<br><br>";*/
 }
+
+//die();
   
 Database::disconnect();
   

@@ -12,9 +12,9 @@ if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
   $filtroDesde=" AND DATE(vd.fecha_hora_pago)>='".$desde."'";
 }
-//$hasta=date("Y-m-d");
-$hasta=date("Y-m-t",strtotime(date("Y-m-d")." -1 month"));
-$filtroHasta="";
+$hasta=date("Y-m-d");
+//$hasta=date("Y-m-t",strtotime(date("Y-m-d")." -1 month"));
+//$filtroHasta="";
 if(isset($_GET["h"]) and $_GET["h"]!=""){
   $hasta=$_GET["h"];
 }

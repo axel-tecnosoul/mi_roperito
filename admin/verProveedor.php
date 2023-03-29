@@ -107,6 +107,10 @@ Database::disconnect();?>
 								<label class="col-sm-3 col-form-label">Modalidad</label>
 								<div class="col-sm-9"><input name="modalidad" type="text" maxlength="99" class="form-control" value="<?php echo $data['modalidad']; ?>" readonly="readonly"></div>
 							</div>
+              <div class="form-group row">
+								<label class="col-sm-3 col-form-label">Credito</label>
+								<div class="col-sm-9"><input name="credito" type="text" maxlength="99" class="form-control" value="<?php echo $data['credito']; ?>" readonly="readonly"></div>
+							</div>
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
 								<div class="col-sm-9">
@@ -170,23 +174,26 @@ Database::disconnect();?>
                           <th>Venta</th>
                           <th>Fecha</th>
                           <th>Código</th>
-                          <th>Categoría</th>
                           <th>Descripción</th>
                           <th>Precio</th>
-                          <th>Cantidad</th>
                           <th>Almacen</th>
                           <th>Pagado</th>
                           <th>Deuda</th>
+                          <th>Forma de Venta</th>
+                          <th>Modalidad</th>
                           <th>Fecha de pago</th>
                           <th>Caja egreso de dinero</th>
                           <th>Almacen egreso de dinero</th>
-                          <th>Forma de pago</th>
+                          <th>Forma de pago a Proveedora</th>
+                          <th>Cantidad</th>
+                          <th>Categoría</th>
                         </tr>
                       </thead>
                       <tbody><?php
+                      
                         $pdo = Database::connect();
-                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,forma_pago,deuda_proveedor FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id LEFT JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pr.id = ".$id;
-                        
+                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id WHERE pr.id = ".$id;
+                        //echo $sql;
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
                           echo '<td>';
@@ -194,10 +201,8 @@ Database::disconnect();?>
                           echo '</td>';
                           echo '<td>'.$row["fecha_hora"].'</td>';
                           echo '<td>'.$row["codigo"].'</td>';
-                          echo '<td>'.$row["categoria"].'</td>';
                           echo '<td>'.$row["descripcion"].'</td>';
                           echo '<td>$'.number_format($row["subtotal"],2,',','.').'</td>';
-                          echo '<td>'.$row["cantidad"].'</td>';
                           echo '<td>'.$row["almacen"].'</td>';
                           echo '<td>';
                           if($row["pagado"]==1){
@@ -207,10 +212,19 @@ Database::disconnect();?>
                           }
                           echo '</td>';
                           echo '<td>$'.number_format($row["deuda_proveedor"],2,',','.').'</td>';
+                          echo '<td>'.$row["forma_pago_venta"].'</td>';
+                          echo '<td>';
+                          if($_SESSION["user"]["id_perfil"]==1){
+                            echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                          }
+                          echo $row["modalidad"];
+                          echo '</td>';
                           echo '<td>'.$row["fecha_hora_pago"].'hs</td>';
                           echo '<td>'.$row["caja_egreso"].'</td>';
                           echo '<td>'.$row["almacen_egreso_dinero"].'</td>';
-                          echo '<td>'.$row["forma_pago"].'</td>';
+                          echo '<td>'.$row["forma_pago_proveedor"].'</td>';
+                          echo '<td>'.$row["cantidad"].'</td>';
+                          echo '<td>'.$row["categoria"].'</td>';
                           echo '</tr>';
                         }
                         Database::disconnect();?>
