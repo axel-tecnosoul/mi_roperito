@@ -106,7 +106,7 @@ if(empty($_SESSION['user'])){
                               $pdo = Database::connect();
                               $sql = " SELECT id, motivo FROM motivos_salidas_caja";
                               foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["motivo"]?></option><?php
+                                <option value="<?=$row["id"]?>"><?=$row["motivo"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>

@@ -8,6 +8,7 @@ if(empty($_SESSION['user'])){
   die("Redirecting to index.php"); 
 }
 require 'database.php';
+require 'funciones.php';
 
 if ( !empty($_POST)) {
   // insert data
@@ -87,13 +88,6 @@ if ( !empty($_POST)) {
     }*/
     $subtotal = $cantidad * $precio;
     //var_dump($subtotal);
-
-    $fp = 1;
-    //si el pago no es en efectivo se le hace un descuento a la proveedora
-    if ($_POST['id_forma_pago'] != 1) {
-      //$fp = 0.85;
-      $fp = 0.80;
-    }
   
     if ($minimo_compra!="" and $total>$minimo_compra and $minimo_cantidad_prendas!="" and $cantPrendas>=$minimo_cantidad_prendas) {
       //$totalConDescuento = $totalConDescuento - $monto_fijo;
@@ -105,25 +99,17 @@ if ( !empty($_POST)) {
     //var_dump($totalConDescuento);
     //$deuda_proveedor=0;
 
-    $pagado = 0;
-    //$credito = 0;
-    $porcentaje_modalidad = 0;
-    if ($modalidad == 1) {//COMPRA DIRECTA
-      $pagado = 1;
-    } else if ($modalidad == 40) {//CONSIGNACION POR PORCENTAJE
-      $pagado = 0;
-      $porcentaje_modalidad = 0.4;
-    } else if ($modalidad == 50) {//CONSIGNACION POR CREDITO
-      $pagado = 1;
-      $porcentaje_modalidad = 0.5;
+    $deuda_proveedor=calcularDeudaProveedor($_POST['id_forma_pago'],$modalidad,$subtotal);
 
-      $credito = $subtotal*$porcentaje_modalidad*$fp;
-      $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($credito,$idProveedor));
+    $pagado = 0;
+    if($modalidad==1 or $modalidad==50){
+      $pagado = 1;
+      if($modalidad==50){
+        $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute(array($deuda_proveedor,$idProveedor));
+      }
     }
-    
-    $deuda_proveedor = $subtotal*$porcentaje_modalidad*$fp;
     
     $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);

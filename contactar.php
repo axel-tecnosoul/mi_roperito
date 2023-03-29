@@ -58,8 +58,14 @@
 	$mail = new PHPMailer();
 	$mail->IsSMTP();
 	$mail->SMTPAuth = true;
-	$mail->Port = 465; 
-	$mail->SMTPSecure = 'ssl';
+	/*$mail->Port = 465; 
+	$mail->SMTPSecure = 'ssl';*/
+
+  if($smtpSecure!=""){
+    $mail->SMTPSecure = $smtpSecure;
+  }
+  $mail->Port = $smtpPort;
+  
 	$mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
 	$mail->Host = $smtpHost; 
