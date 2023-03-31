@@ -97,7 +97,7 @@ class PDF extends FPDF{
          $this->Cell(-63 + $x2);  // mover a la derecha
          $this->SetFont('Arial', 'B', 12);
          //$this->Cell(0, -15, utf8_decode("CINTIA ROMINA GIRBINO"), 0, 0, '', 0);
-         $this->Image('img/logoMauryGris.png',0 + $x,13,32);
+         $this->Image('img/logoMaury2.png',0 + $x,13,36);
          $this->Ln(6);
          
          /* Domicilio */
