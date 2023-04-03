@@ -27,10 +27,11 @@ class PDF extends FPDF{
 
          /* Variables*/
          $punto_venta = "4";
-         $cuit = "27-27032771-6";
-         $fecha_inicio_actividad = "01/09/2017";
+         $nombre = "MATTJE MAURICIO SEBASTIAN";
+         $cuit = "20-34149121-6";
+         $fecha_inicio_actividad = "13/03/2023";
          $fecha_vto_pago = "05/04/2023";
-         $ingresos_brutos = "27-27032771-6";
+         $ingresos_brutos = "20-34149121-6";
          $observaciones = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique vel dui sed suscipit. Vivamus interdum tempor elit, et finibus mi euismod sed. Donec varius ex eu mattis fringilla. Integer interdum arcu ut magna consectetur molestie. Nunc sit amet purus sed felis aliquet facilisis. Phasellus eu lorem sit amet tellus tincidunt sollicitudin non ut ex. Cras ut tincidunt nisi. Donec in facilisis lorem, ac sagittis ex. Vestibulum vitae pretium dui. Nulla facilisi.
 
          Morbi luctus tortor arcu, ac dapibus sapien pharetra fermentum. Nulla hendrerit sem id metus vulputate finibus. Cras venenatis elementum felis, sit amet tristique turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non urna vitae purus convallis convallis. Etiam scelerisque a orci quis sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam malesuada, tortor ut vestibulum sodales, turpis ligula vehicula dolor, quis blandit turpis odio id massa. Sed hendrerit placerat eros sit amet pharetra. Maecenas lacinia ex id ante maximus, eu auctor magna dapibus. Aliquam luctus orci diam, ac aliquet sem aliquam eu.";
