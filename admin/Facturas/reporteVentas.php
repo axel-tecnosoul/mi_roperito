@@ -1,7 +1,7 @@
 <?php
-
-
 require('../vendor/fpdf/fpdf.php');
+
+$id = $_GET['id'];
 
 class PDF extends FPDF
 {
@@ -9,18 +9,19 @@ class PDF extends FPDF
    // Cabecera de página
    function Header()
    {
-      $id = 5;
+      global $id;
       include '../database.php';
       $pdo = Database::connect();
 	   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT v.id, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio as precio_vd, vd.subtotal FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = ?";
+      $sql = "SELECT v.id, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio, vd.id_forma_pago as precio_vd, vd.subtotal, fp.forma_pago, vd.fecha_hora_pago,d.porcentaje, dxf.id_forma_pago FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN forma_pago fp ON fp.id = vd.id_forma_pago INNER JOIN  descuentos_x_formapago dxf ON dxf.id_forma_pago = vd.id_forma_pago INNER JOIN descuentos d ON dxf.id_descuento = d.id WHERE vd.id_venta = ? AND vd.fecha_hora_pago < d.vigencia_hasta";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
 
       /* Variables*/
+      $porcentaje = $data['porcentaje'];
       $punto_venta = "4";
-      $cuit = "27-27032771-6";
+      $cuit = "30-71775420-0";
       $fecha_inicio_actividad = "01/09/2017";
       $fecha_vto_pago = "05/04/2023";
       $ingresos_brutos = "27-27032771-6";
@@ -33,30 +34,30 @@ class PDF extends FPDF
       }
       /* LINEAS HORIZONTALES*/
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 4,201,4);
+      $this->Line(8, 8,201,8);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 14,201,14);
+      $this->Line(8, 14,201,14);
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(98, 30,114,30);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 50,201,50);
+      $this->Line(8, 50,201,50);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 58,201,58);
+      $this->Line(8, 58,201,58);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 59,201,59);
+      $this->Line(8, 59,201,59);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 77,201,77);
+      $this->Line(8, 77,201,77);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 265,201,265);
+      $this->Line(8, 265,201,265);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 283,201,283);
+      $this->Line(8, 283,201,283);
       //$this->SetDrawColor(0, 0, 255, 0);
       
       
 
       /* LINEAS VERTICALES*/
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 4,10,58);
+      $this->Line(8, 8,8,58);
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(98, 14,98,30);
       //$this->SetDrawColor(0, 0, 255, 0);
@@ -64,17 +65,17 @@ class PDF extends FPDF
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(106, 30,106,50);
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(201, 4,201,58);
+      $this->Line(201, 8,201,58);
       //$this->SetDrawColor(0, 0, 255, 0);
       $this->Line(201, 59,201,77);
       
       //$this->SetDrawColor(0, 0, 255, 0);
-      $this->Line(10, 59,10,77);
+      $this->Line(8, 59,8,77);
 
       /* ORIGINAL */
-      $this->Cell(86);  // mover a la derecha
-      $this->SetFont('Arial', 'B', 10);
-      $this->Cell(0, -2, utf8_decode("ORIGINAL"));
+      $this->Cell(88);  // mover a la derecha
+      $this->SetFont('Arial', 'B', 8);
+      $this->Cell(0, 2, utf8_decode("ORIGINAL"));
       $this->Ln(5);
 
       /* Filas */
@@ -82,18 +83,21 @@ class PDF extends FPDF
       /* TIPO COMPROBANTE*/
       $this->Cell(92);  // mover a la derecha
       $this->SetFont('Arial', 'B', 25);
-      $this->Cell(0, 15, utf8_decode($data['tipo_comprobante']));
+      $this->Cell(0, 15, utf8_decode('B'));
       $this->Ln(5);
       /* Tipo de Factura */
       $this->SetFont('Arial', 'B', 16); //tipo fuente, negrita(B-I-U-BIU), tamañoTexto
       $this->Cell(110); // Movernos a la derecha
       //creamos una celda o fila
-      $this->Cell(110, 0, utf8_decode('FACTURA')); // AnchoCelda,AltoCelda,titulo,borde(1-0),saltoLinea(1-0),posicion(L-C-R),ColorFondo(1-0)
+      if($data['tipo_comprobante'] == 'B'){
+         $this->Cell(110, 0, utf8_decode('FACTURA'));
+      }else{
+         $this->Cell(110, 0, utf8_decode('NOTA DE CREDITO'));
+      }
       $this->Ln(8); // Salto de línea
       /* NOMBRE */
       $this->Cell(1);  // mover a la derecha
-      $this->SetFont('Arial', 'B', 16);
-      $this->Cell(0, -15, utf8_decode("CINTIA ROMINA GIRBINO"), 0, 0, '', 0);
+      $this->Image('../assets/images/logoBackend.png',35,16,36);
       $this->Ln(1);
       
       /* Domicilio */
@@ -247,12 +251,13 @@ class PDF extends FPDF
       $this->Ln(-3);
 
       /* CAMPOS DE LA TABLA */
+      $this->Cell(-2);
       $this->SetFillColor(160, 160, 160); //colorFondo
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
-      $this->SetFont('Arial', 'B', 10);
+      $this->SetFont('Arial', 'B', 8);
       $this->Cell(13, 7, utf8_decode('Código'), 1, 0, 'C', 1);
-      $this->Cell(103, 7, utf8_decode('Descripción'), 1, 0, 'C', 1);
+      $this->Cell(105, 7, utf8_decode('Descripción'), 1, 0, 'C', 1);
       $this->Cell(15, 7, utf8_decode('Cant.'), 1, 0, 'C', 1);
       $this->Cell(24, 7, utf8_decode('Precio Unit.'), 1, 0, 'C', 1);
       $this->Cell(18, 7, utf8_decode('Bonif'), 1, 0, 'C', 1);
@@ -261,29 +266,31 @@ class PDF extends FPDF
       $this->SetFillColor(255, 255, 255); //colorFondo
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
-      $this->SetFont('Arial', '', 8);
+      $this->SetFont('Arial', '', 6);
       $lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dui mi, semper ut dignissim ut, tincidunt mollis magna. Suspendisse felis arcu, molestie sed hendrerit quis, ultricies in lectus. Etiam ac rhoncus odio. Quisque et vehicula arcu. Sed non sollicitudin neque, et pharetra tortor.";
       $sql2 = " SELECT p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio as precio_vd, vd.subtotal FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id ";
       $subtotal = 0;
       $ln = 0;
       $cant = 0;
       $array = [];
-      for ($i = 0; $i < 20; $i++) {
-         $array[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dui mi, semper ut dignissim ut, tincidunt mollis magna. Suspendisse felis arcu, molestie sed hendrerit quis, ultricies in lectus. Etiam ac rhoncus odio. Quisque et vehicula arcu. Sed non sollicitudin neque, et pharetra tortor.";
-      }
-      foreach ($array/*$pdo->query($sql2)*/ as $row){
-         if($i <= 20){
-            $this->Cell(13, 7, utf8_decode(/*$row[0]*/ 'CDL'.$cant), 1, 0, 'C', 0);
-               $descripcion=/*$row[1]*/$row;
+      foreach ($pdo->query($sql2) as $row){
+         $this->Cell(-2);
+         $codigo = $row[0];
+         $descripcion=$row[1];
+         $precio_unitario = $row[2];
+         $cantidad =$row[3];
+         $subt = $row[5];
+         if($cant <= 20){
+               $this->Cell(13, 7, utf8_decode('CDL'.$codigo), 1, 0, 'C', 0);
                if(strlen($descripcion)>77){
-                  $descripcion=substr(/*$row[1]*/$row,0,77)."[...]";
+                  $descripcion=substr($row[1],0,77)."[...]";
                }
-               $this->Cell(103, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
-               $this->Cell(15, 7, utf8_decode(/*$row[3]*/'1'), 1, 0, 'C', 0);
-               $this->Cell(24, 7, utf8_decode("$".number_format(/*$row[2]*/'2000', 2,',', '.')), 1, 0, 'C', 0);
-               $this->Cell(18, 7, utf8_decode(/*"$450,00"*/ $ln), 1, 0, 'C', 0);
-               $this->Cell(18, 7, utf8_decode("$".number_format(/*$row[5]*/'2000', 2,',', '.')), 1, 1, 'C', 0);
-               $subtotal= /*$row[5]*/'2000' + $subtotal;
+               $this->Cell(105, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
+               $this->Cell(15, 7, utf8_decode($cantidad), 1, 0, 'C', 0);
+               $this->Cell(24, 7, utf8_decode("$".number_format($precio_unitario, 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(18, 7, utf8_decode("$".number_format(($precio_unitario - $subt), 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(18, 7, utf8_decode("$".number_format($subt, 2,',', '.')), 1, 1, 'R', 0);
+               $subtotal= $subt + $subtotal;
                $ln = $ln + 7;//Salto de linea que resta del total
                $cant = $cant + 1;
          }
@@ -292,36 +299,36 @@ class PDF extends FPDF
       }
       $ln = 144 - $ln;
       $this->Ln($ln);//Con 1 solo dato en la tabla el valor seria 144
-      $this->Cell(110);
+      $this->Cell(111);
       $this->SetFillColor(160, 160, 160); //colorFondo
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
       $this->SetFont('Arial', '', 8); 
-      $this->Cell(0, 8, utf8_decode("  Subtotal"), 0, 5, '', 1);
+      $this->Cell(80, 8, utf8_decode("  Subtotal"), 0, 5, '', 1);
       $this->Ln(-4);
       $this->Cell(173);
       $this->Cell(0, 0, utf8_decode("$".number_format($subtotal,2, ',', '.')));
       $this->Ln(1);
-      $this->Cell(110);
+      $this->Cell(111);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(0, 8, utf8_decode("  Total Venta"), 0, 0, '', 1);
+      $this->Cell(80, 8, utf8_decode("  Total Venta"), 0, 0, '', 1);
       $this->Ln(0);
       $this->Cell(170);
       $this->Cell(0, 8, utf8_decode("$".number_format($subtotal,2, ',', '.')));
       /* Lineas Horizontales */
-      $this->Line(120, 230,200,230);
-      $this->Line(120, 243,200,243);
+      $this->Line(121, 230,201,230);
+      $this->Line(121, 243,201,243);
       /* Lineas Verticales */
-      $this->Line(120, 230,120,243);
-      $this->Line(200, 230,200,243);
+      $this->Line(121, 230,121,243);
+      $this->Line(201, 230,201,243);
       $this->Ln(10);
-      $this->Cell(1);
+      $this->Cell(-2);
       $this->SetFont('Arial', 'B', 10);
-      $this->Cell(0, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
+      $this->Cell(193, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
       $this->Ln(0);
       $this->Cell(30);
       $this->SetFont('Arial', '', 10);
-   $this->Cell(190, 12, utf8_decode(/*$obs*/ $ln), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode($obs), 0, 0, '', 0);
       $this->Ln(20);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
@@ -337,7 +344,9 @@ class PDF extends FPDF
       $this->Ln(0);
       $this->Cell(34);
       $this->SetFont('Arial', '', 10);
-      $this->Cell(190, 12, utf8_decode($data['fecha_vencimiento_cae']), 0, 0, '', 0);
+      $fecha_vencimiento_cae= strtotime($data['fecha_vencimiento_cae']);
+      $fecha_vencimiento_cae= date("d/m/Y", $fecha_vencimiento_cae);
+      $this->Cell(190, 12, utf8_decode($fecha_vencimiento_cae), 0, 0, '', 0);
    }
 
    // Pie de página
