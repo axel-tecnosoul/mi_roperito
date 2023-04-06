@@ -15,9 +15,10 @@ class PDF extends FPDF
 	    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       
       /** Venta */
-      $sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y') AS fecha, v.punto_venta, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, v.id_descuento_aplicado, fp.forma_pago,d.porcentaje, v.total, v.total_con_descuento, d.descripcion AS descuento, d.porcentaje FROM ventas v INNER JOIN forma_pago fp ON fp.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado WHERE v.id = ?";
+      $sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y') AS fecha, v.punto_venta, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, v.id_descuento_aplicado, fp.forma_pago,d.porcentaje, v.total, v.total_con_descuento, d.descripcion AS descuento, d.porcentaje FROM ventas v INNER JOIN forma_pago fp ON fp.id=v.id_forma_pago LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado WHERE v.id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
+      //$q->debugDumpParams();
 		  $data = $q->fetch(PDO::FETCH_ASSOC);
 
       /* Variables*/
