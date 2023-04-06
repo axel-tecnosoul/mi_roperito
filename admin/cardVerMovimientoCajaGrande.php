@@ -60,6 +60,10 @@ Database::disconnect();?>
           <label class="col-sm-3 col-form-label">Detalle</label>
           <div class="col-sm-9"><?=$data["detalle"]?></div>
         </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Usuario</label>
+          <div class="col-sm-9"><?=$data["usuario"]?></div>
+        </div>
       </div>
     </div>
   </div>
