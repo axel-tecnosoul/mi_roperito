@@ -187,7 +187,6 @@ Database::disconnect();?>
                           <th>Forma de pago a Proveedora</th>
                           <th>Cantidad</th>
                           <th>Categoría</th>
-                          <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody><?php
@@ -226,11 +225,6 @@ Database::disconnect();?>
                           echo '<td>'.$row["forma_pago_proveedor"].'</td>';
                           echo '<td>'.$row["cantidad"].'</td>';
                           echo '<td>'.$row["categoria"].'</td>';
-                          if($row['tipo_comprobante'] !== 'R'){ 
-                            echo '<td><a href="Facturas/reporteVentas.php?id=' . $row['id'] . '" ><img src="img/print.png" width="24" height="25" border="0" alt="Imprimir tipo de comprobante"  title="Imprimir tipo de comprobante"></a></td>'; 
-                          }else{
-                            echo '"<td><a href="Facturas/reporteVentas.php?id="' . $row['id'] .'"><img src="img/print.png" width="24" height="25" border="0" alt="Imprimir tipo de comprobante" title="Imprimir tipo de comprobante" disabled></a></td>"';
-                          }
                           echo '</tr>';
                         }
                         Database::disconnect();?>
