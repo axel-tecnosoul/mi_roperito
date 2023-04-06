@@ -53,7 +53,8 @@ if($id_almacen!=0){
 //var_dump($orderBy);
 $orderBy = substr($orderBy, 0, -2);
 //var_dump($orderBy);
-$where = 's.cantidad > 0 AND p.activo = 1 AND ';
+//$where = 's.cantidad > 0 AND p.activo = 1 AND ';
+$where = 'p.activo = 1 AND ';
 
 foreach ($columns as $k => $column) {
   if ($search = $column['search']['value']) {

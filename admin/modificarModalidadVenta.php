@@ -43,19 +43,14 @@ if ( !empty($_POST)) {
   if($data["id_modalidad_venta"]!=$_POST["id_modalidad"]){
 
     $deuda_proveedor=calcularDeudaProveedor($data['id_forma_pago'],$_POST["id_modalidad"],$data["subtotal"]);
-    
-    $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ? where id = ?";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($_POST['id_modalidad'],$deuda_proveedor,$id));
 
-    if ($modoDebug==1) {
-      $q->debugDumpParams();
-      echo "<br><br>Afe: ".$q->rowCount();
-      echo "<br><br>";
-    }
+    $pagado=1;//seteamos la variable para que muestre como pagada (sera mas facil identifcar en caso de error)
 
     //SI LA MODALIDAD NUEVA ES A CREDITO, AUMENTAMOS EL CREDITO DE LA PROVEEDORA
     if($_POST["id_modalidad"]==50){
+
+      $pagado=1;
+
       $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($deuda_proveedor,$data["id_proveedor"]));
@@ -69,6 +64,9 @@ if ( !empty($_POST)) {
 
     //SI LA MODALIDAD VIEJA ES POR PORCENTAJE, RESTAMOS EL CREDITO DE LA PROVEEDORA
     if($data["id_modalidad_venta"]==50){
+
+      $pagado=0;
+
       $sql = "UPDATE proveedores set credito = credito - ? where id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($deuda_proveedor,$data["id_proveedor"]));
@@ -78,6 +76,16 @@ if ( !empty($_POST)) {
         echo "<br><br>Afe: ".$q->rowCount();
         echo "<br><br>";
       }
+    }
+
+    $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['id_modalidad'],$deuda_proveedor,$id));
+
+    if ($modoDebug==1) {
+      $q->debugDumpParams();
+      echo "<br><br>Afe: ".$q->rowCount();
+      echo "<br><br>";
     }
 
   }
