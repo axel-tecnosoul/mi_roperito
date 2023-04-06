@@ -192,7 +192,7 @@ Database::disconnect();?>
                       <tbody><?php
                       
                         $pdo = Database::connect();
-                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id WHERE v.anulada=0 AND pr.id = ".$id;
+                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,vd.id_modalidad,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id WHERE v.anulada=0 AND pr.id = ".$id;
                         //echo $sql;
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
@@ -214,8 +214,12 @@ Database::disconnect();?>
                           echo '<td>$'.number_format($row["deuda_proveedor"],2,',','.').'</td>';
                           echo '<td>'.$row["forma_pago_venta"].'</td>';
                           echo '<td>';
-                          if($_SESSION["user"]["id_perfil"]==1){
-                            echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                          if(!($row["id_modalidad"]==40 and $row["pagado"]==1)){
+
+                          //}else{
+                            if($_SESSION["user"]["id_perfil"]==1){
+                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            }
                           }
                           echo $row["modalidad"];
                           echo '</td>';
