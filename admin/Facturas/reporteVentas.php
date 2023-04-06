@@ -13,13 +13,13 @@ class PDF extends FPDF
       include '../database.php';
       $pdo = Database::connect();
 	   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT v.id, v.punto_venta, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio, vd.id_forma_pago as precio_vd, vd.subtotal, fp.forma_pago, vd.fecha_hora_pago,d.porcentaje, dxf.id_forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN forma_pago fp ON fp.id = vd.id_forma_pago INNER JOIN  descuentos_x_formapago dxf ON dxf.id_forma_pago = vd.id_forma_pago INNER JOIN descuentos d ON dxf.id_descuento = d.id WHERE vd.id_venta = ? AND vd.fecha_hora_pago < d.vigencia_hasta";
+      /** Venta */
+      $sql = "SELECT v.id, v.punto_venta, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, v.id_descuento_aplicado, fp.forma_pago,d.porcentaje, v.total, v.total_con_descuento FROM ventas v INNER JOIN forma_pago fp ON fp.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado = v.id_forma_pago WHERE v.id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
 
       /* Variables*/
-      $porcentaje = $data['porcentaje'];
       $punto_venta = $data['punto_venta'];
       $cuit = "30-71775420-0";
       $fecha_inicio_actividad = "01/09/2017";
@@ -265,12 +265,16 @@ class PDF extends FPDF
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
       $this->SetFont('Arial', '', 6);
-      $sql2 = " SELECT p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio as precio_vd, vd.subtotal FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id ";
+   
+      /* Detalle  Venta*/
+      $sql2 = "SELECT vd.id_venta, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio, vd.subtotal FROM ventas_detalle vd INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id";
+
       $subtotal = 0;
       $ln = 0;
       $cant = 0;
-      $array = [];
       $descripcion= "";
+      $observaciones = "";
+      $porcentaje = [];
       foreach ($pdo->query($sql2) as $row){
          $this->Cell(-2);
          if($cant <= 20){
@@ -282,13 +286,13 @@ class PDF extends FPDF
                }
                $this->Cell(105, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
                $this->Cell(15, 7, utf8_decode($row['cantidad']), 1, 0, 'C', 0);
-               $this->Cell(24, 7, utf8_decode("$".number_format($row['precio_vd'], 2,',', '.')), 1, 0, 'R', 0);
-               $this->Cell(18, 7, utf8_decode("$".number_format(($row['precio_vd'] - $row['subtotal']), 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(24, 7, utf8_decode("$".number_format($row['precio'], 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(18, 7, utf8_decode("$".number_format(($row['precio'] - $row['subtotal']), 2,',', '.')), 1, 0, 'R', 0);
                $this->Cell(18, 7, utf8_decode("$".number_format($row['subtotal'], 2,',', '.')), 1, 1, 'R', 0);
                $subtotal= $row['subtotal'] + $subtotal;
                $ln = $ln + 7;//Salto de linea que resta del total
                $cant = $cant + 1;
-               $observaciones = "Se aplicaron los siguientes descuentos: ";
+               $observaciones = "";
          }
          
          
@@ -322,9 +326,9 @@ class PDF extends FPDF
       $this->SetFont('Arial', 'B', 10);
       $this->Cell(193, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
       $this->Ln(0);
-      $this->Cell(30);
+      $this->Cell(25);
       $this->SetFont('Arial', '', 10);
-      $this->Cell(190, 12, utf8_decode($obs), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode($observaciones), 0, 0, '', 0);
       $this->Ln(20);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
