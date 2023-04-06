@@ -13,21 +13,19 @@ class PDF extends FPDF
       include '../database.php';
       $pdo = Database::connect();
 	   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT v.id, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio, vd.id_forma_pago as precio_vd, vd.subtotal, fp.forma_pago, vd.fecha_hora_pago,d.porcentaje, dxf.id_forma_pago FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN forma_pago fp ON fp.id = vd.id_forma_pago INNER JOIN  descuentos_x_formapago dxf ON dxf.id_forma_pago = vd.id_forma_pago INNER JOIN descuentos d ON dxf.id_descuento = d.id WHERE vd.id_venta = ? AND vd.fecha_hora_pago < d.vigencia_hasta";
+      /** Venta */
+      $sql = "SELECT v.id, v.punto_venta, v.nombre_cliente,v.direccion, v.cae, v.fecha_vencimiento_cae, v.numero_comprobante, v.tipo_comprobante, v.id_descuento_aplicado, fp.forma_pago,d.porcentaje, v.total, v.total_con_descuento FROM ventas v INNER JOIN forma_pago fp ON fp.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado = v.id_forma_pago WHERE v.id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
 
       /* Variables*/
-      $porcentaje = $data['porcentaje'];
-      $punto_venta = "4";
+      $punto_venta = $data['punto_venta'];
       $cuit = "30-71775420-0";
       $fecha_inicio_actividad = "01/09/2017";
       $fecha_vto_pago = "05/04/2023";
       $ingresos_brutos = "27-27032771-6";
-      $observaciones = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique vel dui sed suscipit. Vivamus interdum tempor elit, et finibus mi euismod sed. Donec varius ex eu mattis fringilla. Integer interdum arcu ut magna consectetur molestie. Nunc sit amet purus sed felis aliquet facilisis. Phasellus eu lorem sit amet tellus tincidunt sollicitudin non ut ex. Cras ut tincidunt nisi. Donec in facilisis lorem, ac sagittis ex. Vestibulum vitae pretium dui. Nulla facilisi.
-
-      Morbi luctus tortor arcu, ac dapibus sapien pharetra fermentum. Nulla hendrerit sem id metus vulputate finibus. Cras venenatis elementum felis, sit amet tristique turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non urna vitae purus convallis convallis. Etiam scelerisque a orci quis sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam malesuada, tortor ut vestibulum sodales, turpis ligula vehicula dolor, quis blandit turpis odio id massa. Sed hendrerit placerat eros sit amet pharetra. Maecenas lacinia ex id ante maximus, eu auctor magna dapibus. Aliquam luctus orci diam, ac aliquet sem aliquam eu.";
+      $observaciones = "";
       $obs=$observaciones;
       if(strlen($obs)>100){
       $obs=substr($observaciones,0,100)."[...]";
@@ -267,32 +265,34 @@ class PDF extends FPDF
       $this->SetTextColor(0, 0, 0); //colorTexto
       $this->SetDrawColor(0, 0, 0); //colorBorde
       $this->SetFont('Arial', '', 6);
-      $lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dui mi, semper ut dignissim ut, tincidunt mollis magna. Suspendisse felis arcu, molestie sed hendrerit quis, ultricies in lectus. Etiam ac rhoncus odio. Quisque et vehicula arcu. Sed non sollicitudin neque, et pharetra tortor.";
-      $sql2 = " SELECT p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio as precio_vd, vd.subtotal FROM ventas_detalle vd LEFT JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id ";
+   
+      /* Detalle  Venta*/
+      $sql2 = "SELECT vd.id_venta, vd.id_producto, p.codigo, p.descripcion, p.precio, vd.cantidad,vd.precio, vd.subtotal FROM ventas_detalle vd INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id_venta = $id";
+
       $subtotal = 0;
       $ln = 0;
       $cant = 0;
-      $array = [];
+      $descripcion= "";
+      $observaciones = "";
+      $porcentaje = [];
       foreach ($pdo->query($sql2) as $row){
          $this->Cell(-2);
-         $codigo = $row[0];
-         $descripcion=$row[1];
-         $precio_unitario = $row[2];
-         $cantidad =$row[3];
-         $subt = $row[5];
          if($cant <= 20){
-               $this->Cell(13, 7, utf8_decode('CDL'.$codigo), 1, 0, 'C', 0);
-               if(strlen($descripcion)>77){
-                  $descripcion=substr($row[1],0,77)."[...]";
+               $this->Cell(13, 7, utf8_decode('CDL'.$row['codigo']), 1, 0, 'C', 0);
+               if(strlen($row['descripcion'])>77){
+                  $descripcion=substr($row['descripcion'],0,77)."[...]";
+               }else{
+                  $descripcion = $row['descripcion'];
                }
                $this->Cell(105, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
-               $this->Cell(15, 7, utf8_decode($cantidad), 1, 0, 'C', 0);
-               $this->Cell(24, 7, utf8_decode("$".number_format($precio_unitario, 2,',', '.')), 1, 0, 'R', 0);
-               $this->Cell(18, 7, utf8_decode("$".number_format(($precio_unitario - $subt), 2,',', '.')), 1, 0, 'R', 0);
-               $this->Cell(18, 7, utf8_decode("$".number_format($subt, 2,',', '.')), 1, 1, 'R', 0);
-               $subtotal= $subt + $subtotal;
+               $this->Cell(15, 7, utf8_decode($row['cantidad']), 1, 0, 'C', 0);
+               $this->Cell(24, 7, utf8_decode("$".number_format($row['precio'], 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(18, 7, utf8_decode("$".number_format(($row['precio'] - $row['subtotal']), 2,',', '.')), 1, 0, 'R', 0);
+               $this->Cell(18, 7, utf8_decode("$".number_format($row['subtotal'], 2,',', '.')), 1, 1, 'R', 0);
+               $subtotal= $row['subtotal'] + $subtotal;
                $ln = $ln + 7;//Salto de linea que resta del total
                $cant = $cant + 1;
+               $observaciones = "";
          }
          
          
@@ -326,9 +326,9 @@ class PDF extends FPDF
       $this->SetFont('Arial', 'B', 10);
       $this->Cell(193, 12, utf8_decode("Observaciones: "), 1, 0, '', 0);
       $this->Ln(0);
-      $this->Cell(30);
+      $this->Cell(25);
       $this->SetFont('Arial', '', 10);
-      $this->Cell(190, 12, utf8_decode($obs), 0, 0, '', 0);
+      $this->Cell(190, 12, utf8_decode($observaciones), 0, 0, '', 0);
       $this->Ln(20);
       $this->Cell(1);
       $this->SetFont('Arial', 'B', 10);
