@@ -94,11 +94,11 @@ include_once("funciones.php");?>
                           <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Tipo Cbte:</td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
                             <select id="tipo_comprobante" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple>
-                              <option selected value="R">Recibo</option>
-                              <!-- <option selected value="A">Factura A</option> -->
-                              <option selected value="B">Factura B</option>
-                              <!-- <option selected value="NCA">Nota de Credito A</option> -->
-                              <option selected value="NCB">Nota de Credito B</option>
+                              <option value="R">Recibo</option>
+                              <!-- <option value="A">Factura A</option> -->
+                              <option value="B">Factura B</option>
+                              <!-- <option value="NCA">Nota de Credito A</option> -->
+                              <option value="NCB">Nota de Credito B</option>
                             </select>
                           </td>
                           <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"><?php
