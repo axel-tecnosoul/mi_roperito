@@ -1,6 +1,9 @@
 <?php
-require('vendor/fpdf/fpdf.php');
 
+//require('head_tables.php');
+
+require('vendor/fpdf/fpdf.php');
+//ob_clean();
 $id = $_GET['id'];
 
 class PDF extends FPDF
@@ -10,6 +13,7 @@ class PDF extends FPDF
    function Header()
    {
       global $id;
+      
       include 'database.php';
       $pdo = Database::connect();
 	    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -112,8 +116,8 @@ class PDF extends FPDF
       $this->Ln(8); // Salto de línea
       /* NOMBRE */
       $this->Cell(1);  // mover a la derecha
-      $this->Image('assets/images/logoBackend.png',35,16,36);
-      $this->Ln(1);
+      $this->Image('assets/images/logoBackend.png',28,16,48);
+      $this->Ln(5);
       
       /* Domicilio */
       $this->Cell(1);  // mover a la derecha
@@ -150,7 +154,7 @@ class PDF extends FPDF
       $this->Cell(34);
       $this->SetFont('Arial', '', 8);
       $this->Cell(0, 18, utf8_decode("Responsable Inscripto"), 0, 0, '', 0);
-      $this->Ln(6);
+      $this->Ln(2);
 
       /* Comp Nº */
       $this->Cell(160);  // mover a la derecha
@@ -378,12 +382,9 @@ class PDF extends FPDF
       $this->Cell(0, 10, utf8_decode('2023 @ Desarrollado por Misiones Software'), 0, 0, 'C'); // pie de pagina(fecha de pagina)
    }
 }
-
-
 $pdf = new PDF();
 $pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
 $pdf->AliasNbPages(); //muestra la pagina / y total de paginas
-
 $i = 0;
 $pdf->SetFont('Arial', 'B', 8);
 $pdf->SetDrawColor(0, 0, 0); //colorBorde
@@ -393,3 +394,6 @@ $i = $i + 1;
 /* TABLA */
 
 $pdf->Output('factura.pdf', 'I');//nombreDescarga, Visor(I->visualizar - D->descargar)
+
+
+?>
