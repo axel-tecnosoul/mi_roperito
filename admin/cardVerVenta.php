@@ -41,7 +41,7 @@ Database::disconnect();?>
   <div class="card-header" style="<?=$style?>">
     <h5>Ver Venta <?=$texto?><?php
       if($data['tipo_comprobante'] !== 'R'){ ?>
-        <a href="factura.php?id=<?= $id;?>" target="_blank"><img src="img/print.png" width="24" height="25" border="0" alt="Imprimir comprobante" title="Imprimir comprobante"></a><?php
+        <a href="factura.php?id=<?= $id;?>" target="_blank"><img src="img/print.png" width="30" height="25" border="0" alt="Imprimir comprobante" title="Imprimir comprobante"></a><?php
       }?>
     </h5>
   </div>
