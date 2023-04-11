@@ -19,7 +19,7 @@ $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $array = explode(',', $_GET['id']);
-echo "<div class='contenedor' style='max-width:100%; margin: 0;'>";
+echo "<div class='contenedor' style='max-width:700px; margin: 0;'>";
 echo "<div style='display: grid; grid-template-columns: repeat(2, 1fr); justify-content: space-evenly; gap: 30px;'>";
 foreach ($array as $value)	{
   
