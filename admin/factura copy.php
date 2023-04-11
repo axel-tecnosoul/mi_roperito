@@ -1,6 +1,8 @@
 <?php
+
+//require('head_tables.php');
+
 require('vendor/fpdf/fpdf.php');
-include 'database.php';
 //ob_clean();
 $id = $_GET['id'];
 
@@ -8,10 +10,11 @@ class PDF extends FPDF
 {
 
    // Cabecera de página
-   function copia($emision)
+   function Header()
    {
       global $id;
       
+      include 'database.php';
       $pdo = Database::connect();
 	    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       
@@ -91,7 +94,7 @@ class PDF extends FPDF
       /* ORIGINAL */
       $this->Cell(88);  // mover a la derecha
       $this->SetFont('Arial', 'B', 8);
-      $this->Cell(0, 2, utf8_decode(strtoupper($emision)));
+      $this->Cell(0, 2, utf8_decode("ORIGINAL"));
       $this->Ln(5);
 
       /* Filas */
@@ -365,31 +368,27 @@ class PDF extends FPDF
       $fecha_vencimiento_cae= strtotime($data['fecha_vencimiento_cae']);
       $fecha_vencimiento_cae= date("d/m/Y", $fecha_vencimiento_cae);
       $this->Cell(190, 12, utf8_decode($fecha_vencimiento_cae), 0, 0, '', 0);
-   
-      $this->Ln(12);
-      //$this->Cell(-63);
-      //$this->SetY(-15); // Posición: a 1,5 cm del final
-      $this->SetFont('Arial', 'I', 8); //tipo fuente, cursiva, tamañoTexto
-      $this->Cell(0, 10, utf8_decode('2023 @ Desarrollado por Misiones Software'), 0, 0, 'C'); // pie de pagina(fecha de pagina)
-      //$this->Cell(-63);
+   }
+
+   // Pie de página
+   function Footer()
+   {
       $this->SetY(-15); // Posición: a 1,5 cm del final
       $this->SetFont('Arial', 'I', 8); //tipo fuente, negrita(B-I-U-BIU), tamañoTexto
-      $this->Cell(188, 10, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R'); //pie de pagina(numero de pagina)
-      //$this->Ln(0);
+      $this->Cell(355, 10, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C'); //pie de pagina(numero de pagina)
+
+      $this->SetY(-15); // Posición: a 1,5 cm del final
+      $this->SetFont('Arial', 'I', 8); //tipo fuente, cursiva, tamañoTexto
+      $this->Cell(0, 10, utf8_decode('2023 @ Desarrollado por Misiones Software'), 0, 0, 'C'); // pie de pagina(fecha de pagina)
    }
 }
 $pdf = new PDF();
 $pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
 $pdf->AliasNbPages(); //muestra la pagina / y total de paginas
-$pdf->SetAutoPageBreak(false);
 $i = 0;
 $pdf->SetFont('Arial', 'B', 8);
 $pdf->SetDrawColor(0, 0, 0); //colorBorde
-$pdf->copia("original");
-$pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
-$pdf->copia("duplicado");
-$pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
-$pdf->copia("triplicado");
+
 
 $i = $i + 1;
 /* TABLA */
