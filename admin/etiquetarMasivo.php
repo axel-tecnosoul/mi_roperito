@@ -18,31 +18,92 @@ if ( null==$id ) {
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$array = explode(',', $_GET['id']);
-echo "<div class='contenedor' style='max-width:100%; margin: 0;'>";
-echo "<div style='display: grid; grid-template-columns: repeat(2, 1fr); justify-content: space-evenly; gap: 30px;'>";
-foreach ($array as $value)	{
-  
-  $sql = "SELECT `codigo`, `descripcion`, `precio`, `cb` FROM `productos` WHERE id = ? ";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($value));
-  $data = $q->fetch(PDO::FETCH_ASSOC);
-  
-  $nombre = $data['descripcion'];
-  $codigo = $data['codigo'];
-  $precio = $data['precio'];
-  $cb = $data['cb'];
-  
-  echo "<div class='row' style='border: solid 1px black; border-radius: 10px;'>";
-  echo "<div class='col'>";
-  echo "<div style='display:flex; justify-content: center; height: 100px; flex-wrap: wrap; margin: 20px;'>";
-  echo "<div><img style='max-width:100%; max-height:100%; display: block; height: 120px; align-items: center;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=         ".$cb."&print=true'/></div>";
-  echo "</div>";
-  echo "<p style='text-align: center; margin: 0; font-size: 25px; margin-bottom: 20px;'>".$codigo." $".number_format($precio,2)."</p>";
-  echo "</div>";
-  echo "</div>";
+$array = explode(',', $_GET['id']);?>
+<style>
+  body{
+    margin: 2px;
+    margin-top: 0;
+  }
+  .borde_etiqueta{
+    border: solid 1px black;
+    border-radius: 10px;
+    width:175px;
+    height:82.5px;
+    float: left;
+    /*margin: 16.5px;*/
+    margin: 8.5px;
+    margin-bottom: 0;
+    margin-top: 5px;
+  }
+  .img_etiqueta{
+    margin:10 auto; max-width:100%; max-height:100%; display: block; height: 66px; align-items: center;
+  }
+  .container_img{
+    max-height: 55px; max-width: 160px; margin: 0 auto;
+  }
+  .lbl_etiqueta{
+    text-align: center; margin: 0; font-size: 14px; margin-bottom: 0px;
+  }
+  .contenedor{
+    width:100%;
+    height:100%;
+    /*margin: 0;*/
+    /*margin-left: -12px;
+    margin-right: -12px;*/
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+</style>
 
-}
-echo "</div>";
-echo "</div>";	
+<!-- margin-top: -15px; -->
+<div class='contenedor'><?php
+  foreach ($array as $value){
+    
+    $sql = "SELECT codigo, descripcion, precio, cb FROM productos WHERE id = ? ";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($value));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+    
+    $nombre = $data['descripcion'];
+    $codigo = $data['codigo'];
+    $precio = $data['precio'];
+    $cb = $data['cb'];?>
+
+    <div class="borde_etiqueta">
+      <div>
+        <div>
+          <div class="container_img">
+            <img class="img_etiqueta" alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
+          </div>
+        </div>
+        <p class="lbl_etiqueta"><?=$codigo?> $<?=number_format($precio,2)?></p>
+      </div>
+    </div>
+
+    <!-- <div style='border: solid 1px black; border-radius: 10px; width:153px; height:82.5px; float: left; margin: 16.5px;'>
+      <div>
+        <div>
+          <div style='max-height: 55px; max-width: 137.5px; margin: 0 auto;'>
+            <img style='margin:10 auto; max-width:100%; max-height:100%; display: block; height: 66px; align-items: center;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
+          </div>
+        </div>
+        <p style='text-align: center; margin: 0; font-size: 14px; margin-bottom: 11px;'><?=$codigo?> $<?=number_format($precio,2)?></p>
+      </div>
+    </div> -->
+
+    <!-- <div style='border: solid 1px black; border-radius: 10px; width:150px; height:75px; float: left; margin: 15px;'>
+      <div>
+        <div>
+          <div style='max-height: 50px; max-width: 125px; margin: 0 auto;'>
+            <img style='margin:10 auto; max-width:100%; max-height:100%; display: block; height: 60px; align-items: center;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
+          </div>
+        </div>
+        <p style='text-align: center; margin: 0; font-size: 14px; margin-bottom: 10px;'><?=$codigo?> $<?=number_format($precio,2)?></p>
+      </div>
+    </div> -->
+    <?php
+
+  }?>
+</div><?php
+
 Database::disconnect();?>

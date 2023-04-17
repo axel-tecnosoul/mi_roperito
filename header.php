@@ -7,7 +7,8 @@
 				<a href="index.php">Inicio</a>
 			</li>
 			<li>
-				<a href="comprar.php">Comprá</a>
+				<!-- <a href="comprar.php">Comprá</a> -->
+        <a href="http://miroperito.prestotienda.com/">Comprá</a>
 			</li>
 			<li>
 				<a href="vender.php">Vendé</a>
@@ -74,7 +75,8 @@
 												<a href="index.php"><span>Inicio</span></a>
 											</li>
 											<li class="dropdown">
-												<a href="comprar.php"><span>Comprá</span></a>
+												<!-- <a href="comprar.php"><span>Comprá</span></a> -->
+                        <a href="http://miroperito.prestotienda.com/"><span>Comprá</span></a>
 											</li>
 											<li class="dropdown">
 												<a href="vender.php"><span>Vendé</span></a>
