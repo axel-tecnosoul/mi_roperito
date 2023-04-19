@@ -15,17 +15,79 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $modoDebug=0;
+  $modoDebug=1;
+
+  /*if ($modoDebug==1) {
+    $pdo->beginTransaction();
+    var_dump($_POST);
+  }*/
+
+  $nombre_cliente=($_POST['nombre_cliente']) ?: "";
+  $dni=($_POST['dni']) ?: "";
+  $direccion=($_POST['direccion']) ?: "";
+  $email=($_POST['email']) ?: "";
+  $telefono=($_POST['telefono']) ?: "";
+  $tipo_comprobante=$_POST["tipo_comprobante"];
+  $id_venta_detalle = $_POST['id_venta_detalle'];
+  $total_con_descuentos = $_POST['total_input'];
+  $id_almacen = $_POST['id_almacen'];
+  $modalidad_venta = $_POST['modalidad_venta'];
+  $id_forma_pago = $_POST['id_forma_pago'];
+  $cod_producto = $_POST['cod_producto'];
+  $id_venta_detalle = $_POST['id_venta_detalle'];
+  $precio_devolucion = $_POST['precio_devolucion'];
+
+  $total_cantidad = 0;
+  if(isset($_POST['cantidad'])) {
+      foreach($_POST['cantidad'] as $cantidad) {
+          $total_cantidad += $cantidad;
+      }
+  }
+
+  $precio_venta = 0;
+  if(isset($_POST['precio'])) {
+      foreach($_POST['precio'] as $precio) {
+          $precio_venta += $precio;
+      }
+  }
+
+  $total_ventas= $precio_venta - $precio_devolucion;
 
   if ($modoDebug==1) {
     $pdo->beginTransaction();
-    var_dump($_POST);
+    var_dump($_POST,$total_ventas);
+    die;
   }
 
-  $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,0,?,?,?,?)";
+  //Alta Nueva Venta
+  $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago'],$_POST["modalidad_venta"]));
+  $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$total_ventas, $tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago'],$_POST["modalidad_venta"]));
   $idVenta = $pdo->lastInsertId();
+
+  // Alta Nueva Devolución
+  $sql2 = "INSERT INTO devoluciones(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, id_venta_detalle, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+  $q2 = $pdo->prepare($sql2);
+  $q2->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$id_venta_detalle,$total_devolucion,$tipo_comprobante,$_SESSION['user']['id'],$id_forma_pago,$modalidad_venta));
+  $idDevolucion = $pdo->lastInsertId();
+
+  // Devolucion del producto en la tabla
+  $sql = " SELECT vd.`id_producto`, vd.`cantidad`, vd.`subtotal`, vd.`id_modalidad`, p.id_proveedor, v.id_almacen from devoluciones d INNER JOIN ventas_detalle vd ON vd.id = d.id_venta_detalle inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.`id_producto` WHERE d.`id_venta_detalle` = ".$id_venta_detalle;
+	foreach ($pdo->query($sql) as $row) {
+    $sql = "SELECT `id` FROM `stock` WHERE id_producto = ? and id_almacen = ?";
+    $q = $pdo->prepare($sql);
+    $q>execute(array($id_producto, $id_almacen));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+    if (!empty($data)) {
+      $sql3 = "UPDATE `stock` set cantidad = cantidad + ? where id = ?";
+      $q3 = $pdo->prepare($sql3);
+      $q3->execute(array($row[1],$data['id']));
+    } else {
+      $sql3 = "INSERT INTO `stock`(`id_producto`, `id_almacen`, `cantidad`, `id_modalidad`) VALUES (?,?,?,?)";
+      $q3 = $pdo->prepare($sql3);
+      $q3->execute(array($row[0],$row[5],$row[1],$row[3]));
+    }
+  }
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
@@ -103,11 +165,17 @@ if ( !empty($_POST)) {
         $q->execute(array($deuda_proveedor,$idProveedor));
       }
     }
-    
-    $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
-    $q = $pdo->prepare($sql);
+    //Alta Nueva Venta Detalle
+    $sql4 = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
+    $q4 = $pdo->prepare($sql4);
     //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
-    $q->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
+    $q4->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
+
+    // Alta Nueva Devolución Detalle
+    $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
+    $q5= $pdo->prepare($sql5);
+    //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
+    $q5->execute(array($idDevolucion,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
 
     if ($modoDebug==1) {
       $q->debugDumpParams();
@@ -139,6 +207,7 @@ if ( !empty($_POST)) {
     $cantPrendas++;
   }
 
+  //Descuentos
   $id_descuento=NULL;
   if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
     $id_descuento=$_POST['id_descuento'];
@@ -278,7 +347,7 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT * FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE vd.id = ?";
+	$sql = "SELECT v.id, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, v.tipo_comprobante, v.punto_venta, v.id_forma_pago, v.id_almacen, v.id_descuento_aplicado, vd.cantidad, vd.subtotal, p.codigo, p.descripcion, p.precio, fp.forma_pago FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id = ?";
 	$q = $pdo->prepare($sql);
 	$q->execute(array($id_venta_detalle));
 	$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -340,10 +409,51 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                   <div class="card-header">
                     <h5>Nueva Devolucion</h5>
                   </div>
-                  <form class="form theme-form" role="form" method="post" action="nuevaVenta.php">
+                  <form class="form theme-form" role="form" method="post" action="nuevaVentaDevolucion.php">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+                          <div class="form-group row">
+                            <div class="col-sm-3">Fecha:</div>
+                            <div class="col-sm-9"><?= date("d/m/Y", strtotime($data['fecha_hora']))?></div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Producto:</div>
+                            <div class="col-sm-9"><?="(".$data["codigo"].") ".$data["descripcion"]?></div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Precio:</div>
+                            <div class="col-sm-9">$<?=number_format($data["precio"],2,",",".")?></div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Cantidad:</div>
+                            <div class="col-sm-9"><?=$data["cantidad"]?></div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Forma de Pago:</div>
+                            <div class="col-sm-9"><?=$data["forma_pago"]?></div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-3">Descuentos Aplicados:</div><?php
+                            $descuentos_aplicados = '';
+                            if($data['id_descuento_aplicado'] == NULL || $data['id_descuento_aplicado'] == 0){
+                              $descuentos_aplicados = 'Sin descuentos aplicados';
+                            }else{
+                              $descuentos_aplicados = $data['descuento_aplicados'];
+                            }?>
+                            <div class="col-sm-9"><?=$descuentos_aplicados;?></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Modalidad de venta</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input class="radio_animated" value="Presencial" checked required id="edo-ani" type="radio" name="modalidad_venta"><label for="edo-ani">Presencial</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input class="radio_animated" value="Online" required id="edo-ani1" type="radio" name="modalidad_venta"><label for="edo-ani1">Online</label>
+                              </label>
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Almacen</label>
                             <div class="col-sm-9">
@@ -362,7 +472,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                                   if($fila['id']==$data["id_almacen"]){
                                     $selected="selected";
                                   }
-                                  echo "<option value='".$fila['id']."' $selected>".$fila['almacen']."</option>";
+                                  echo "<option value='".$fila['id']."' data-punto_venta='".$fila['punto_venta']."'";
+                                  echo $selected .">".$fila['almacen']."</option>";
                                  }
                                 Database::disconnect();?>
                               </select>
@@ -434,7 +545,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <label class="col-sm-3 col-form-label">Forma de Pago</label>
                             <div class="col-sm-9">
                               <select name="id_forma_pago" id="id_forma_pago" class="js-example-basic-single col-sm-12" required>
-                                <option value="">Seleccione...</option><?php
+                              <option value="">Seleccione...</option><?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                 $sqlZon = "SELECT id, forma_pago FROM forma_pago WHERE activo = 1 ORDER BY forma_pago";
@@ -482,8 +593,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total</label>
-                            <div class="col-sm-9"><label id="total_compra">$ 0</label></div>
+                            <label class="col-sm-3 col-form-label">Total a Pagar</label>
+                            <div class="col-sm-9"><label id="total_compra"><?= "$".number_format(0, 2, ',', '.');?></label></div>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Nombre y apellido</label>
@@ -509,6 +620,10 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <label class="col-sm-3 col-form-label">Teléfono</label>
                             <div class="col-sm-9"><input name="telefono" type="text" maxlength="99" class="form-control" value=""></div>
                           </div>
+                          <input name="id_venta_detalle" class="form-control" type="hidden" value=<?=$id_venta_detalle?>>
+                          <input name="precio_devolucion" id="precio_devolucion" class="form-control" type="hidden" value=<?=$data['precio'];?>>
+                          <input name="cod_producto" id="cod_producto" class="form-control" type="hidden" value=<?=$data['codigo'];?>>
+                          <input type="hidden" id="total_input" name="total_input" value="">
                         </div>
                       </div>
                     </div>
@@ -600,6 +715,18 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       e.preventDefault();
       let cant_productos=$('#productos_vender tbody tr').length;
       if(cant_productos){
+        let total = $('#total_compra');
+        total = total.text();
+        // Eliminar el signo de moneda y el punto de separación de miles
+        total = total.replace('$', '').replace(/\./g, '');
+        //Eliminar los espacios
+        total = total.replace(/\s/g, '');
+        //Reemplazar la coma por un punto
+        total = total.replace(/,/g, '.');
+        total = parseInt(total);
+        console.log("Total: " + total);
+        if(total > 0){
+          $('#total_input').val(total);
         //console.log("submit");
         let precio_en_cero=0;
         $("input[type='number'].precio").each(function(){
@@ -626,12 +753,17 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           //console.log("submit")
           this.submit();
         }
+        }else{
+          alert("El monto total a pagar debe ser mayor a 0")
+        }
       }else{
         alert("Añada algún producto")
       }
     });
-		
+
+
     function jsListarProductos(val) {
+      console.log("almacen= " + val);
       $("#dataTables-example666").dataTable().fnDestroy();
       $('#dataTables-example666').DataTable({
         "ajax" : "ajaxVentas.php?almacen="+val,//&id_vehiculo="+id_vehiculo+"
@@ -708,7 +840,9 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     }
 	
 	  $(document).ready(function() {
-			jsListarProductos(0)
+      var id_almacen = document.getElementById('id_almacen');
+      var id_almacen = id_almacen.value;
+			jsListarProductos(id_almacen);
 
       $("#id_almacen").on("change",function(){
 
@@ -811,7 +945,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           let clon=fila.clone();
           let precio=clon.find("input.precio");
           let id_perfil="<?=$id_perfil?>";
-          console.log(id_perfil);
+          console.log("Perfil: " + id_perfil);
           if(id_perfil!=1 && precio.val()==0){//controlamos que los usuarios NO adminsitradores no puedan añadir productos sin precio
             alert("No puede añadir un producto sin precio")
           }else{//los usuarios admin pueden añadir productos sin precio pero tienen que modifcarlo
@@ -857,17 +991,26 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     function actualizarMontoTotal(){
       let total=calcularTotalCompra()
       $("#subtotal_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
-      mostrarTotalDescuento(total)
+       mostrarTotalDescuento(total)
+      
     }
 
     function mostrarTotalDescuento(total){
       let porcentaje=$("#id_descuento option:selected").data("porcentaje");
-      let totalConDescuento=total;
+      let subtotal=$("#subtotal_compra").val();
+      let precio_devolucion=$("#precio_devolucion").val();
+      let totalConDescuento= total - precio_devolucion ;
+      
       if(porcentaje!=undefined){
         let descuento=porcentaje*total/100;
-        totalConDescuento=total-descuento;
+        console.log("Total: " + total);
+        console.log("Porcentaje: " + porcentaje, "Subtotal: " + subtotal, "Precio D: " + precio_devolucion);
+        let porcentaje_p = (((total - precio_devolucion)*porcentaje)/100);
+        totalConDescuento = totalConDescuento - porcentaje_p;
+        
       }
-      console.log(parseInt(total)-parseInt(totalConDescuento))
+      //console.log(parseInt(total)-parseInt(totalConDescuento))
+
       if(isNaN(totalConDescuento)){totalConDescuento=0;}
       $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
     }
