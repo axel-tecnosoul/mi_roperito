@@ -59,24 +59,24 @@ $array = explode(',', $_GET['id']);?>
 <div class='contenedor'><?php
   foreach ($array as $value){
     
-    $sql = "SELECT codigo, descripcion, precio, cb FROM productos WHERE id = ? ";
+    $sql = "SELECT id_proveedor, codigo, descripcion, precio, cb FROM productos WHERE id = ? ";
     $q = $pdo->prepare($sql);
     $q->execute(array($value));
     $data = $q->fetch(PDO::FETCH_ASSOC);
     
     $nombre = $data['descripcion'];
+    $proveedor = $data['id_proveedor'];
     $codigo = $data['codigo'];
     $precio = $data['precio'];
     $cb = $data['cb'];?>
-
     <div class="borde_etiqueta">
       <div>
         <div>
           <div class="container_img">
-            <img class="img_etiqueta" alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
+            <img class="img_etiqueta" alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?="      ".$cb?>&print=true'/>
           </div>
         </div>
-        <p class="lbl_etiqueta"><?=$codigo?> $<?=number_format($precio,2)?></p>
+        <p class="lbl_etiqueta"><?=$proveedor." "?><?=$codigo?> $<?=number_format($precio,2)?></p>
       </div>
     </div>
 
