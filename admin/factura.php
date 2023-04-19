@@ -294,24 +294,23 @@ class PDF extends FPDF
       $observaciones = "";
       $porcentaje = [];
       foreach ($pdo->query($sql2) as $row){
-         $this->Cell(-2);
-         if($cant <= 20){
-               $this->Cell(20, 7, utf8_decode($row['codigo']), 1, 0, 'C', 0);
-               if(strlen($row['descripcion'])>77){
-                  $descripcion=substr($row['descripcion'],0,77)."[...]";
-               }else{
-                  $descripcion = $row['descripcion'];
-               }
-               $this->Cell(98, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
-               $this->Cell(15, 7, utf8_decode($row['cantidad']), 1, 0, 'C', 0);
-               $this->Cell(20, 7, utf8_decode("$".number_format($row['precio'], 2,',', '.')), 1, 0, 'R', 0);
-               $this->Cell(20, 7, utf8_decode("$".number_format(($row['precio'] - $row['subtotal']), 2,',', '.')), 1, 0, 'R', 0);
-               $this->Cell(20, 7, utf8_decode("$".number_format($row['subtotal'], 2,',', '.')), 1, 1, 'R', 0);
-               $subtotal= $row['subtotal'] + $subtotal;
-               $ln = $ln + 7;//Salto de linea que resta del total
-               $cant = $cant + 1;
-               $observaciones = "";
-         }
+        $this->Cell(-2);
+        if($cant <= 20){
+          $this->Cell(20, 7, utf8_decode($row['codigo']), 1, 0, 'C', 0);
+          $descripcion = $row['descripcion'];
+          if(strlen($descripcion)>53){
+            $descripcion=substr($descripcion,0,53)."[...]";
+          }
+          $this->Cell(98, 7, utf8_decode($descripcion), 1, 0, 'L', 0);
+          $this->Cell(15, 7, utf8_decode($row['cantidad']), 1, 0, 'C', 0);
+          $this->Cell(20, 7, utf8_decode("$".number_format($row['precio'], 2,',', '.')), 1, 0, 'R', 0);
+          $this->Cell(20, 7, utf8_decode("$".number_format(($row['precio'] - $row['subtotal']), 2,',', '.')), 1, 0, 'R', 0);
+          $this->Cell(20, 7, utf8_decode("$".number_format($row['subtotal'], 2,',', '.')), 1, 1, 'R', 0);
+          $subtotal= $row['subtotal'] + $subtotal;
+          $ln = $ln + 7;//Salto de linea que resta del total
+          $cant = $cant + 1;
+          $observaciones = "";
+        }
          
          
       }

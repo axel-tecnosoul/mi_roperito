@@ -339,7 +339,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                        <div class="form-group row">
+                          <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Modalidad de venta</label>
                             <div class="col-sm-9">
                               <label class="d-block" for="edo-ani">
