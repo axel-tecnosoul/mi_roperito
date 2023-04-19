@@ -38,7 +38,7 @@
 					</a>
 				</div>
 				<div class="col">
-					<a href="comprar.php" class="tt-promo-box tt-one-child">
+          <a href="http://miroperito.prestotienda.com/" class="tt-promo-box tt-one-child">
 						<img src="images/loader-08.svg" data-src="images/banner-home1.jpg" alt="">
 						<div class="tt-description">
 							<div class="tt-description-wrapper">
@@ -47,6 +47,15 @@
 							</div>
 						</div>
 					</a>
+					<!-- <a href="comprar.php" class="tt-promo-box tt-one-child">
+						<img src="images/loader-08.svg" data-src="images/banner-home1.jpg" alt="">
+						<div class="tt-description">
+							<div class="tt-description-wrapper">
+								<div class="tt-background"></div>
+								<div class="tt-title-small"><b>COMPRÁ</b></div>
+							</div>
+						</div>
+					</a> -->
 				</div>
 				<div class="col-1">
 					
