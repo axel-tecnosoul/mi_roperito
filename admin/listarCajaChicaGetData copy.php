@@ -223,7 +223,7 @@ if($desde<=$hasta){
 
   if($mostrarPagoProveedores==1){
     //obtenemos las pagos a proveedoras
-    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(vd.fecha_hora_pago)";
+    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor";
     //echo $sql;
     foreach ($pdo->query($sql) as $row) {
       $aCaja[]=[

@@ -18,7 +18,7 @@ if ( !empty($_POST)) {
   }
 
   //$sql = "INSERT INTO egresos_caja_chica (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen) VALUES (?,?,?,?,?,?,?)";
-  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,'Chica')";
+  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,?,'Chica')";
   
   $q = $pdo->prepare($sql);
   //$q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen"]));
@@ -151,9 +151,9 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Forma de pago</label>
                             <div class="col-sm-9">
                               <select name="forma_pago" id="forma_pago" class="form-control" required>
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
-                                $sql = " SELECT id, forma_pago FROM forma_pago";
+                                $sql = " SELECT id, forma_pago FROM forma_pago WHERE activo=1";
                                 foreach ($pdo->query($sql) as $row) {?>
                                   <option value="<?=$row["id"]?>"><?=$row["forma_pago"]?></option><?php
                                 }
@@ -179,7 +179,7 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de Motivo</label>
                             <div class="col-sm-9">
-                              <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control js-example-basic-single" required>
+                              <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control js-example-basic-single">
                                 <option value="0">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, nombre FROM tipos_motivos";
@@ -194,7 +194,7 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Motivo</label>
                             <div class="col-sm-9">
                               <select name="id_motivo" id="id_motivo" class="form-control js-example-basic-single" required>
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, motivo, id_tipo_motivo FROM motivos_salidas_caja WHERE id!=2";
                                 foreach ($pdo->query($sql) as $row) {?>
@@ -207,8 +207,8 @@ if ( !empty($_POST)) {
                           <div id="row_select_empleados" class="form-group row">
                             <label class="col-sm-3 col-form-label">Empleado</label>
                             <div class="col-sm-9">
-                              <select name="id_empleado" id="id_empleado" class="form-control js-example-basic-single" required>
-                                <option value="0">- Seleccione -</option><?php
+                              <select name="id_empleado" id="id_empleado" class="form-control js-example-basic-single">
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS empleado FROM empleados WHERE 1";
                                 foreach ($pdo->query($sql) as $row) {?>
@@ -267,7 +267,7 @@ if ( !empty($_POST)) {
 
         $("input[name='tipo_movimiento']").on("change",function(){
           let selectMotivo=$("#id_motivo");
-          selectMotivo.val(0);
+          selectMotivo.val("");
           let optionSalidaCajaGrande=selectMotivo.find("option[value='1']");
           if(this.value=="Ingreso"){
             optionSalidaCajaGrande.attr("disabled",true);
@@ -282,20 +282,32 @@ if ( !empty($_POST)) {
           let selectMotivo=$("#id_motivo")
           selectMotivo.find("option").each(function(){
             let disabled=true;
-            if(id_tipo_motivo==this.dataset.idTipoMotivo){
+            if(this.value=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
+              console.log(this.value);
               disabled=false;
             }
             this.disabled=disabled;
           })
+          selectMotivo.val("")
           selectMotivo.select2()
 
-          let row_select_empleados=$("#row_select_empleados");
+          let id_empleado=$("#id_empleado");
+          console.log(id_tipo_motivo);
+          console.log(id_empleado);
+          if(id_tipo_motivo==12){//12 -> Sueldos
+            id_empleado.prop("required",true)
+          }else{
+            id_empleado.prop("required",false)
+          }
+          //id_empleado.select2()
+
+          /*let row_select_empleados=$("#row_select_empleados");
           row_select_empleados.find("#id_empleado").val(0).trigger("change")
           if(id_tipo_motivo==12){//12 -> Sueldos
             row_select_empleados.removeClass("d-none")
           }else{
             row_select_empleados.addClass("d-none")
-          }
+          }*/
         })
       });
     </script>
