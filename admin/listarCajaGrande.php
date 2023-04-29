@@ -341,10 +341,10 @@ if(empty($_SESSION['user'])){
           {
             render: function(data, type, row, meta) {
               if(type=="display"){
-                credito+=parseInt(row.credito);
+                credito+=parseFloat(row.credito);
                 console.log(credito);
               }
-              if(parseInt(row.credito)>0){
+              if(parseFloat(row.credito)>0){
                 return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.credito);
               }else{
                 return "";
@@ -354,9 +354,9 @@ if(empty($_SESSION['user'])){
           },{
             render: function(data, type, row, meta) {
               if(type=="display"){
-                debito+=parseInt(row.debito);
+                debito+=parseFloat(row.debito);
               }
-              if(parseInt(row.debito)>0){
+              if(parseFloat(row.debito)>0){
                 return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.debito);
               }else{
                 return "";
@@ -368,9 +368,9 @@ if(empty($_SESSION['user'])){
               if(type=="display"){
                 if(bandera_saldo==0){
                   bandera_saldo=1;
-                  saldo=parseInt(row.saldo)
+                  saldo=parseFloat(row.saldo)
                 }else{
-                  saldo+=parseInt(row.credito)-parseInt(row.debito);
+                  saldo+=parseFloat(row.credito)-parseFloat(row.debito);
                 }
               }
               return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldo);
