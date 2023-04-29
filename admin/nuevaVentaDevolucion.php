@@ -15,7 +15,7 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $modoDebug=1;
+  $modoDebug=0;
 
   /*if ($modoDebug==1) {
     $pdo->beginTransaction();
@@ -28,20 +28,30 @@ if ( !empty($_POST)) {
   $email=($_POST['email']) ?: "";
   $telefono=($_POST['telefono']) ?: "";
   $tipo_comprobante=$_POST["tipo_comprobante"];
-  $id_venta_detalle = $_POST['id_venta_detalle'];
+  $id_venta = $_POST['id_venta'];
   $total_con_descuentos = $_POST['total_input'];
   $id_almacen = $_POST['id_almacen'];
   $modalidad_venta = $_POST['modalidad_venta'];
   $id_forma_pago = $_POST['id_forma_pago'];
-  $cod_producto = $_POST['cod_producto'];
-  $id_venta_detalle = $_POST['id_venta_detalle'];
-  $precio_devolucion = $_POST['precio_devolucion'];
+  $id_producto = $_POST['id_producto'];
+  $precio_devolucion = 0;
+  $cantidad = $_POST['cantidad'];
 
   $total_cantidad = 0;
   if(isset($_POST['cantidad'])) {
       foreach($_POST['cantidad'] as $cantidad) {
           $total_cantidad += $cantidad;
       }
+  }
+
+  $id_venta_detalle_arr = explode(',', $_POST['id_venta_detalle']);
+  $id_venta_detalle_arr = implode(',', $id_venta_detalle_arr);
+  $sql = "SELECT id, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado, fecha_hora_pago, caja_egreso, id_almacen, id_forma_pago FROM ventas_detalle WHERE id IN ($id_venta_detalle_arr) ";                             
+  $q = $pdo->prepare($sql);
+  $q->execute();
+  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+  foreach ($devoluciones as $data){
+    $precio_devolucion += $data['subtotal'];
   }
 
   $precio_venta = 0;
@@ -52,6 +62,7 @@ if ( !empty($_POST)) {
   }
 
   $total_ventas= $precio_venta - $precio_devolucion;
+  $total_devolucion = $precio_devolucion;
 
   if ($modoDebug==1) {
     $pdo->beginTransaction();
@@ -65,27 +76,57 @@ if ( !empty($_POST)) {
   $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$total_ventas, $tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago'],$_POST["modalidad_venta"]));
   $idVenta = $pdo->lastInsertId();
 
+  //Descuentos Nueva Venta
+  $id_descuento=NULL;
+  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
+    $id_descuento=$_POST['id_descuento'];
+    $sql = "SELECT id, porcentaje FROM descuentos WHERE id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id_descuento));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+    $porcentaje = $data['porcentaje'];
+    $porcentaje= (($total_ventas * $porcentaje) / 100);
+    $totalConDescuento  = $total_ventas - $porcentaje;
+    //Si tiene descuentos cambia el total
+    $sql2 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+    $q2 = $pdo->prepare($sql2);
+    $q2->execute(array($total_ventas,$id_descuento,$totalConDescuento,$idVenta));
+  }else {
+    //Si no tiene descuentos cambia el total
+    $sql2 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+    $q2 = $pdo->prepare($sql2);
+    $q2->execute(array($total_ventas,$id_descuento,$total_ventas,$idVenta));
+  }
+
   // Alta Nueva Devolución
-  $sql2 = "INSERT INTO devoluciones(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, id_venta_detalle, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+  $sql2 = "INSERT INTO devoluciones(fecha_hora, id_venta, id_nueva_venta, total) VALUES (now(),?,?,?)";
   $q2 = $pdo->prepare($sql2);
-  $q2->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$id_venta_detalle,$total_devolucion,$tipo_comprobante,$_SESSION['user']['id'],$id_forma_pago,$modalidad_venta));
+  $q2->execute(array($id_venta,$idVenta, $total_devolucion));
   $idDevolucion = $pdo->lastInsertId();
 
-  // Devolucion del producto en la tabla
-  $sql = " SELECT vd.`id_producto`, vd.`cantidad`, vd.`subtotal`, vd.`id_modalidad`, p.id_proveedor, v.id_almacen from devoluciones d INNER JOIN ventas_detalle vd ON vd.id = d.id_venta_detalle inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.`id_producto` WHERE d.`id_venta_detalle` = ".$id_venta_detalle;
-	foreach ($pdo->query($sql) as $row) {
-    $sql = "SELECT `id` FROM `stock` WHERE id_producto = ? and id_almacen = ?";
-    $q = $pdo->prepare($sql);
-    $q>execute(array($id_producto, $id_almacen));
-    $data = $q->fetch(PDO::FETCH_ASSOC);
-    if (!empty($data)) {
-      $sql3 = "UPDATE `stock` set cantidad = cantidad + ? where id = ?";
-      $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($row[1],$data['id']));
-    } else {
-      $sql3 = "INSERT INTO `stock`(`id_producto`, `id_almacen`, `cantidad`, `id_modalidad`) VALUES (?,?,?,?)";
-      $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($row[0],$row[5],$row[1],$row[3]));
+
+  // Alta Nueva Devolución Detalle
+  foreach ($devoluciones as $data) {
+    $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_venta_detalle) VALUES (?,?)";
+    $q5= $pdo->prepare($sql5);
+    $q5->execute(array($idDevolucion,$data['id']));
+
+    // Devolucion del producto en la tabla
+    $sql = " SELECT vd.`id_producto`, vd.`cantidad`, vd.`subtotal`, vd.`id_modalidad`, p.id_proveedor, v.id_almacen from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.`id_producto` where vd.`id` = ".$data['id'];
+    foreach ($pdo->query($sql) as $row) {
+      $sql = "SELECT `id` FROM `stock` WHERE id_producto = ? and id_almacen = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($row['id_producto'], $row['id_almacen']));
+      $data = $q->fetch(PDO::FETCH_ASSOC);
+      if (!empty($data)) {
+        $sql3 = "UPDATE `stock` set cantidad = cantidad + ? where id = ?";
+        $q3 = $pdo->prepare($sql3);
+        $q3->execute(array($row['cantidad'],$data['id']));
+      } else {
+        $sql3 = "INSERT INTO `stock`(`id_producto`, `id_almacen`, `cantidad`, `id_modalidad`) VALUES (?,?,?,?)";
+        $q3 = $pdo->prepare($sql3);
+        $q3->execute(array($row['id_producto'],$row['id_almacen'],$row['cantidad'],$row['id_modalidad']));
+      }
     }
   }
 
@@ -165,17 +206,11 @@ if ( !empty($_POST)) {
         $q->execute(array($deuda_proveedor,$idProveedor));
       }
     }
-    //Alta Nueva Venta Detalle
-    $sql4 = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
-    $q4 = $pdo->prepare($sql4);
+    
+    $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
+    $q = $pdo->prepare($sql);
     //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
-    $q4->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
-
-    // Alta Nueva Devolución Detalle
-    $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
-    $q5= $pdo->prepare($sql5);
-    //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
-    $q5->execute(array($idDevolucion,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
+    $q->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
 
     if ($modoDebug==1) {
       $q->debugDumpParams();
@@ -207,15 +242,14 @@ if ( !empty($_POST)) {
     $cantPrendas++;
   }
 
-  //Descuentos
   $id_descuento=NULL;
   if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
     $id_descuento=$_POST['id_descuento'];
   }
 
-  $sql = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+  /*$sql = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($total,$id_descuento,$totalConDescuento,$idVenta));
+  $q->execute(array($total,$id_descuento,$totalConDescuento,$idVenta));*/
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
@@ -343,15 +377,18 @@ if ( !empty($_POST)) {
   
   header("Location: listarVentas.php");
 } else {
-  $id_venta_detalle = $_GET['id_venta_detalle'];
-  
   $pdo = Database::connect();
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT v.id, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, v.tipo_comprobante, v.punto_venta, v.id_forma_pago, v.id_almacen, v.id_descuento_aplicado, vd.cantidad, vd.subtotal, p.codigo, p.descripcion, p.precio, fp.forma_pago FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id = ?";
-	$q = $pdo->prepare($sql);
-	$q->execute(array($id_venta_detalle));
-	$data = $q->fetch(PDO::FETCH_ASSOC);
-  //var_dump($data);
+
+  $array_devolucion = explode(',', $_GET['id_venta_detalle']);
+
+  $id_lista = implode(',', $array_devolucion); // Convertimos el array de IDs en una cadena separada por comas
+
+  $sql = "SELECT v.id, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, v.tipo_comprobante, v.punto_venta, v.id_forma_pago, v.id_almacen, v.id_descuento_aplicado, d.descripcion as descuento_aplicado, vd.cantidad as cantidad_producto, vd.subtotal,p.id as producto_id, p.codigo, p.descripcion, p.precio, fp.forma_pago, vd.subtotal FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id IN ($id_lista) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
+                                
+  $q = $pdo->prepare($sql);
+  $q->execute();
+  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+  //var_dump($devoluciones);
   //die;
 }
 
@@ -414,35 +451,50 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                       <div class="row">
                         <div class="col">
                           <div class="form-group row">
-                            <div class="col-sm-3">Fecha:</div>
-                            <div class="col-sm-9"><?= date("d/m/Y", strtotime($data['fecha_hora']))?></div>
+                            <div class="col-sm-12">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Fecha</th>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Subtotal</th>
+                                    <th>Cantidad</th>
+                                    <th>Forma de Pago</th>
+                                    <th>Descuentos Aplicados</th>
+                                  </tr>
+                                </thead>
+                                <tbody><?php 
+                                  $precio_total = 0;
+                                  foreach ($devoluciones as $data) { 
+                                    $precio_total += $data["subtotal"];?>
+                                    <tr>
+                                      <td><?php echo date("d/m/Y", strtotime($data['fecha_hora'])); ?></td>
+                                      <td><?php echo "(" . $data["codigo"] . ") " . $data["descripcion"]; ?></td>
+                                      <td>$<?php echo number_format($data["precio"], 2, ",", ".");?></td>
+                                      <td>$<?php echo number_format($data["subtotal"], 2, ",", ".");?></td>
+                                      <td><?php echo $data["cantidad_producto"]; ?></td>
+                                      <td><?php echo $data["forma_pago"]; ?></td>
+                                      <td><?php
+                                      $descuentos_aplicados = '';
+                                      if ($data['id_descuento_aplicado'] == NULL || $data['id_descuento_aplicado'] == 0) {
+                                        $descuentos_aplicados = 'Sin descuentos aplicados';
+                                      } else {
+                                        $descuentos_aplicados = $data['descuento_aplicado'];
+                                      }
+                                      echo $descuentos_aplicados;?>
+                                      </td>
+                                    </tr><?php 
+                                  }?>
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
                           <div class="form-group row">
-                            <div class="col-sm-3">Producto:</div>
-                            <div class="col-sm-9"><?="(".$data["codigo"].") ".$data["descripcion"]?></div>
+                            <label class="col-sm-3 col-form-label">Total Devolucion</label>
+                            <div class="col-sm-9"><label id="precio_total"><?= "$".number_format($precio_total, 2, ',', '.');?></label></div>
                           </div>
-                          <div class="form-group row">
-                            <div class="col-sm-3">Precio:</div>
-                            <div class="col-sm-9">$<?=number_format($data["precio"],2,",",".")?></div>
-                          </div>
-                          <div class="form-group row">
-                            <div class="col-sm-3">Cantidad:</div>
-                            <div class="col-sm-9"><?=$data["cantidad"]?></div>
-                          </div>
-                          <div class="form-group row">
-                            <div class="col-sm-3">Forma de Pago:</div>
-                            <div class="col-sm-9"><?=$data["forma_pago"]?></div>
-                          </div>
-                          <div class="form-group row">
-                            <div class="col-sm-3">Descuentos Aplicados:</div><?php
-                            $descuentos_aplicados = '';
-                            if($data['id_descuento_aplicado'] == NULL || $data['id_descuento_aplicado'] == 0){
-                              $descuentos_aplicados = 'Sin descuentos aplicados';
-                            }else{
-                              $descuentos_aplicados = $data['descuento_aplicados'];
-                            }?>
-                            <div class="col-sm-9"><?=$descuentos_aplicados;?></div>
-                          </div>
+                          <input type="hidden" name="precio_total" value="<?php echo $precio_total; ?>">
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Modalidad de venta</label>
                             <div class="col-sm-9">
@@ -620,9 +672,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <label class="col-sm-3 col-form-label">Teléfono</label>
                             <div class="col-sm-9"><input name="telefono" type="text" maxlength="99" class="form-control" value=""></div>
                           </div>
-                          <input name="id_venta_detalle" class="form-control" type="hidden" value=<?=$id_venta_detalle?>>
-                          <input name="precio_devolucion" id="precio_devolucion" class="form-control" type="hidden" value=<?=$data['precio'];?>>
-                          <input name="cod_producto" id="cod_producto" class="form-control" type="hidden" value=<?=$data['codigo'];?>>
+                          <input name="id_venta_detalle" class="form-control" type="hidden" value=<?=$id_lista?>>
+                          <input name="id_venta" id="id_venta" class="form-control" type="hidden" value=<?=$data['id'];?>>
                           <input type="hidden" id="total_input" name="total_input" value="">
                         </div>
                       </div>
@@ -694,6 +745,13 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
 	<script>
     $("#tipo_comprobante").on("change",function(){
       changeTipoDNI();
+    })
+
+	  var toggle = true;
+    $('.toggle-checkboxes').on('click', function (e) {
+      e.preventDefault();
+      $('.customer-selector').prop('checked', toggle);
+      toggle = !toggle;
     })
 
     function changeTipoDNI(){
@@ -999,13 +1057,14 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       let porcentaje=$("#id_descuento option:selected").data("porcentaje");
       let subtotal=$("#subtotal_compra").val();
       let precio_devolucion=$("#precio_devolucion").val();
-      let totalConDescuento= total - precio_devolucion ;
+      let precio_total = document.querySelector('input[name="precio_total"]').value;
+      let totalConDescuento= total - precio_total ;
       
       if(porcentaje!=undefined){
         let descuento=porcentaje*total/100;
         console.log("Total: " + total);
-        console.log("Porcentaje: " + porcentaje, "Subtotal: " + subtotal, "Precio D: " + precio_devolucion);
-        let porcentaje_p = (((total - precio_devolucion)*porcentaje)/100);
+        console.log("Porcentaje: " + porcentaje, "Subtotal: " + subtotal, "Precio D: " + precio_total);
+        let porcentaje_p = (((total - precio_total)*porcentaje)/100);
         totalConDescuento = totalConDescuento - porcentaje_p;
         
       }
