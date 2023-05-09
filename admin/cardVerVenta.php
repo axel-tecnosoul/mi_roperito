@@ -4,6 +4,8 @@ require_once 'funciones.php';
 
 if (empty($id) or !empty($_GET['id'])) {
   $id = $_REQUEST['id'];
+  $id=explode("v/",$id);
+  $id = $id[1];
 }
 
 $pdo = Database::connect();
