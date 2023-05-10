@@ -4,6 +4,8 @@ require_once 'funciones.php';
 
 if (empty($id) or !empty($_GET['id'])) {
   $id = $_REQUEST['id'];
+  $id=explode("v/",$id);
+  $id = $id[1];
 }
 
 $pdo = Database::connect();
@@ -89,9 +91,7 @@ Database::disconnect();
         </div>
 
         <div class="form-group row">
-          <label class="col-sm-12 col-form-label">Productos&nbsp;
-            <a href="#" id="devolver-masivo"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" title="Devolver Productos Seleccionados"></a>
-          </label>
+          <label class="col-sm-12 col-form-label">Productos&nbsp;<a href="#"><img src="img/cube-refund.png" width="24" height="25" border="0" alt="Depositar Productos Seleccionados" id="depositar-masivo" title="Devolver Productos Seleccionados"></a></label>
         </div>
 
         <div class="form-group row">
@@ -131,7 +131,7 @@ Database::disconnect();
                     echo '<td>'. $row['categoria'] . '</td>';
                     echo '<td>'. $row['descripcion'] . '</td>';
                     echo '<td>$'. number_format($row['precio'],2) . '</td>';
-                    $total_precio_producto += $row['subtotal'];
+                    $total_precio_producto += $row['precio'];
                     echo '<td>'. $row['cantidad'] . '</td>';
                     echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
                     echo '<td>'. $row['modalidad'] . '</td>';
@@ -155,8 +155,26 @@ Database::disconnect();
         </div>
         
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Total Productos Vendidos</label>
+            <label class="col-sm-3 col-form-label">Subtotal Productos Vendidos</label>
             <div class="col-sm-9">$<?php echo number_format($total_precio_producto,2); ?></div>
+        </div>
+        
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Forma de pago</label>
+          <div class="col-sm-9"><?php echo $data['forma_pago']; ?></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Descuento</label><?php
+          if($descuento != ""){?>
+          <div class="col-sm-9"><?php echo $descuento//$data['descripcion']; ?></div><?php
+          }else{?>
+            <div class="col-sm-9"><?php echo "No se aplicaron Descuentos"; ?></div><?php
+          }?>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Total Productos Vendidos</label>
+          <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
         </div>
 
         <?php if($data['devolucion_id'] != NULL){?>
@@ -213,23 +231,7 @@ Database::disconnect();
             <div class="col-sm-9">$<?php echo number_format($data2['total'],2); ?></div>
           </div><?php
         }?>
-
-        <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Subtotal</label>
-          <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Forma de pago</label>
-          <div class="col-sm-9"><?php echo $data['forma_pago']; ?></div>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Descuento</label><?php
-          if($descuento != ""){?>
-          <div class="col-sm-9"><?php echo $descuento//$data['descripcion']; ?></div><?php
-          }else{?>
-            <div class="col-sm-9"><?php echo "No se aplicaron Descuentos"; ?></div><?php
-          }?>
-        </div>
+        
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Total</label>
           <div class="col-sm-9">$<?php echo number_format($data['total_con_descuento'],2); ?></div>

@@ -8,17 +8,21 @@ if(empty($_SESSION['user'])){
 //$desde=date("Y-m-d");
 $desde="";
 $filtroDesde="";
+$filtroDesdeC="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
   $filtroDesde=" AND DATE(v.fecha_hora)>='".$desde."'";
+  $filtroDesdeC=" AND DATE(cj.fecha_hora)>='".$desde."'";
 }
 //$hasta=date("Y-m-d");
 $hasta=date("Y-m-t",strtotime(date("Y-m-01")." -1 month"));
 $filtroHasta="";
+$filtroHastaC="";
 if(isset($_GET["h"]) and $_GET["h"]!=""){
   $hasta=$_GET["h"];
 }
 $filtroHasta=" AND DATE(v.fecha_hora)<='".$hasta."'";
+$filtroHastaC=" AND DATE(cj.fecha_hora)<='".$hasta."'";
 $id_proveedor=0;
 $filtroProveedor="";
 if(isset($_GET["p"]) and $_GET["p"]!=0){
@@ -115,9 +119,9 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
-                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor,pr.id_almacen FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
-                              echo $sql;
-                              foreach ($pdo->query($sql) as $row) {
+                              $sql3 = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor,pr.id_almacen FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
+                              echo $sql3;
+                              foreach ($pdo->query($sql3) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
                                   $selected="selected";
@@ -180,7 +184,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th>Precio</th>
                             <th>Subtotal</th>
                             <th>Deuda</th> -->
-                            <th>ID Venta</th>
+                            <th>ID</th>
                             <th>Fecha/Hora</th>
                             <th>Descripción</th>
                             <th>Precio</th>
@@ -202,10 +206,11 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           }
                           //echo $sql;
                           $total_deuda=0;
+                          $sql2 = "SELECT cd.id AS id_detalle_canje, a.almacen, date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cj.id AS id_canje,cd.deuda_proveedor FROM canjes_detalle cd inner join canjes cj on cj.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen left join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 0 $filtroDesdeC $filtroHastaC $filtroProveedor $filtroAlmacen";
                           foreach ($pdo->query($sql) as $row) {
-                            echo '<tr>';
+                            echo '<tr>';                          
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.$row["id_detalle_venta"].'" /> </td>';
-                            echo '<td><a href="verVenta.php?id='.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row["id_venta"].'</td>';
+                            echo '<td><a href="verVenta.php?id='.'v/'.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row["id_venta"].'</td>';
                             /*echo '<td>'. $row["id_detalle_venta"] . '</td>';
                             echo '<td>'. $row["nombre"] . ' ' . $row["apellido"] . '</td>';*/
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
@@ -229,6 +234,25 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '<td class="d-none">'. $row["almacen"] . '</td>';
                             echo '<td class="d-none">'. $row["codigo"] . '</td>';
                             echo '<td class="d-none">'. $row["categoria"] . '</td>';
+                            echo '</tr>';
+                            
+                          }
+                          foreach($pdo->query($sql2) as $row2){
+                            echo '<tr>';                          
+                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.$row2["id_detalle_canje"].'" /> </td>';
+                            echo '<td><a href="verCanje.php?id='.'c/'.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row2["id_canje"].'</td>';
+                            echo '<td>'. $row2["fecha_hora"] . 'hs</td>';
+                            echo '<td>'. $row2["descripcion"] . '</td>';
+                            echo '<td>$'. number_format($row2["precio"],2) . '</td>';
+                            echo '<td>$'. number_format($row2["subtotal"],2) . '</td>';
+                            $deuda = $row2["deuda_proveedor"];
+                            $total_deuda+=$deuda;
+                            echo '<td> $'. number_format($deuda,2).'<label class="d-none deuda">'.$deuda.'</label></td>';
+                            echo '<td>'. $row2["cantidad"] . '</td>';
+                            echo '<td class="d-none">'. $row2["forma_pago"] . '</td>';
+                            echo '<td class="d-none">'. $row2["almacen"] . '</td>';
+                            echo '<td class="d-none">'. $row2["codigo"] . '</td>';
+                            echo '<td class="d-none">'. $row2["categoria"] . '</td>';
                             echo '</tr>';
                           }
                           Database::disconnect();?>
