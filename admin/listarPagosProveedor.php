@@ -73,9 +73,9 @@ if(empty($_SESSION['proveedor']))
 						  <th>Categoría</th>
 						  <th>Descripción</th>
 						  <th>Cantidad</th>
-						  <th>Precio</th>
+						  <!-- <th>Precio</th> -->
               <th>Modalidad</th>
-						  <th>Subtotal</th>
+						  <!-- <th>Subtotal</th> -->
 						  <th>Cobrado</th>
                           </tr>
                         </thead>
@@ -94,9 +94,9 @@ if(empty($_SESSION['proveedor']))
 								echo '<td>'. $row[4] . '</td>';
 								echo '<td>'. $row[5] . '</td>';
 								echo '<td>'. $row[6] . '</td>';
-								echo '<td>$'. number_format($row[7],2) . '</td>';
+								//echo '<td>$'. number_format($row[7],2) . '</td>';
                 echo '<td>'. $row[9] . '</td>';
-								echo '<td>$'. number_format($row[8],2) . '</td>';
+								//echo '<td>$'. number_format($row[8],2) . '</td>';
 								//echo '<td>$'. number_format($row[8]*0.4,2) . '</td>';
                 echo '<td>$'. number_format($row[11],2) . '</td>';
 								echo '</tr>';

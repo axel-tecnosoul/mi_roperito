@@ -1,10 +1,12 @@
 <?php 
-session_start(); 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
-include 'database.php';
+include_once 'database.php';
 $pdo = Database::connect();
 
 $desde=$_GET["desde"];
@@ -159,8 +161,10 @@ if($desde<=$hasta){
 
   $aCaja[]=[
     "id_venta"=>0,
+    "id"=>"Saldo anterior",
     "fecha_hora"=>date("d-m-Y H:i",strtotime($desde)),
-    "detalle"=>"Saldo anterior",
+    "motivo"=>"",
+    "detalle"=>"",
     "forma_pago"=>"",
     "credito"=>0,
     "debito"=>0,
@@ -175,7 +179,9 @@ if($desde<=$hasta){
     $detalle.="data[total_ventas]: $data[total_ventas]<br>data2[ingresos_externos]: $data2[ingresos_externos]<br>data3[egresos_caja_chica]: $data3[egresos_caja_chica]<br>data4[total_pago_proveedores]: $data4[total_pago_proveedores]<br>";
     $aCaja[]=[
       "id_venta"=>0,
+      "id"=>"",
       "fecha_hora"=>date("d-m-Y H:i",strtotime($desde)),
+      "motivo"=>"",
       "detalle"=>$detalle,
       "forma_pago"=>"",
       "credito"=>0,
@@ -191,7 +197,7 @@ if($desde<=$hasta){
 
   if($filtroMotivo==""){
     //obtenemos las ventas
-    $sql = " SELECT v.id AS id_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,v.fecha_hora, fp.forma_pago,(SELECT GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.subtotal,2,'de_DE') SEPARATOR '<br>') FROM ventas_detalle vd inner join productos p on p.id = vd.id_producto WHERE vd.id_venta=v.id) AS detalle_productos,v.total_con_descuento,v.id_cierre_caja,tipo_comprobante FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE 1 $whereVentas $filtroDesde $filtroHasta";
+    $sql = " SELECT v.id AS id_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,v.fecha_hora, fp.forma_pago,(SELECT GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.subtotal,2,'de_DE') SEPARATOR '<br>') FROM ventas_detalle vd inner join productos p on p.id = vd.id_producto WHERE vd.id_venta=v.id) AS detalle_productos,(SELECT COUNT(vd.id) FROM ventas_detalle vd WHERE vd.id_venta=v.id) AS cant_productos,v.total_con_descuento,v.id_cierre_caja,tipo_comprobante FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE 1 $whereVentas $filtroDesde $filtroHasta";
     //echo $sql;
     foreach ($pdo->query($sql) as $row) {
       $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
@@ -208,9 +214,11 @@ if($desde<=$hasta){
       }
       $aCaja[]=[
         "id_venta"=>$row["id_venta"],
+        "id"=>$cerrado."<span data-id='".$row["id_venta"]."' data-tipo='venta' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span> V#".$row["id_venta"]."",
         "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora"])),
         //"detalle"=>$cerrado."<a href='verVenta.php?id=".$row["id_venta"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a> ".$tipo_comprobante." ID ".$row["id_venta"]."",
-        "detalle"=>$cerrado."<span data-id='".$row["id_venta"]."' data-tipo='venta' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span> ".$tipo_comprobante." ID ".$row["id_venta"]."",
+        "motivo"=>$tipo_comprobante,
+        "detalle"=>$row["cant_productos"]." producto/os",
         "forma_pago"=>$row["forma_pago"],
         "credito"=>$credito,
         "debito"=>$debito,
@@ -228,8 +236,11 @@ if($desde<=$hasta){
     foreach ($pdo->query($sql) as $row) {
       $aCaja[]=[
         "id_proveedor"=>$row["id_proveedor"],
+        "id"=>$row["id_proveedor"],
         "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora_pago"])),
-        "detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
+        //"detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
+        "motivo"=>"Pago a proveedores",
+        "detalle"=>$row["proveedor"],
         "forma_pago"=>"Efectivo",
         "credito"=>0,
         "debito"=>$row["suma_deuda_proveedor"],
@@ -255,28 +266,27 @@ if($desde<=$hasta){
     }
 
     if($row["tipo_movimiento"]=="Ingreso"){
-      $aCaja[]=[
-        "id_movimiento"=>$row["id_movimiento"],
-        "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora"])),
-        "detalle"=>$cerrado.$iconVer.$iconEdit." Mov. ID ".$row["id_movimiento"]."",
-        "forma_pago"=>$row["forma_pago"],
-        "credito"=>$row["total"],
-        "debito"=>0,
-        "saldo"=>0,
-        "detalle_productos"=>$row["motivo"].": ".$row["detalle"],
-      ];
+      $credito=$row["total"];
+      $debito=0;
+      $saldo=0;
     }else{
-      $aCaja[]=[
-        "id_movimiento"=>$row["id_movimiento"],
-        "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora"])),
-        "detalle"=>$cerrado.$iconVer.$iconEdit." Mov. ID ".$row["id_movimiento"]."",
-        "forma_pago"=>$row["forma_pago"],
-        "credito"=>0,
-        "debito"=>$row["total"],
-        "saldo"=>0,
-        "detalle_productos"=>$row["motivo"].": ".$row["detalle"],
-      ];
+      $credito=0;
+      $debito=$row["total"];
+      $saldo=0;
     }
+    $aCaja[]=[
+      "id_movimiento"=>$row["id_movimiento"],
+      "id"=>$cerrado.$iconVer.$iconEdit." M#".$row["id_movimiento"]."",
+      "fecha_hora"=>date("d-m-Y H:i",strtotime($row["fecha_hora"])),
+      //"detalle"=>$cerrado.$iconVer.$iconEdit." Mov. ID ".$row["id_movimiento"]."",
+      "motivo"=>$row["motivo"],
+      "detalle"=>$row["detalle"],
+      "forma_pago"=>$row["forma_pago"],
+      "credito"=>$credito,
+      "debito"=>$debito,
+      "saldo"=>$saldo,
+      "detalle_productos"=>$row["motivo"].": ".$row["detalle"],
+    ];
   }
   Database::disconnect();
 

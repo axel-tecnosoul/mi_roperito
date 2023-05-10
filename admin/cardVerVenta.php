@@ -89,7 +89,9 @@ Database::disconnect();
         </div>
 
         <div class="form-group row">
-          <label class="col-sm-12 col-form-label">Productos&nbsp;<a href="#"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Depositar Productos Seleccionados" id="depositar-masivo" title="Devolver Productos Seleccionados"></a></label>
+          <label class="col-sm-12 col-form-label">Productos&nbsp;
+            <a href="#" id="devolver-masivo"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" title="Devolver Productos Seleccionados"></a>
+          </label>
         </div>
 
         <div class="form-group row">

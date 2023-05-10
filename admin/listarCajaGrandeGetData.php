@@ -1,10 +1,12 @@
 <?php 
-session_start(); 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
-include 'database.php';
+include_once 'database.php';
 $pdo = Database::connect();
 
 $desde=$_GET["desde"];
@@ -117,8 +119,8 @@ if($desde<=$hasta){
 
   $modo_debug=0;
   if($modo_debug==1){
-    $detalle="ingresos_externos: $ingresos_externos<br>ingresos_caja_chica: $ingresos_caja_chica<br>egresos_caja_grande: $egresos_caja_grande<br>total_pago_proveedores: $total_pago_proveedores<br>saldo_anterior: $saldo_anterior<br>";
-    //$detalle.="data[ingresos_externos]: $data[ingresos_externos]<br>data2[ingresos_caja_chica]: $data2[ingresos_caja_chica]<br>data3[egresos_caja_grande]: $data3[egresos_caja_grande]<br>data4[total_pago_proveedores]: $data4[total_pago_proveedores]<br>";
+    $detalle="ingresos_externos: $ingresos_externos<br>ingresos_caja_chica: $egresos_caja_grande<br>egresos_caja_grande: $ingresos_caja_chica<br>";
+    $detalle.="data[ingresos_externos]: $data[ingresos_externos]<br>data2[ingresos_caja_chica]: $data2[ingresos_caja_chica]<br>data3[egresos_caja_grande]: $data3[egresos_caja_grande]<br>";
     $aCaja[]=[
       "id_venta"=>0,
       "fecha_hora"=>date("d-m-Y H:i",strtotime($desde)),
@@ -126,7 +128,7 @@ if($desde<=$hasta){
       "forma_pago"=>"",
       "credito"=>0,
       "debito"=>0,
-      "saldo"=>$saldo_anterior,
+      "saldo"=>0,
       "detalle_productos"=>"",
     ];
   }

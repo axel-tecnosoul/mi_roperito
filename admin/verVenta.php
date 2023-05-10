@@ -143,7 +143,7 @@ if ( null==$id ) {
         }
 			});
 
-      $('#depositar-masivo').on('click', function (e) {
+      $('#devolver-masivo').on('click', function (e) {
         e.preventDefault();
         if ($('.customer-selector:checked').length < 1) {
           alert("Debe seleccionar un producto como mínimo");
@@ -151,7 +151,7 @@ if ( null==$id ) {
           var arr = [];
           $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
           //window.location.href=window.location.href.replace("listarProductos.php", "etiquetarMasivo.php?id=" + arr.join(",") );
-          window.open("nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(","));
+          window.location.href="nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(",");
         }
       });
 
