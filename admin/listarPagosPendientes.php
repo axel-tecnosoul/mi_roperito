@@ -119,7 +119,22 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
-                              $sql3 = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor,pr.id_almacen FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=0 $whereAlmacen GROUP BY pr.id";
+                              $sql3 = "SELECT pr.id, CONCAT(pr.apellido, ' ', pr.nombre) AS proveedor, pr.id_almacen
+                              FROM proveedores pr 
+                              WHERE EXISTS (
+                                SELECT 1
+                                FROM ventas_detalle vd 
+                                INNER JOIN ventas v ON vd.id_venta = v.id 
+                                INNER JOIN productos p ON vd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 0 $whereAlmacen
+                              )
+                              OR EXISTS (
+                                SELECT 1
+                                FROM canjes_detalle cd 
+                                INNER JOIN canjes c ON cd.id_canje = c.id 
+                                INNER JOIN productos p ON cd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
+                              )";
                               echo $sql3;
                               foreach ($pdo->query($sql3) as $row) {
                                 $selected="";
@@ -206,11 +221,10 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           }
                           //echo $sql;
                           $total_deuda=0;
-                          $sql2 = "SELECT cd.id AS id_detalle_canje, a.almacen, date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cj.id AS id_canje,cd.deuda_proveedor FROM canjes_detalle cd inner join canjes cj on cj.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen left join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 0 $filtroDesdeC $filtroHastaC $filtroProveedor $filtroAlmacen";
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';                          
-                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.$row["id_detalle_venta"].'" /> </td>';
-                            echo '<td><a href="verVenta.php?id='.'v/'.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row["id_venta"].'</td>';
+                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'. 'v/' . $row["id_detalle_venta"].'" /> </td>';
+                            echo '<td><a href="verVenta.php?id='.'v/'.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '."V#".$row["id_venta"].'</td>';
                             /*echo '<td>'. $row["id_detalle_venta"] . '</td>';
                             echo '<td>'. $row["nombre"] . ' ' . $row["apellido"] . '</td>';*/
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
@@ -237,10 +251,11 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '</tr>';
                             
                           }
+                          $sql2 = "SELECT cd.id AS id_detalle_canje, a.almacen, date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cj.id AS id_canje,cd.deuda_proveedor FROM canjes_detalle cd inner join canjes cj on cj.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen left join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 0 $filtroDesdeC $filtroHastaC $filtroProveedor $filtroAlmacen";
                           foreach($pdo->query($sql2) as $row2){
                             echo '<tr>';                          
-                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.$row2["id_detalle_canje"].'" /> </td>';
-                            echo '<td><a href="verCanje.php?id='.'c/'.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row2["id_canje"].'</td>';
+                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.'c/'.$row2["id_detalle_canje"].'" /> </td>';
+                            echo '<td><a href="verCanje.php?id='.'c/'.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '. "C#".$row2["id_canje"].'</td>';
                             echo '<td>'. $row2["fecha_hora"] . 'hs</td>';
                             echo '<td>'. $row2["descripcion"] . '</td>';
                             echo '<td>$'. number_format($row2["precio"],2) . '</td>';

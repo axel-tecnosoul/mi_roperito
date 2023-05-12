@@ -6,9 +6,20 @@ if(empty($_SESSION['user'])){
 }
 require 'database.php';
 
-$id = null;
-if ( !empty($_GET['id'])) {
-  $id = $_REQUEST['id'];
+$ventas = [];
+$canjes = [];
+
+if (!empty($_GET['id'])) {
+  $id = $_GET['id'];
+  $items = explode(',', $id);
+
+  foreach ($items as $item) {
+    if (strpos($item, 'v/') === 0) {
+      $ventas[] = substr($item, 2);
+    } elseif (strpos($item, 'c/') === 0) {
+      $canjes[] = substr($item, 2);
+    }
+  }
 }
 
 if ( null==$id ) {
@@ -21,10 +32,15 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "UPDATE ventas_detalle set caja_egreso = ?, id_almacen = ?, id_forma_pago = ? where id = ?";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['tipo_caja'],$_POST['id_almacen'],$_POST['id_forma_pago'],$_GET['id']));
-  
+  if($_POST['condicion'] == 1){
+    $sql = "UPDATE ventas_detalle set caja_egreso = ?, id_almacen = ?, id_forma_pago = ? where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['tipo_caja'],$_POST['id_almacen'],$_POST['id_forma_pago'],$_POST['id']));
+  }else{
+    $sql= "UPDATE canjes_detalle set caja_egreso = ?, id_almacen = ?, id_forma_pago = ? where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['tipo_caja'],$_POST['id_almacen'],$_POST['id_forma_pago'],$_POST['id']));
+  }
   Database::disconnect();
   
   header("Location: listarPagosRealizados.php");
@@ -33,21 +49,45 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE vd.id = ? ";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($id));
-  $data = $q->fetch(PDO::FETCH_ASSOC);
+  $v = 0;
+  if (!empty($ventas)) {
+    foreach ($ventas as $value)	{
+      $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE vd.id = ? ";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($value));
+      $data = $q->fetch(PDO::FETCH_ASSOC);
 
-  $checkedCajaChica="";
-  if ($data["caja_egreso"]=="Chica") {
-    $checkedCajaChica="checked='checked'";
-  }
+      $checkedCajaChica="";
+      if ($data["caja_egreso"]=="Chica") {
+        $checkedCajaChica="checked='checked'";
+      }
 
-  $checkedCajaGrande="";
-  if ($data["caja_egreso"]=="Grande") {
-    $checkedCajaGrande="checked='checked'";
+      $checkedCajaGrande="";
+      if ($data["caja_egreso"]=="Grande") {
+        $checkedCajaGrande="checked='checked'";
+      }
+      $v = 1;
+    }
   }
   
+  if (!empty($canjes)) {
+    foreach ($canjes as $value)	{
+      $sql2 = "SELECT cd.caja_egreso, cd.id_almacen, cd.id_forma_pago, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago FROM canjes_detalle cd INNER JOIN canjes v ON cd.id_canje=v.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE cd.id = ? ";
+      $q2 = $pdo->prepare($sql2);
+      $q2->execute(array($value));
+      $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+
+      $checkedCajaChica="";
+      if ($data2["caja_egreso"]=="Chica") {
+        $checkedCajaChica="checked='checked'";
+      }
+
+      $checkedCajaGrande="";
+      if ($data2["caja_egreso"]=="Grande") {
+        $checkedCajaGrande="checked='checked'";
+      }
+    }
+  }      
   Database::disconnect();
 }?>
 <!DOCTYPE html>
@@ -107,15 +147,15 @@ if ( !empty($_POST)) {
 
                           <div class="form-group row">
                             <div class="col-sm-3">Fecha y hora:</div>
-                            <div class="col-sm-9"><?=$data["fecha_hora_pago"]?>hs.</div>
+                            <div class="col-sm-9"><?php echo ($v == 1) ?  $data["fecha_hora_pago"] : $data2["fecha_hora_pago"] ?>hs.</div>
                           </div>
                           <div class="form-group row">
                             <div class="col-sm-3">Proveedor:</div>
-                            <div class="col-sm-9"><?="(".$data["id"].") ".$data["nombre"]." ".$data["apellido"]?></div>
+                            <div class="col-sm-9"><?php echo($v == 1) ?  "(".$data["id"].") ".$data["nombre"]." ".$data["apellido"] :  "(".$data2["id"].") ".$data2["nombre"]." ".$data2["apellido"]?></div>
                           </div>
                           <div class="form-group row">
                             <div class="col-sm-3">Producto:</div>
-                            <div class="col-sm-9"><?="(".$data["codigo"].") ".$data["descripcion"]?></div>
+                            <div class="col-sm-9"><?php echo($v == 1) ?  "(".$data["codigo"].") ".$data["descripcion"] :  "(".$data2["codigo"].") ".$data2["descripcion"]?></div>
                           </div>
                           <div class="form-group row">
                             <div class="col-sm-3">Caja: </div>
@@ -137,7 +177,13 @@ if ( !empty($_POST)) {
                                 $sql = " SELECT id, almacen FROM almacenes";
                                 foreach ($pdo->query($sql) as $row) {
                                   $selected="";
-                                  if($data["id_almacen"]==$row["id"]){
+                                  $almacen = "";
+                                  if ($v == 1){
+                                    $almacen = $data["id_almacen"];
+                                  }else{
+                                    $almacen = $data2["id_almacen"];
+                                  }
+                                  if($almacen==$row["id"]){
                                     $selected="selected";
                                   }?>
                                   <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["almacen"]?></option><?php
@@ -158,13 +204,21 @@ if ( !empty($_POST)) {
                                 $q->execute();
                                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
                                   $selected="";
-                                  if($data["id_forma_pago"]==$fila["id"]){
+                                  $forma_pago = "";
+                                  if ($v == 1){
+                                    $forma_pago = $data["id_forma_pago"];
+                                  }else{
+                                    $forma_pago = $data2["id_forma_pago"];
+                                  }
+                                  if($forma_pago==$fila["id"]){
                                     $selected="selected";
                                   }?>
                                   <option value='<?=$fila['id']?>' <?=$selected?>><?=$fila['forma_pago']?></option><?php
                                 }
                                 Database::disconnect();?>
                               </select>
+                              <input type="hidden" name='condicion' id='condicion' value=<?= $v ?>>
+                              <input type="hidden" name='id' id='id' value=<?php echo($v == 1) ? implode(',', $ventas) : implode(',', $canjes); ?>>
                             </div>
                           </div>
                         </div>
