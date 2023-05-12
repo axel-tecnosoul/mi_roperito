@@ -181,7 +181,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         </thead>
                         <tbody><?php
                           $pdo = Database::connect();
-                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
@@ -191,7 +191,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             $deuda = $row["deuda_proveedor"];
                             $total_deuda+=$deuda;?>
                             <tr>
-                              <td><?=$row["id_detalle_venta"]?></td>
+                              <td><?="VD#".$row["id_detalle_venta"]?></td>
                               <td><?=$row["fecha_hora_pago"]?>hs</td>
                               <td><?=$row["descripcion"]?></td>
                               <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
@@ -199,11 +199,41 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               <td><?=$row["forma_pago"]?></td>
                               <td><?=$row["almacen"]?></td>
                               <td>
-                                <a href="modificarPagoRealizado.php?id=<?=$row["id_detalle_venta"]?>">
+                                <a href="modificarPagoRealizado.php?id=v/<?=$row["id_detalle_venta"]?>">
                                   <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
                                 </a>
-                                <a href="verVenta.php?id=<?=$row["id_venta"]?>">
+                                <a href="verVenta.php?id=v/<?=$row["id_venta"]?>">
                                   <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta">
+                                </a>
+                              </td>
+                              <td class="d-none">$<?=number_format($row["precio"],2)?></td>
+                              <td class="d-none">$<?=number_format($row["subtotal"],2)?></td>
+                              <td class="d-none"><?=$row["cantidad"]?></td>
+                              <td class="d-none"><?=$row["codigo"]?></td>
+                              <td class="d-none"><?=$row["categoria"]?></td>
+                            </tr><?php
+                          }
+                          $sql2 ="SELECT cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1";
+                          if ($_SESSION['user']['id_perfil'] == 2) {
+                            $sql2 .= " and a.id = ".$_SESSION['user']['id_almacen']; 
+                          }
+                          foreach ($pdo->query($sql2) as $row) {
+                            $deuda = $row["deuda_proveedor"];
+                            $total_deuda+=$deuda;?>
+                            <tr>
+                              <td><?="CD#".$row["id_detalle_canje"]?></td>
+                              <td><?=$row["fecha_hora_pago"]?>hs</td>
+                              <td><?=$row["descripcion"]?></td>
+                              <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
+                              <td><?=$row["caja_egreso"]?></td>
+                              <td><?=$row["forma_pago"]?></td>
+                              <td><?=$row["almacen"]?></td>
+                              <td>
+                                <a href="modificarPagoRealizado.php?id=c/<?=$row["id_detalle_canje"]?>">
+                                  <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
+                                </a>
+                                <a href="verCanje.php?id=c/<?=$row["id_canje"]?>">
+                                  <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje">
                                 </a>
                               </td>
                               <td class="d-none">$<?=number_format($row["precio"],2)?></td>
