@@ -1,6 +1,6 @@
 <?php
 session_start(); 
-header('Content-Disposition: attachment; filename="pagos_pendientes.xls"');
+header('Content-Disposition: attachment; filename="pagos_realizados.xls"');
 include 'database.php';
 ?>
 <!doctype html>
@@ -17,57 +17,46 @@ include 'database.php';
 					<thead>
 		                <tr>
 						  <th>ID</th>
-						  <th>Proveedor</th>
-						  <th>Almacen</th>
 						  <th>Fecha/Hora</th>
-						  <th>Código</th>
-						  <th>Categoría</th>
 						  <th>Descripción</th>
-						  <th>Cantidad</th>
-						  <th>Precio</th>
-						  <th>Subtotal</th>
-						  <th>Deuda</th>
+						  <th>Pagado</th>
+						  <th>Caja</th>
+						  <th>Categoría</th>
+						  <th>Forma de Pago</th>
+						  <th>Almacen</th>
 		                </tr>
 		              </thead>
 		             <tbody>
 		              <?php     
 						$pdo = Database::connect();
-						$sql = " SELECT vd.id, a.almacen, v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado`, pr.nombre, pr.apellido FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE v.anulada = 0 and m.id = 40 and vd.`pagado` = 0";
+						$sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL";
 						if ($_SESSION['user']['id_perfil'] == 2) {
 							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 						}
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
-								echo '<td>VD#'. $row[0] . '</td>';
-								echo '<td>'. $row[11] . ' ' . $row[12] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[5] . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								echo '<td>'. $row[7] . '</td>';
-								echo '<td>'. $row[8] . '</td>';
-								echo '<td>'. $row[8]*0.4 . '</td>';
+								echo '<td>VD#'. $row['id_detalle_venta'] . '</td>';
+								echo '<td>'. $row['fecha_hora_pago'] . '</td>';
+								echo '<td>'. $row['descripcion'] . '</td>';
+								echo '<td>'. $row['deuda_proveedor'] . '</td>';
+								echo '<td>'. $row['caja_egreso'] . '</td>';
+								echo '<td>'. $row['forma_pago'] . '</td>';
+								echo '<td>'. $row['almacen'] . '</td>';
 								echo '</tr>';
 							}
-						$sql2 = " SELECT cd.id, a.almacen, cj.fecha_hora, p.codigo, c.categoria, p.descripcion, cd.`cantidad`, cd.`precio`, cd.`subtotal`, m.`modalidad`, cd.`pagado`, pr.nombre, pr.apellido FROM `canjes_detalle` cd inner join canjes cj on cj.id = cd.id_canje inner join almacenes a on a.id = cj.id_almacen inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE cj.anulado = 0 and m.id = 40 and cd.`pagado` = 0";
+						$sql2 = "SELECT cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1";
 						if ($_SESSION['user']['id_perfil'] == 2) {
 							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 						}
 							foreach ($pdo->query($sql2) as $row) {
 								echo '<tr>';
-								echo '<td>CD#'. $row[0] . '</td>';
-								echo '<td>'. $row[11] . ' ' . $row[12] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[5] . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								echo '<td>'. $row[7] . '</td>';
-								echo '<td>'. $row[8] . '</td>';
-								echo '<td>'. $row[8]*0.4 . '</td>';
+								echo '<td>CD#'. $row['id_detalle_canje'] . '</td>';
+								echo '<td>'. $row['fecha_hora_pago'] . '</td>';
+								echo '<td>'. $row['descripcion'] . '</td>';
+								echo '<td>'. $row['deuda_proveedor'] . '</td>';
+								echo '<td>'. $row['caja_egreso'] . '</td>';
+								echo '<td>'. $row['forma_pago'] . '</td>';
+								echo '<td>'. $row['almacen'] . '</td>';
 								echo '</tr>';
 							}
 					   Database::disconnect();
