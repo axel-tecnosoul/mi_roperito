@@ -237,7 +237,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '</tr>';
                             
                           }
-                          /*foreach($pdo->query($sql2) as $row2){
+                          foreach($pdo->query($sql2) as $row2){
                             echo '<tr>';                          
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.$row2["id_detalle_canje"].'" /> </td>';
                             echo '<td><a href="verCanje.php?id='.'c/'.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '.$row2["id_canje"].'</td>';
@@ -254,7 +254,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '<td class="d-none">'. $row2["codigo"] . '</td>';
                             echo '<td class="d-none">'. $row2["categoria"] . '</td>';
                             echo '</tr>';
-                          }*/
+                          }
                           Database::disconnect();?>
                         </tbody>
                       </table>
