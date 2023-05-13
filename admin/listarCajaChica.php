@@ -3,8 +3,7 @@ session_start();
 if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-include 'database.php';?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -30,9 +29,6 @@ include 'database.php';?>
     .modal-body{
       max-height: 80vh;
       overflow-y: auto;
-    }
-    .w-15{
-      width: 10%;
     }
   </style>
   <body class="light-only">
@@ -84,7 +80,6 @@ include 'database.php';?>
                     <h5>Caja chica
                       &nbsp;<a href="nuevoMovimientoCajaChica.php"><img src="img/import.png" width="24" height="25" border="0" alt="Registrar movimiento de dinero" title="Registrar movimiento de dinero"></a>
                       &nbsp;<button title="Cerrar Caja" class="btn btn-link btn-lg p-0 px-2 border" style="color:#05093f" id="btnCerrarCaja"><i class='fa fa-lock' aria-hidden='true'></i></button>
-                      <span style="right: 20px;position: absolute;">Saldo: <span id="saldo">$ 0,00</span></span>
                     </h5>
                   </div>
                   <div class="card-body">
@@ -93,6 +88,19 @@ include 'database.php';?>
                         <tr>
                           <td class="text-right border-0 p-1">Desde: </td>
                           <td class="border-0 p-1"><input type="date" name="desde" id="desde" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <label for="forma_pago">Forma de pago:</label>
+                            <select name="forma_pago" id="forma_pago" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                              include 'database.php';
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, forma_pago FROM forma_pago";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>" <?php //if($row["id"]==1) echo "selected"?>><?=$row["forma_pago"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
                             <label for="id_tipo_motivo">Tipo de motivo:</label>
                             <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control form-control-sm selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
@@ -104,19 +112,20 @@ include 'database.php';?>
                               Database::disconnect();?>
                             </select>
                           </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"></td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <label for="id_motivo">Motivo:</label>
-                            <select name="id_motivo" id="id_motivo" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
+                            <label for="motivo">Motivo:</label>
+                            <select name="motivo" id="motivo" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
                               $pdo = Database::connect();
-                              $sql = " SELECT id, motivo, id_tipo_motivo FROM motivos_salidas_caja";
+                              $sql = " SELECT id, motivo FROM motivos_salidas_caja";
                               foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>" data-id-tipo-motivo="<?=$row["id_tipo_motivo"]?>"><?=$row["motivo"]?></option><?php
+                                <option value="<?=$row["id"]?>"><?=$row["motivo"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
                           </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <label for="id_empleado">Empleado:</label>
+                            <label for="motivo">Empleado:</label>
                             <select name="id_empleado" id="id_empleado" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple>
                               <option value="">- Seleccione -</option><?php
                               $pdo = Database::connect();
@@ -127,16 +136,11 @@ include 'database.php';?>
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <label for="forma_pago">Forma de pago:</label>
-                            <select name="forma_pago" id="forma_pago" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
-                              $pdo = Database::connect();
-                              $sql = " SELECT id, forma_pago FROM forma_pago";
-                              foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>" <?php //if($row["id"]==1) echo "selected"?>><?=$row["forma_pago"]?></option><?php
-                              }
-                              Database::disconnect();?>
-                            </select>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {
+                              echo "";
+                            }?>
+                            <!-- Tipo comprobante: -->
                           </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
                             if ($_SESSION['user']['id_perfil'] == 1) {?>
@@ -170,21 +174,19 @@ include 'database.php';?>
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-                            <th>ID</th>
                             <th>Fecha/Hora</th>
-                            <th>Motivo</th>
                             <th>Detalle</th>
-                            <th>Pago</th><!-- Forma  -->
-                            <th style="text-align:center !important">Credito</th>
-                            <th style="text-align:center !important">Débito</th>
-                            <th style="text-align:center !important">Saldo</th>
+                            <th>Forma de Pago</th>
+                            <th>Credito</th>
+                            <th>Débito</th>
+                            <th>Saldo</th>
                             <th class="none"></th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                         <tfoot>
                           <tr>
-                            <td colspan="5" class="font-weight-bold">Totales</td>
+                            <td colspan="3" class="font-weight-bold">Totales</td>
                             <td class="font-weight-bold"></td>
                             <td class="font-weight-bold"></td>
                             <td class="font-weight-bold"></td>
@@ -311,24 +313,27 @@ include 'database.php';?>
 
         $("#id_tipo_motivo").on("change",function(){
           let id_tipo_motivo=this.value;
-          let aTipoMotivo=$(this).val();
-          console.log(aTipoMotivo);
           let selectMotivo=$("#id_motivo")
           selectMotivo.find("option").each(function(){
-            $(this).hide();
-            $(this).prop('selected', false);
-            //if(this.value=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
-            if(this.value=="" || aTipoMotivo.indexOf(this.dataset.idTipoMotivo)>-1){
-              $(this).show();
-              $(this).prop('selected', true);
+            let disabled=true;
+            if(this.value=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
+              console.log(this.value);
+              disabled=false;
             }
-            
+            this.disabled=disabled;
           })
-          //selectMotivo.val("")
-          selectMotivo.selectpicker("render");
-          selectMotivo.selectpicker('refresh');
-          getCaja();
-          //selectMotivo.select2()
+          selectMotivo.val("")
+          selectMotivo.select2()
+
+          let id_empleado=$("#id_empleado");
+          console.log(id_tipo_motivo);
+          console.log(id_empleado);
+          if(id_tipo_motivo==12){//12 -> Sueldos
+            id_empleado.prop("required",true)
+          }else{
+            id_empleado.prop("required",false)
+          }
+          //id_empleado.select2()
 
           /*let row_select_empleados=$("#row_select_empleados");
           row_select_empleados.find("#id_empleado").val(0).trigger("change")
@@ -403,7 +408,7 @@ include 'database.php';?>
         let desde=$("#desde").val();
         let hasta=$("#hasta").val();
         let forma_pago=$("#forma_pago").val();
-        let motivo=$("#id_motivo").val();
+        let motivo=$("#motivo").val();
         //let tipo_comprobante=$("#tipo_comprobante").val();
         let id_almacen=$("#id_almacen").val();
         let bandera_saldo=saldo=credito=debito=0;
@@ -419,11 +424,9 @@ include 'database.php';?>
           scrollY: '100vh',
           scrollCollapse: true,
           "columns":[
-            {"data": "id","width": "15%"},
-            {"data": "fecha_hora","width": "10%"},
-            {"data": "motivo"},
-            {"data": "detalle"},
-            {"data": "forma_pago","width": "10%"},
+            {"data": "fecha_hora"},
+            {"data": "detalle","width": "20%"},
+            {"data": "forma_pago"},
             {
               render: function(data, type, row, meta) {
                 if(type=="display"){
@@ -435,8 +438,7 @@ include 'database.php';?>
                   return "";
                 }
               },
-              className: 'dt-body-right text-right w-15',
-              //,"width": "15%"
+              className: 'dt-body-right text-right',
             },{
               render: function(data, type, row, meta) {
                 if(type=="display"){
@@ -448,7 +450,7 @@ include 'database.php';?>
                   return "";
                 }
               },
-              className: 'dt-body-right text-right w-15',
+              className: 'dt-body-right text-right',
             },{
               render: function(data, type, row, meta) {
                 if(type=="display"){
@@ -462,7 +464,7 @@ include 'database.php';?>
                 }
                 return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldo);
               },
-              className: 'dt-body-right text-right w-15',
+              className: 'dt-body-right text-right',
               orderDataType: "num-fmt"
             },{
               "data": "detalle_productos",
@@ -506,10 +508,9 @@ include 'database.php';?>
             })
             // Update footer
             //console.log($(api.column(3).footer()))
-            $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaCredito));
-            $(api.column(6).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaDebito));
-            //$(api.column(7).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldoFinal));
-            $("#saldo").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldoFinal));
+            $(api.column(3).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaCredito));
+            $(api.column(4).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaDebito));
+            $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldoFinal));
             //console.log(saldo);
           }
         });
