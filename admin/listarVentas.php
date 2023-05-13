@@ -351,7 +351,7 @@ include_once("funciones.php");?>
             className: 'dt-body-right text-right',
           },
           {render: function(data, type, row, meta) {
-            let btnVer='<a href="verVenta.php?id='+row.id_venta+'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta"></a>&nbsp;&nbsp;'
+            let btnVer='<a href="verVenta.php?id=v/'+row.id_venta+'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta"></a>&nbsp;&nbsp;'
             let btnAnular="";
             console.log(id_perfil);
             console.log(row.id_cierre_caja);
