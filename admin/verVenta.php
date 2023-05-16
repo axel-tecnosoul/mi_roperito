@@ -122,6 +122,11 @@ if ( null==$id ) {
 			$('#tableVentaProductos').DataTable({
 				stateSave: true,
 				responsive: true,
+        "columnDefs": [{
+          "targets": [0],
+          "searchable": false,
+          "orderable": false,
+        }],
 				language: {
           "decimal": "",
           "emptyTable": "No hay información",
@@ -144,7 +149,7 @@ if ( null==$id ) {
         }
 			});
 
-      $('#depositar-masivo').on('click', function (e) {
+      $('#devolver-masivo').on('click', function (e) {
         e.preventDefault();
         if ($('.customer-selector:checked').length < 1) {
           alert("Debe seleccionar un producto como mínimo");

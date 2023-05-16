@@ -409,11 +409,18 @@ if ( !empty($_POST)) {
 
   $id_lista = implode(',', $array_devolucion); // Convertimos el array de IDs en una cadena separada por comas
 
-  $sql = "SELECT v.id, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, v.tipo_comprobante, v.punto_venta, v.id_forma_pago, v.id_almacen, v.id_descuento_aplicado, d.descripcion as descuento_aplicado, vd.cantidad as cantidad_producto, vd.subtotal,p.id as producto_id, p.codigo, p.descripcion, p.precio, fp.forma_pago, vd.subtotal FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id IN ($id_lista) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
-                                
+  $sql = "SELECT v.id AS id_venta, v.fecha_hora, v.id_almacen, v.id_descuento_aplicado, d.descripcion AS descuento_aplicado, fp.forma_pago FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE vd.id IN ($id_lista) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
+  //echo $sql;
   $q = $pdo->prepare($sql);
   $q->execute();
-  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+  $data = $q->fetch(PDO::FETCH_ASSOC);
+  $id_venta=$data["id_venta"];
+  $fecha_hora=$data["fecha_hora"];
+  $id_almacen=$data["id_almacen"];
+  $id_descuento_aplicado=$data["id_descuento_aplicado"];
+  $descuento_aplicado=$data["descuento_aplicado"];
+  $forma_pago=$data["forma_pago"];
+
   //var_dump($devoluciones);
   //die;
 }
@@ -503,7 +510,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                                 $q->execute();
                                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
                                   $selected="";
-                                  if($fila['id']==$data["id_almacen"]){
+                                  if($fila['id']==$id_almacen){
                                     $selected="selected";
                                   }
                                   echo "<option value='".$fila['id']."' data-punto_venta='".$fila['punto_venta']."'";
@@ -597,32 +604,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <label class="col-sm-3 col-form-label">Descuentos Vigentes</label>
                             <div class="col-sm-9">
                               <select name="id_descuento" id="id_descuento" disabled class="js-example-basic-single col-sm-12">
-                                
-                                <option value="">Seleccione...</option><?php
-                                /*
-                                $pdo = Database::connect();
-                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT d.id, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, dfp.id_forma_pago, f.forma_pago FROM descuentos_x_formapago dfp INNER JOIN descuentos d on d.id = dfp.id_descuento INNER JOIN forma_pago f on f.id = dfp.id_forma_pago WHERE vigencia_desde <= now() and vigencia_hasta >= now() ";
-                                $q = $pdo->prepare($sqlZon);
-                                $q->execute();
-                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                                  $detalle="";
-                                  if($fila['porcentaje']>0){
-                                    $detalle.=" (".$fila['porcentaje']."%)";
-                                  }
-                                  /*if($fila['monto_fijo']>0){
-                                    $detalle.=" ($".number_format($fila['monto_fijo'],0,",",".").")";
-                                  }*/
-                                  /*if($fila['minimo_cantidad_prendas']>0){
-                                    $detalle.=" Cantidad prendas minimo: ".$fila['minimo_cantidad_prendas'];
-                                  }
-                                  if($fila['minimo_compra']>0){
-                                    $detalle.=" Compra minima: $".number_format($fila['minimo_compra'],0,",",".");
-                                  }
-                                  echo "<option value='".$fila['id']."' data-porcentaje='".$fila['porcentaje'].$detalle."</option>";
-                                }
-                                Database::disconnect();*/?>
-                                
+                                <option value="">Seleccione...</option>
                               </select>
                             </div>
                           </div>
@@ -644,27 +626,30 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                                     <th>Descuentos Aplicados</th>
                                   </tr>
                                 </thead>
-                                <tbody><?php 
+                                <tbody><?php
+                                  //$sql = "SELECT v.id, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, v.tipo_comprobante, v.punto_venta, v.id_forma_pago, v.id_almacen, v.id_descuento_aplicado, d.descripcion as descuento_aplicado, vd.cantidad as cantidad_producto, vd.subtotal,p.id as producto_id, p.codigo, p.descripcion, p.precio, fp.forma_pago, vd.subtotal FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id INNER JOIN almacenes a on a.id = v.id_almacen LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id IN ($id_lista) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
+                                  $sql = "SELECT vd.cantidad as cantidad_producto, vd.subtotal, p.codigo, p.descripcion, p.precio FROM ventas_detalle vd INNER JOIN productos p ON p.id = vd.id_producto WHERE vd.id IN ($id_lista) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
+                                  $q = $pdo->prepare($sql);
+                                  $q->execute();
+                                  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
                                   $precio_total = 0;
                                   foreach ($devoluciones as $data) { 
-                                    $precio_total += $data["subtotal"];?>
+                                    $precio_total += $data["subtotal"];
+                                    $descuentos_aplicados = '';
+                                    if ($id_descuento_aplicado == NULL || $id_descuento_aplicado == 0) {
+                                      //$descuentos_aplicados = 'Sin descuentos aplicados';
+                                    } else {
+                                      $descuentos_aplicados = $descuento_aplicado;
+                                    }?>
                                     <tr>
-                                      <td><?php echo date("d/m/Y", strtotime($data['fecha_hora'])); ?></td>
-                                      <td><?php echo "(" . $data["codigo"] . ") " . $data["descripcion"]; ?></td>
-                                      <td>$<?php echo number_format($data["precio"], 2, ",", ".");?></td>
-                                      <td>$<?php echo number_format($data["subtotal"], 2, ",", ".");?></td>
-                                      <td><?php echo $data["cantidad_producto"]; ?></td>
-                                      <td><?php echo $data["forma_pago"]; ?></td>
-                                      <td><?php
-                                      $descuentos_aplicados = '';
-                                      if ($data['id_descuento_aplicado'] == NULL || $data['id_descuento_aplicado'] == 0) {
-                                        $descuentos_aplicados = 'Sin descuentos aplicados';
-                                      } else {
-                                        $descuentos_aplicados = $data['descuento_aplicado'];
-                                      }
-                                      echo $descuentos_aplicados;?>
-                                      </td>
-                                    </tr><?php 
+                                      <td><?=date("d/m/Y", strtotime($fecha_hora))?></td>
+                                      <td><?="(" . $data["codigo"] . ") " . $data["descripcion"]?></td>
+                                      <td>$<?=number_format($data["precio"], 2, ",", ".");?></td>
+                                      <td>$<?=number_format($data["subtotal"], 2, ",", ".");?></td>
+                                      <td><?=$data["cantidad_producto"]?></td>
+                                      <td><?=$forma_pago?></td>
+                                      <td><?=$descuentos_aplicados;?></td>
+                                    </tr><?php
                                   }?>
                                 </tbody>
                               </table>
@@ -704,7 +689,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             <div class="col-sm-9"><input name="telefono" type="text" maxlength="99" class="form-control" value=""></div>
                           </div>
                           <input name="id_venta_detalle" class="form-control" type="hidden" value=<?=$id_lista?>>
-                          <input name="id_venta" id="id_venta" class="form-control" type="hidden" value=<?=$data['id'];?>>
+                          <input name="id_venta" id="id_venta" class="form-control" type="hidden" value=<?=$id_venta;?>>
                           <input type="hidden" id="total_input" name="total_input" value="">
                         </div>
                       </div>
