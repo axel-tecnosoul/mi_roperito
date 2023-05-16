@@ -126,7 +126,7 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="hora" type="time" value="<?=date("H:i",strtotime($data["fecha_hora"]))?>" class="form-control" required></div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Almacen</label>
+                            <label class="col-sm-3 col-form-label">Caja del Almacen</label>
                             <div class="col-sm-9">
                               <select name="id_almacen_egreso" id="id_almacen_egreso" class="form-control" required>
                                 <option value="">Seleccione...</option><?php
@@ -177,7 +177,7 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Forma de pago</label>
                             <div class="col-sm-9">
                               <select name="forma_pago" id="forma_pago" class="form-control" required>
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, forma_pago FROM forma_pago";
                                 foreach ($pdo->query($sql) as $row) {
@@ -210,7 +210,7 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Tipo de Motivo</label>
                             <div class="col-sm-9">
                               <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control js-example-basic-single">
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, nombre FROM tipos_motivos";
                                 foreach ($pdo->query($sql) as $row) {$selected="";
@@ -310,15 +310,17 @@ if ( !empty($_POST)) {
     <script src="assets/js/select2/select2-custom.js"></script>
     <script>
       $(document).ready(function () {
+
         $("input[name='tipo_movimiento']").on("change",function(){
           let selectMotivo=$("#id_motivo");
-          selectMotivo.val(0);
+          selectMotivo.val("");
           let optionSalidaCajaGrande=selectMotivo.find("option[value='1']");
           if(this.value=="Ingreso"){
             optionSalidaCajaGrande.attr("disabled",true);
           }else{
             optionSalidaCajaGrande.attr("disabled",false);
           }
+          selectMotivo.select2()
         })
 
         $("#id_tipo_motivo").on("change",function(){
@@ -326,7 +328,7 @@ if ( !empty($_POST)) {
           let selectMotivo=$("#id_motivo")
           selectMotivo.find("option").each(function(){
             let disabled=true;
-            if(this.value=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
+            if(this.value=="" || id_tipo_motivo=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
               console.log(this.value);
               disabled=false;
             }
@@ -336,22 +338,23 @@ if ( !empty($_POST)) {
           selectMotivo.select2()
 
           let id_empleado=$("#id_empleado");
-          console.log(id_tipo_motivo);
-          console.log(id_empleado);
           if(id_tipo_motivo==12){//12 -> Sueldos
             id_empleado.prop("required",true)
           }else{
             id_empleado.prop("required",false)
           }
-          //id_empleado.select2()
+          
+        })
 
-          /*let row_select_empleados=$("#row_select_empleados");
-          row_select_empleados.find("#id_empleado").val(0).trigger("change")
-          if(id_tipo_motivo==12){//12 -> Sueldos
-            row_select_empleados.removeClass("d-none")
+        $("#id_motivo").on("change",function(){
+          let selectedOption=$(this).find("option[value='"+this.value+"']");
+          selectedOption=selectedOption[0];
+          let id_empleado=$("#id_empleado");
+          if(selectedOption.dataset.idTipoMotivo==12){//12 -> Sueldos
+            id_empleado.prop("required",true)
           }else{
-            row_select_empleados.addClass("d-none")
-          }*/
+            id_empleado.prop("required",false)
+          }
         })
       });
     </script>
