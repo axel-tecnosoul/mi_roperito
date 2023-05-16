@@ -16,13 +16,31 @@ if ( !empty($_POST)) {
   if(isset($_POST["id_empleado"]) and $_POST["id_empleado"]>0){
     $id_empleado=$_POST["id_empleado"];
   }
-
-  //$sql = "INSERT INTO egresos_caja_chica (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,detalle,id_almacen) VALUES (?,?,?,?,?,?,?)";
-  $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,?,'Chica')";
   
-  $q = $pdo->prepare($sql);
-  //$q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$_POST['detalle'],$_POST["id_almacen"]));
-  $q->execute(array($fecha_hora,$_POST['monto'],$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$id_empleado,$_POST['detalle'],$_POST["id_almacen_egreso"],$_POST["id_almacen_corresponde"],$_POST["tipo_movimiento"]));
+  $monto=$_POST["monto"];
+
+  if($_POST["id_almacen_corresponde"]=="TODOS"){
+
+    $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1";
+    $q = $pdo->prepare($sqlZon);
+    $q->execute();
+    $afe = $q->rowCount();
+    $monto_x_almacen=$monto/$afe;
+    $aAlmacen=[];
+    while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+      $aAlmacen[$fila["id"]]=$monto_x_almacen;
+    }
+  }else{
+    $aAlmacen[$_POST["id_almacen_corresponde"]]=$monto;
+  }
+
+  foreach ($aAlmacen as $id_almacen_corresponde => $monto) {
+    
+    $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,?,'Chica')";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($fecha_hora,$monto,$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$id_empleado,$_POST['detalle'],$_POST["id_almacen_egreso"],$id_almacen_corresponde,$_POST["tipo_movimiento"]));
+  
+  }
   
   Database::disconnect();
   
@@ -114,7 +132,7 @@ if ( !empty($_POST)) {
                                 <option value="">Seleccione...</option><?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT id, almacen FROM almacenes WHERE activo = 1";
+                                $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1";
                                 if ($_SESSION['user']['id_perfil'] != 1) {
                                   $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
                                 }
@@ -131,10 +149,11 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Almacen correspondiente</label>
                             <div class="col-sm-9">
                               <select name="id_almacen_corresponde" id="id_almacen_corresponde" class="form-control" required>
-                                <option value="">Seleccione...</option><?php
+                                <option value="">Seleccione...</option>
+                                <option value="TODOS">TODOS</option><?php
                                 $pdo = Database::connect();
                                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT id, almacen FROM almacenes WHERE activo = 1";
+                                $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1";
                                 if ($_SESSION['user']['id_perfil'] != 1) {
                                   $sqlZon .= " and id = ".$_SESSION['user']['id_almacen']; 
                                 }
@@ -180,7 +199,7 @@ if ( !empty($_POST)) {
                             <label class="col-sm-3 col-form-label">Tipo de Motivo</label>
                             <div class="col-sm-9">
                               <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control js-example-basic-single">
-                                <option value="0">- Seleccione -</option><?php
+                                <option value="">- Seleccione -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, nombre FROM tipos_motivos";
                                 foreach ($pdo->query($sql) as $row) {?>
@@ -220,7 +239,10 @@ if ( !empty($_POST)) {
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Detalle</label>
-                            <div class="col-sm-9"><input name="detalle" type="text" class="form-control" required></div>
+                            <div class="col-sm-9">
+                              <input name="detalle" type="text" class="form-control" required>
+                              <label id="lbl_corresponde_todos"></label>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -279,10 +301,12 @@ if ( !empty($_POST)) {
 
         $("#id_tipo_motivo").on("change",function(){
           let id_tipo_motivo=this.value;
+          console.log("id_tipo_motivo");
+          console.log(id_tipo_motivo);
           let selectMotivo=$("#id_motivo")
           selectMotivo.find("option").each(function(){
             let disabled=true;
-            if(this.value=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
+            if(this.value=="" || id_tipo_motivo=="" || id_tipo_motivo==this.dataset.idTipoMotivo){
               console.log(this.value);
               disabled=false;
             }
@@ -301,13 +325,24 @@ if ( !empty($_POST)) {
           }
           //id_empleado.select2()
 
-          /*let row_select_empleados=$("#row_select_empleados");
-          row_select_empleados.find("#id_empleado").val(0).trigger("change")
-          if(id_tipo_motivo==12){//12 -> Sueldos
-            row_select_empleados.removeClass("d-none")
+        })
+
+        $("#id_motivo").on("change",function(){
+          let selectedOption=$(this).find("option[value='"+this.value+"']");
+          selectedOption=selectedOption[0];
+          console.log(selectedOption);
+          console.log(selectedOption.dataset);
+
+          let id_empleado=$("#id_empleado");
+          console.log(selectedOption.dataset.id_tipo_motivo);
+          console.log(id_empleado);
+          if(selectedOption.dataset.idTipoMotivo==12){//12 -> Sueldos
+            id_empleado.prop("required",true)
           }else{
-            row_select_empleados.addClass("d-none")
-          }*/
+            id_empleado.prop("required",false)
+          }
+          //id_empleado.select2()
+
         })
       });
     </script>
