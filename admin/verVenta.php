@@ -144,7 +144,7 @@ if ( null==$id ) {
         }
 			});
 
-      $('#devolver-masivo').on('click', function (e) {
+      $('#depositar-masivo').on('click', function (e) {
         e.preventDefault();
         if ($('.customer-selector:checked').length < 1) {
           alert("Debe seleccionar un producto como mínimo");
