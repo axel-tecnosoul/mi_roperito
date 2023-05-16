@@ -14,9 +14,9 @@
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "INSERT INTO almacenes(almacen, punto_venta, activo) VALUES (?,?,1)";
+		$sql = "INSERT INTO almacenes(almacen, direccion, punto_venta, id_tipo, activo) VALUES (?,?,?,?,1)";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['almacen'],$_POST['punto_venta']));
+		$q->execute(array($_POST['almacen'],$_POST['direccion'],$_POST['punto_venta'],$_POST['id_tipo']));
 		
 		Database::disconnect();
 		
@@ -28,17 +28,17 @@
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+	  <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
   </head>
   <body class="light-only">
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
-	  <?php include('header.php');?>
+	    <?php include('header.php');?>
 	  
       <!-- Page Header Start-->
       <div class="page-body-wrapper">
-		<?php include('menu.php');?>
+		    <?php include('menu.php');?>
         <!-- Page Sidebar Start-->
         <!-- Right sidebar Ends-->
         <div class="page-body">
@@ -79,14 +79,28 @@
                       <div class="row">
                         <div class="col">
 						
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Almacen</label>
-								<div class="col-sm-9"><input name="almacen" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-              <div class="form-group row">
-								<label class="col-sm-3 col-form-label">Punto de venta Facturacion Electrónica</label>
-								<div class="col-sm-9"><input name="punto_venta" type="number" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Almacen</label>
+                            <div class="col-sm-9"><input name="almacen" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Tipo de almacen</label>
+                            <div class="col-sm-9">
+                              <select name="id_tipo" id="id_tipo" class="js-example-basic-single col-sm-12" required>
+                                <option value="">Seleccione...</option>
+                                <option value="1">Venta</option>
+                                <option value="2">Deposito</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Direccion</label>
+                            <div class="col-sm-9"><input name="direccion" type="text" maxlength="99" class="form-control" value=""></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Punto de venta Facturacion Electrónica</label>
+                            <div class="col-sm-9"><input name="punto_venta" type="number" maxlength="99" class="form-control" value=""></div>
+                          </div>
 
                         </div>
                       </div>
@@ -94,7 +108,7 @@
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
                         <button class="btn btn-primary" type="submit">Crear</button>
-						<a href="listarAlmacenes.php" class="btn btn-light">Volver</a>
+						            <a href="listarAlmacenes.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>

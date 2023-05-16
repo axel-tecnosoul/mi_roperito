@@ -10,7 +10,25 @@ include 'database.php';
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
+    <style>
+      #balance td, 
+      #balance th {
+          white-space: nowrap;
+          width: 1%;
+      }
+
+      .ing_eg{
+        text-align:right;
+        font-size:10px;
+      }
+      .saldo{
+        text-align:right;
+        font-size:13px;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -63,17 +81,172 @@ include 'database.php';
                   <div class="card-body"><?php
                     include_once 'database.php';
                     $pdo = Database::connect();
-                    $sql = " SELECT a.almacen, date_format(v.fecha_hora,'%d/%m/%Y') AS fecha, fp.forma_pago,SUM(v.total_con_descuento) AS total FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE anulada=0 GROUP BY a.id,fp.id,date(v.fecha_hora)";
-                    //echo $sql;
-                    $pdo->fetch(PDO::FETCH_ASSOC);
-                    $aVentas=[];
-                    foreach ($pdo->query($sql) as $row) {
-                      var_dump($row);
-                      echo $row["fecha"]." ".$row["almacen"]." ".$row["forma_pago"]." ".$row["total"]."<hr>";
-                      $aVentas[]=[
 
+                    $sql = "SELECT id,almacen FROM almacenes";
+                    //echo $sql;
+                    $aAlmacenes=[];
+                    foreach ($pdo->query($sql) as $row) {
+                      $aAlmacenes[$row["id"]]=$row["almacen"];
+                    }
+                    //var_dump($aAlmacenes);
+
+                    /*$sql = "SELECT msc.id AS id_motivo,msc.motivo,tp.id AS id_tipo_motivo,tp.nombre AS tipo_motivo FROM motivos_salidas_caja msc INNER JOIN tipos_motivos tp ON msc.id_tipo_motivo=tp.id";
+                    //echo $sql;
+                    $aBalance=[];
+                    $aMotivos=[];
+                    foreach ($pdo->query($sql) as $row) {
+                      $aMotivos[$row["id_motivo"]]=[
+                        "motivo"=>$row["motivo"],
+                        "id_tipo_motivo"=>$row["id_tipo_motivo"],
+                        "tipo_motivo"=>$row["tipo_motivo"]
+                      ];
+                      foreach ($aAlmacenes as $id => $almacen) {
+                        $aBalance[$id][$row["id_motivo"]]=[
+                          "id_tipo_motivo"=>$row["id_tipo_motivo"],
+                          "ingresos"=>0,
+                          "egresos"=>0,
+                        ];
+                      }
+                    }*/
+                    $sql = "SELECT tp.id AS id_tipo_motivo,tp.nombre AS tipo_motivo FROM tipos_motivos tp";
+                    //echo $sql;
+                    $aBalance=[];
+                    $aTipoMotivos=[0=>"Ventas"];
+                    foreach ($pdo->query($sql) as $row) {
+                      $aTipoMotivos[$row["id_tipo_motivo"]]=$row["tipo_motivo"];
+                    }
+                    
+                    foreach ($aTipoMotivos as $id_tipo_motivo => $tipo_motivo) {
+                      foreach ($aAlmacenes as $id => $almacen) {
+                        $aBalance[$id][$id_tipo_motivo]=[
+                          //"id_tipo_motivo"=>$row["id_tipo_motivo"],
+                          "ingresos"=>rand(0, 150000),//0,
+                          "egresos"=>rand(0, 150000),//0,
+                        ];
+                      }
+                    }
+                    
+                    //var_dump($aBalance);?>
+                    <div class="dt-ext table-responsive">
+                      <table id="balance" class="table display nowrap table-bordered">
+                        <thead style="background-color: antiquewhite;">
+                          <tr>
+                            <th rowspan="3" style='text-align: center;vertical-align: middle;'>Tipos de Motivo</th><?php
+                            foreach($aAlmacenes as $id => $almacen){
+                              echo "<th colspan='3' style='text-align:center'>$almacen</th>";
+                            }?>
+                          </tr>
+                          <tr><?php
+                            foreach($aAlmacenes as $id => $almacen){
+                              echo "<th style='text-align:center'>Ingresos</th>";
+                              echo "<th style='text-align:center'>Egresos</th>";
+                              echo "<th style='text-align:center'>Saldo</th>";
+                            }?>
+                          </tr>
+                          <tr><?php
+                            foreach($aAlmacenes as $id => $almacen){
+                              $sumaIngresos = 0;
+                              $sumaEgresos = 0;
+                              foreach ($aBalance[$id] as $registro) {
+                                  //foreach ($registro as $item) {
+                                      $sumaIngresos += $registro['ingresos'];
+                                      $sumaEgresos += $registro['egresos'];
+                                  //}
+                              }
+                              echo "<th class='ing_eg'>$".number_format($sumaIngresos,2)."</th>";
+                              echo "<th class='ing_eg'>$".number_format($sumaEgresos,2)."</th>";
+                              echo "<th class='saldo'>$".number_format(($sumaIngresos-$sumaEgresos),2)."</th>";
+                            }?>
+                          </tr>
+                        </thead>
+                        <tbody><?php
+                            foreach($aTipoMotivos as $id_tipo_motivo => $tipo_motivo){
+                              echo "<tr>";
+                              echo "<td>".$tipo_motivo."</td>";
+                              foreach ($aAlmacenes as $id => $almacen) {
+                                $ingresos=$aBalance[$id][$id_tipo_motivo]["ingresos"];
+                                $egresos=$aBalance[$id][$id_tipo_motivo]["egresos"];
+                                echo "<td class='ing_eg'>$".number_format($ingresos,2)."</td>";
+                                echo "<td class='ing_eg'>$".number_format($egresos,2)."</td>";
+                                echo "<td class='saldo'>$".number_format(($ingresos-$egresos),2)."</td>";
+                              }
+                              echo "</tr>";
+                            }?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <?php
+
+                    //var_dump($aMotivos);
+                    //var_dump($aBalance);
+
+                    $saldoTotal=0;
+                    //obtenemos las ventas
+                    $sql = " SELECT a.almacen, date_format(v.fecha_hora,'%d/%m/%Y') AS fecha_formatted,v.fecha_hora,SUM(v.total_con_descuento) AS monto,v.tipo_comprobante,v.id_forma_pago FROM ventas v inner join almacenes a on a.id = v.id_almacen WHERE v.anulada = 0 GROUP BY v.id_almacen, DATE(fecha_hora)";
+                    //echo $sql;
+                    $sumaVentas=0;
+                    foreach ($pdo->query($sql) as $row) {
+                      $monto=$row["monto"];
+                      if(in_array($row["tipo_comprobante"],["NCA","NCB"])){
+                        $monto*=-1;
+                      }
+                      $sumaVentas+=$monto;
+                      $aCaja[$row["almacen"]][]=[
+                        "fecha"=>$row["fecha_formatted"],
+                        "motivo"=>"Ventas",
+                        "monto"=>$monto,
                       ];
                     }
+
+                    $saldoTotal+=$sumaVentas;
+                    echo "Ventas: $".number_format($sumaVentas,2)."<br>";
+
+                    //obtenemos las pagos a proveedoras
+                    $sql = " SELECT p.id_proveedor,date_format(v.fecha_hora,'%d/%m/%Y') AS fecha_formatted,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,a.almacen FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 GROUP BY vd.id_almacen,p.id_proveedor, DATE(vd.fecha_hora_pago)";
+                    //echo $sql;
+                    $sumaPagoProveedores=0;
+                    foreach ($pdo->query($sql) as $row) {
+                      $sumaPagoProveedores+=$row["suma_deuda_proveedor"];
+                      $aCaja[$row["almacen"]][]=[
+                        "id_proveedor"=>$row["id_proveedor"],
+                        "fecha"=>$row["fecha_formatted"],
+                        //"detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
+                        "motivo"=>"Pago a proveedores",
+                        "detalle"=>$row["proveedor"],
+                        "monto"=>$row["suma_deuda_proveedor"],
+                      ];
+                    }
+
+                    $saldoTotal-=$sumaPagoProveedores;
+                    echo "Pagos a proveedores: $".number_format($sumaPagoProveedores,2)."<br>";
+
+                    //obtenemos los movimientos de las cajas segun si son ingresos o egresos los mostramos en crédio o débito
+                    $sql = " SELECT mc.id AS id_movimiento,a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y') AS fecha_formatted,mc.fecha_hora,mc.monto AS total,msc.motivo,mc.detalle,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_corresponde INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id WHERE anulado=0";//GROUP BY DATE(fecha_hora),mc.id_almacen_corresponde
+                    //echo $sql;
+                    $sumaMovimientos=0;
+                    foreach ($pdo->query($sql) as $row) {
+
+                      $monto=$row["total"];
+                      if($row["tipo_movimiento"]=="Ingreso"){
+                        $monto*=-1;
+                      }
+                      $sumaMovimientos+=$monto;
+                      $aCaja[$row["almacen"]][]=[
+                        "id_movimiento"=>$row["id_movimiento"],
+                        "fecha_hora"=>$row["fecha_formatted"],
+                        "motivo"=>$row["motivo"],
+                        "detalle"=>$row["detalle"],
+                        "monto"=>$monto,
+                        "detalle_productos"=>$row["motivo"].": ".$row["detalle"],
+                      ];
+                    }
+
+                    $saldoTotal+=$sumaMovimientos;
+
+                    echo "Movimientos: $".number_format($sumaMovimientos,2)."<br>";
+                    echo "Saldo total: $".number_format($saldoTotal,2)."<br>";
+
+                    //var_dump($aCaja);
 
                     /*$sql = " SELECT a.almacen, date_format(v.fecha_hora,'%d/%m/%Y') AS fecha, fp.forma_pago,SUM(v.total_con_descuento) FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE anulada=0 GROUP BY a.id,fp.id,date(v.fecha_hora)";
                     //echo $sql;
@@ -86,8 +259,8 @@ include 'database.php';
                     $_GET["forma_pago"]="";
                     $_GET["id_almacen"]="";
                     $_GET["motivo"]="";
-                    //include_once("listarCajaChicaGetData.php");
-                    //include_once("listarGrandeChicaGetData.php");?>
+                    
+                    ?>
                   </div>
                 </div>
               </div>
