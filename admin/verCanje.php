@@ -11,8 +11,6 @@
 	$id = null;
 	if ( !empty($_GET['id'])) {
 		$id = $_REQUEST['id'];
-    $id=explode("c/",$id);
-  $id = $id[1];
 	}
 	
 	if ( null==$id ) {

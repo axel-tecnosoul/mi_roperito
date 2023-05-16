@@ -224,7 +224,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';                          
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'. 'v/' . $row["id_detalle_venta"].'" /> </td>';
-                            echo '<td><a href="verVenta.php?id='.'v/'.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '."V#".$row["id_venta"].'</td>';
+                            echo '<td><a href="verVenta.php?id='.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '."V#".$row["id_venta"].'</td>';
                             /*echo '<td>'. $row["id_detalle_venta"] . '</td>';
                             echo '<td>'. $row["nombre"] . ' ' . $row["apellido"] . '</td>';*/
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
@@ -255,7 +255,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           foreach($pdo->query($sql2) as $row2){
                             echo '<tr>';                          
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.'c/'.$row2["id_detalle_canje"].'" /> </td>';
-                            echo '<td><a href="verCanje.php?id='.'c/'.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '. "C#".$row2["id_canje"].'</td>';
+                            echo '<td><a href="verCanje.php?id='.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '. "C#".$row2["id_canje"].'</td>';
                             echo '<td>'. $row2["fecha_hora"] . 'hs</td>';
                             echo '<td>'. $row2["descripcion"] . '</td>';
                             echo '<td>$'. number_format($row2["precio"],2) . '</td>';
