@@ -126,7 +126,7 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="hora" type="time" value="<?=date("H:i")?>" class="form-control" required></div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Almacen egreso de Dinero</label>
+                            <label class="col-sm-3 col-form-label">Caja del Almacen</label>
                             <div class="col-sm-9">
                               <select name="id_almacen_egreso" id="id_almacen_egreso" class="form-control" required>
                                 <option value="">Seleccione...</option><?php
@@ -330,19 +330,12 @@ if ( !empty($_POST)) {
         $("#id_motivo").on("change",function(){
           let selectedOption=$(this).find("option[value='"+this.value+"']");
           selectedOption=selectedOption[0];
-          console.log(selectedOption);
-          console.log(selectedOption.dataset);
-
           let id_empleado=$("#id_empleado");
-          console.log(selectedOption.dataset.id_tipo_motivo);
-          console.log(id_empleado);
           if(selectedOption.dataset.idTipoMotivo==12){//12 -> Sueldos
             id_empleado.prop("required",true)
           }else{
             id_empleado.prop("required",false)
           }
-          //id_empleado.select2()
-
         })
       });
     </script>
