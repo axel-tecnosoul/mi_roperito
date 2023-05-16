@@ -514,14 +514,11 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
             }
           },
           initComplete: function(){
-            $("#dataTables-example666_wrapper").find(".dataTables_scrollHead table thead th:first-child").removeClass("sorting_asc");
             $("#total_pagos_seleccionados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(0));
+            $("#dataTables-example666_wrapper").find(".dataTables_scrollHead table thead th:first-child").removeClass("sorting_asc");
             $("#dataTables-example666_wrapper").find(".dataTables_scrollBody table tbody tr").each(function(index, element){
               $(element).find("td:first-child").each(function(){
                 $(this).on("click",function(e){
-                  console.log("primero");
-                  console.log(this);
-                  console.log(e);
                   //e.preventDefault();
                   let tr=$(this).parent();
                   var row = $("#dataTables-example666").DataTable().row(tr);
@@ -554,21 +551,6 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 });
               })
             })
-            /*console.log($("#dataTables-example666_wrapper").find(".dataTables_scrollBody table tbody td:first-child"));
-            $("#dataTables-example666_wrapper").find(".dataTables_scrollBody table tbody td:first-child").on("click",function(e){
-              console.log(e);
-              var tr = $(this).closest('tr');
-              var row = table.row( tr );
-              if ( row.child.isShown() ) {
-                  // This row is already open - close it
-                  row.child.hide();
-                  tr.removeClass('shown');
-              }else {
-                  // Open this row
-                  row.child( format(row.data()) ).show();
-                  tr.addClass('shown');
-              }
-            });*/
           }
 
         });
