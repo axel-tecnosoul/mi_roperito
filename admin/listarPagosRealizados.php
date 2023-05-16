@@ -202,7 +202,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 <a href="modificarPagoRealizado.php?id=v/<?=$row["id_detalle_venta"]?>">
                                   <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
                                 </a>
-                                <a href="verVenta.php?id=v/<?=$row["id_venta"]?>">
+                                <a href="verVenta.php?id=<?=$row["id_venta"]?>">
                                   <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta">
                                 </a>
                               </td>
@@ -232,7 +232,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 <a href="modificarPagoRealizado.php?id=c/<?=$row["id_detalle_canje"]?>">
                                   <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
                                 </a>
-                                <a href="verCanje.php?id=c/<?=$row["id_canje"]?>">
+                                <a href="verCanje.php?id=<?=$row["id_canje"]?>">
                                   <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje">
                                 </a>
                               </td>
