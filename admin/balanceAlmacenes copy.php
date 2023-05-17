@@ -28,11 +28,6 @@ include 'database.php';
         text-decoration: underline;
         font-weight: bold;
       }
-      .cardClickeable:hover{
-        cursor: pointer;
-        border: solid 1px;
-        border-radius: 5px;
-      }
     </style>
   </head>
   <body class="light-only">
@@ -83,18 +78,11 @@ include 'database.php';
                   <div class="card-header">
                     <h5>Balance de Almacenes</h5>
                   </div>
-                  <div class="card-body">
-                    <div class="row mb-3">
-                      <div class="col-12">
-                        <div class="alert alert-danger">
-                          <strong>Atencion!</strong> Los datos mostrados en este reporte son generados de manera aleatoria cada vez que se carga la pagina.
-                        </div>
-                      </div>
-                    </div><?php
+                  <div class="card-body"><?php
                     include_once 'database.php';
                     $pdo = Database::connect();
 
-                    $sql = "SELECT id,almacen FROM almacenes WHERE id_tipo=1";
+                    $sql = "SELECT id,almacen FROM almacenes";
                     //echo $sql;
                     $aAlmacenes=[];
                     foreach ($pdo->query($sql) as $row) {
@@ -139,67 +127,7 @@ include 'database.php';
                     }
                     
                     //var_dump($aBalance);?>
-                    <div class="row">
-                    <?php
-                            foreach($aAlmacenes as $id => $almacen){
-                              $sumaIngresos = 0;
-                              $sumaEgresos = 0;
-                              foreach ($aBalance[$id] as $registro) {
-                                  //foreach ($registro as $item) {
-                                      $sumaIngresos += $registro['ingresos'];
-                                      $sumaEgresos += $registro['egresos'];
-                                  //}
-                              }?>
-                              <div class="col-xl-6 col-md-12">
-                                <div class="card o-hidden">
-                                  <div class="bar-chart-widget">
-                                    <div class="top-content bg-primary">
-                                      <div class="row">
-                                        <div class="col-7">
-                                          <div class="bar-chart card-body pb-0" id="chart-bar-widget-first"></div>
-                                        </div>
-                                        <div class="col-5">
-                                          <div class="earning-details">
-                                            <div class="text-left"><span><?=$almacen?></span>
-                                              <h4 class="mt-1 num mb-0">$ <span class="counter"><?=number_format(($sumaIngresos-$sumaEgresos),2)?></span></h4>
-                                            </div><i class="icon-announcement"></i>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="bottom-content card-body">
-                                      <div class="row">
-                                        <div class="col-6 cardClickeable btnIngresos" data-id-almacen="<?$id?>">
-                                          <div>
-                                            <!-- <span class="num font-primary">12%<i class="icon-angle-up f-12 ml-1"></i></span> -->
-                                            <span class="text-muted mt-2 mb-2 block-bottom">Ingresos</span>
-                                            <h4 class="num m-0">$<span class="counter color-bottom"><?=number_format($sumaIngresos,2)?></span></h4>
-                                          </div>
-                                        </div>
-                                        <div class="col-6 cardClickeable btnEgresos" data-id-almacen="<?$id?>">
-                                          <div>
-                                            <!-- <span class="num font-primary">15%<i class="icon-angle-up f-12 ml-1"></i></span> -->
-                                            <span class="text-muted mt-2 mb-2 block-bottom">Egresos</span>
-                                            <h4 class="num m-0">$<span class="counter color-bottom"><?=number_format($sumaEgresos,2)?></span></h4>
-                                          </div>
-                                        </div>
-                                        <!-- <div class="col-4">
-                                          <div><span class="num font-primary">34%<i class="icon-angle-up f-12 ml-1"></i></span><span class="text-muted mt-2 mb-2 block-bottom">Advertise</span>
-                                            <h4 class="num m-0">$<span class="counter color-bottom"> 4219</span></h4>
-                                          </div>
-                                        </div> -->
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <?php
-                              /*echo "<th class='ing_eg'>$".number_format($sumaIngresos,2)."</th>";
-                              echo "<th class='ing_eg'>$".number_format($sumaEgresos,2)."</th>";
-                              echo "<th class='saldo'>$".number_format(($sumaIngresos-$sumaEgresos),2)."</th>";*/
-                            }?>
-                    </div>
-                    <div class="dt-ext table-responsive d-none">
+                    <div class="dt-ext table-responsive">
                       <table id="balance" class="table display nowrap table-bordered">
                         <thead style="background-color: antiquewhite;">
                           <tr>
@@ -247,9 +175,6 @@ include 'database.php';
                         </tbody>
                       </table>
                     </div>
-
-
-                    <div class="d-none">
                     <?php
 
                     //var_dump($aMotivos);
@@ -336,7 +261,6 @@ include 'database.php';
                     $_GET["motivo"]="";
                     
                     ?>
-                    </div>
                   </div>
                 </div>
               </div>
