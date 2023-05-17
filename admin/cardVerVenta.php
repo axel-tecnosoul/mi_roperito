@@ -89,7 +89,13 @@ Database::disconnect();
         </div>
 
         <div class="form-group row">
-          <label class="col-sm-12 col-form-label">Productos&nbsp;<a href="#"><img src="img/cube-refund.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" id="devolver-masivo" title="Devolver Productos Seleccionados"></a></label>
+          <label class="col-sm-12 col-form-label">Productos&nbsp;<?php
+            $ex=explode("/",$_SERVER["PHP_SELF"]);
+            $file=$ex[count($ex)-1];
+            if($file=="verVenta.php"){?>
+              <a href="#"><img src="img/cube-refund.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" id="devolver-masivo" title="Devolver Productos Seleccionados"></a><?php
+            }?>
+          </label>
         </div>
 
         <div class="form-group row">
@@ -97,8 +103,10 @@ Database::disconnect();
             <div class="dt-ext table-responsive">
               <table class="display" id="tableVentaProductos">
                 <thead>
-                  <tr>
-                    <th type="checkbock" id="id_devolucion"></th>
+                  <tr><?php
+                    if($file=="verVenta.php"){?>
+                      <th type="checkbock" id="id_devolucion"></th><?php
+                    }?>
                     <th>Proveedor</th>
                     <th>Código</th>
                     <th>Categoría</th>
@@ -119,11 +127,13 @@ Database::disconnect();
                   $total_precio_producto = 0;
                   foreach ($pdo->query($sql) as $row) {
                     echo '<tr>';
-                    if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
-                      echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
-                    }else{
-                      echo '<td></td>';
-                    }          
+                    if($file=="verVenta.php"){
+                      if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
+                        echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
+                      }else{
+                        echo '<td></td>';
+                      }
+                    }
                     echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
                     echo '<td>'. $row['codigo'] . '</td>';
                     echo '<td>'. $row['categoria'] . '</td>';

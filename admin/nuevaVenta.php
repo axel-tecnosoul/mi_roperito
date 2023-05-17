@@ -638,7 +638,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       $("#dataTables-example666").dataTable().fnDestroy();
       $('#dataTables-example666').DataTable({
         "ajax" : "ajaxVentas.php?almacen="+val,//&id_vehiculo="+id_vehiculo+"
-				stateSave: true,
+				stateSave: false,
 				responsive: true,
         serverSide: true,
         processing: true,
@@ -704,10 +704,26 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
             "previous": "Anterior"
           }
         },
-        initComplete: function(){
+        initComplete: function(settings, json){
           $('[title]').tooltip();
         },
       })
+
+      var table = $("#dataTables-example666").DataTable();
+      table.on( 'draw', function () {
+        let filtrado=table.rows({search:'applied'}).nodes()
+        let search=$('input[type=search]')
+        if(search.val()!='' && filtrado.length==1){
+        //if(filtrado.length==1){
+          $(filtrado[0]).find("button.btnAnadir").click();
+          search.select();
+          /*search.val('').change();
+          table.search('').draw();*/
+          //search.val('').trigger('change');
+          //table.search('').columns().search('').draw();
+          //table.rows().nodes().draw();
+        }
+      });
     }
 	
 	  $(document).ready(function() {
@@ -805,6 +821,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     })
 
     $(document).on("click",".btnAnadir",function(){
+      $(this).addClass("disabled");
       let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
       //console.log(prod_anadido)
       //console.log("cantidad encontrada");
@@ -814,7 +831,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           let clon=fila.clone();
           let precio=clon.find("input.precio");
           let id_perfil="<?=$id_perfil?>";
-          console.log(id_perfil);
+          //console.log(id_perfil);
           if(id_perfil!=1 && precio.val()==0){//controlamos que los usuarios NO adminsitradores no puedan añadir productos sin precio
             alert("No puede añadir un producto sin precio")
           }else{//los usuarios admin pueden añadir productos sin precio pero tienen que modifcarlo
@@ -870,7 +887,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
         let descuento=porcentaje*total/100;
         totalConDescuento=total-descuento;
       }
-      console.log(parseInt(total)-parseInt(totalConDescuento))
+      //console.log(parseInt(total)-parseInt(totalConDescuento))
       if(isNaN(totalConDescuento)){totalConDescuento=0;}
       $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
     }
