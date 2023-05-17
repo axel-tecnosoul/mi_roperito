@@ -1,1 +1,1 @@
-Mi Roperito
+MiRoperito - Panel de Administración
