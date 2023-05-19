@@ -288,25 +288,6 @@ if ( !empty($_POST)) {
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Descuentos Vigentes</label>
-                            <div class="col-sm-9">
-                              <select name="id_descuento" id="id_descuento" class="js-example-basic-single col-sm-12">
-                                <option value="">Seleccione...</option><?php
-                                $pdo = Database::connect();
-                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sqlZon = "SELECT d.id as id_descuento, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, dfp.id_forma_pago, f.forma_pago FROM descuentos_x_formapago dfp INNER JOIN descuentos d on d.id = dfp.id_descuento INNER JOIN forma_pago f on f.id = dfp.id_forma_pago WHERE dfp.id_forma_pago = '1' AND vigencia_desde <= now() and vigencia_hasta >= now()";
-                                $q = $pdo->prepare($sqlZon);
-                                $q->execute();
-                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                                  echo "<option value='".$fila['id_descuento']."'";
-                                  echo ">".$fila['descripcion']."</option>";
-                                }
-                                Database::disconnect();?>
-                                
-                              </select>
-                            </div>
-                          </div>
-                          <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Productos en stock</label>
                           </div>
                           <div class="form-group row">
@@ -349,6 +330,29 @@ if ( !empty($_POST)) {
                                 </thead>
                                 <tbody></tbody>
                               </table>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Subtotal</label>
+                            <div class="col-sm-9"><label id="subtotal_compra">$ 0</label></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Descuentos Vigentes</label>
+                            <div class="col-sm-9">
+                              <select name="id_descuento" id="id_descuento" class="js-example-basic-single col-sm-12">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT d.id as id_descuento, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, dfp.id_forma_pago, f.forma_pago FROM descuentos_x_formapago dfp INNER JOIN descuentos d on d.id = dfp.id_descuento INNER JOIN forma_pago f on f.id = dfp.id_forma_pago WHERE dfp.id_forma_pago = '1' AND vigencia_desde <= now() and vigencia_hasta >= now()";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id_descuento']. "' data-porcentaje='" . $fila['porcentaje'] ."'";
+                                  echo ">".$fila['descripcion']."</option>";
+                                }
+                                Database::disconnect();?>
+                                
+                              </select>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -525,6 +529,10 @@ if ( !empty($_POST)) {
       $(document).ready(function() {
         jsListarProductos(0)
       });
+      $("#id_descuento").change(function() {
+        //mostrarTotalDescuento();
+        actualizarMontoTotal();
+      })
 
       $(document).on("click",".btnAnadir",function(){
         let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
@@ -559,14 +567,35 @@ if ( !empty($_POST)) {
           alert("El producto ya fue añadido")
         }
       })
-
-      function actualizarMontoTotal(){
+      
+      function calcularTotalCompra(){
         let total=0;
         $("#productos_canjear tbody tr").each(function(){
           total+=parseInt($(this).find(".precio").val())*parseInt($(this).find(".cantidad").val());
         })
         if(isNaN(total)){total=0;}
-        $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
+        return total
+      }
+
+      function actualizarMontoTotal(){
+        let total=calcularTotalCompra();
+        $("#subtotal_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
+    
+        var porcentaje = $("#id_descuento option:selected").data("porcentaje");
+        console.log('Total: '+ total + " Porcentaje: " + porcentaje);
+       
+        let totalConDescuento=total;
+        console.log('Porcentaje: ' + porcentaje + ' ' + 'Total con descuento: ' + totalConDescuento);
+        if(porcentaje!=undefined){
+          console.log('Porcentaje: ' + porcentaje + ' ' + 'Total con descuento: ' + totalConDescuento);
+          let descuento=porcentaje*total/100;
+          totalConDescuento=total-descuento;
+        }
+        
+        //console.log(parseInt(total)-parseInt(totalConDescuento))
+        if(isNaN(totalConDescuento)){totalConDescuento=0;}
+        $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento));
+        
       }
 
       $(document).on("keyup change",".cantidad",function(){

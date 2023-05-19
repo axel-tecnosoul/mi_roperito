@@ -210,6 +210,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th class="d-none">Almacen</th>
                             <th class="d-none">Código</th>
                             <th class="d-none">Categoría</th>
+                            <th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody><?php
@@ -223,8 +224,8 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           $total_deuda=0;
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';                          
-                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'. 'v/' . $row["id_detalle_venta"].'" /> </td>';
-                            echo '<td><a href="verVenta.php?id='.$row["id_venta"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '."V#".$row["id_venta"].'</td>';
+                            echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'. 'v/' . $row["id_detalle_venta"].'" /> </td>'; 
+                            echo '<td>V#'. $row["id_venta"] . '</td>';
                             /*echo '<td>'. $row["id_detalle_venta"] . '</td>';
                             echo '<td>'. $row["nombre"] . ' ' . $row["apellido"] . '</td>';*/
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
@@ -248,6 +249,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '<td class="d-none">'. $row["almacen"] . '</td>';
                             echo '<td class="d-none">'. $row["codigo"] . '</td>';
                             echo '<td class="d-none">'. $row["categoria"] . '</td>';
+                            echo '<td><a href="verVenta.php?id='.$row["id_venta"].'" target="_blank" class="badge"><img src="img/eye.png" width="30" border="0" alt="Ver Venta" title="Ver Venta"></a></td>';
                             echo '</tr>';
                             
                           }
@@ -255,7 +257,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           foreach($pdo->query($sql2) as $row2){
                             echo '<tr>';                          
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.'c/'.$row2["id_detalle_canje"].'" /> </td>';
-                            echo '<td><a href="verCanje.php?id='.$row2["id_canje"].'" target="_blank" class="badge badge-primary"><i class="fa fa-eye" aria-hidden="true"></i></a> '. "C#".$row2["id_canje"].'</td>';
+                            echo '<td>C#'. $row2["id_canje"] . '</td>';
                             echo '<td>'. $row2["fecha_hora"] . 'hs</td>';
                             echo '<td>'. $row2["descripcion"] . '</td>';
                             echo '<td>$'. number_format($row2["precio"],2) . '</td>';
@@ -268,6 +270,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             echo '<td class="d-none">'. $row2["almacen"] . '</td>';
                             echo '<td class="d-none">'. $row2["codigo"] . '</td>';
                             echo '<td class="d-none">'. $row2["categoria"] . '</td>';
+                            echo '<td><a href="verCanje.php?id='.$row2["id_canje"].'" target="_blank"><img src="img/eye.png" width="30" border="0" alt="Ver Canje" title="Ver Canje"></a></td>';
                             echo '</tr>';
                           }
                           Database::disconnect();?>

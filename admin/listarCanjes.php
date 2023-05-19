@@ -78,19 +78,19 @@ if(empty($_SESSION['user']))
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE anulado = 0 ";
+                          $sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total_con_descuento` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE anulado = 0 ";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
-                            echo '<td>'. $row[0] . '</td>';
+                            echo '<td>'. $row['id'] . '</td>';
                             echo '<td>'. $row[1] . 'hs</td>';
-                            echo '<td>'. $row[2] . '</td>';
-                            echo '<td>'. $row[3] . ' ' . $row[4] . '</td>';
-                            echo '<td>$'. number_format($row[5],2) . '</td>';
+                            echo '<td>'. $row['almacen'] . '</td>';
+                            echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
+                            echo '<td>$'. number_format($row['total_con_descuento'],2) . '</td>';
                             echo '<td>';
-                            echo '<a href="verCanje.php?id='.$row[0].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
+                            echo '<a href="verCanje.php?id='.$row['id'].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
                             echo '&nbsp;&nbsp;';
                             echo '<a href="#" title="Eliminar" onclick="openModalEliminarCanje('.$row["id"].')"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>';
                             echo '&nbsp;&nbsp;';
