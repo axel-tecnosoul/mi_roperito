@@ -121,19 +121,14 @@ Database::disconnect();
                 </thead>
                 <tbody><?php
                   $pdo = Database::connect();
-                  $sql = "SELECT v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor, pr.credito, vd.deuda_proveedor, vd.id as id_venta_detalle, dd.id_venta_detalle as devoluciones_venta_detalle, d.id as id_devolucion FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = vd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE vd.id_venta = ".$data['id'];
+                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor, vd.id as id_venta_detalle, dd.id_venta_detalle as devoluciones_venta_detalle, d.id as id_devolucion FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = vd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE vd.id_venta = ".$data['id'];
                   //var_dump($sql);
-                  $fecha_un_mes_atras = date("Y-m-d", strtotime(date("Y-m-d")." -1 month"))
-
+                  
                   $total_precio_producto = 0;
                   foreach ($pdo->query($sql) as $row) {
-                    $fecha_hora = $row['fecha_hora'];
-
-                    
-
                     echo '<tr>';
                     if($file=="verVenta.php"){
-                      if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0) && ($row['credito'] > $row['deuda_proveedor'])){
+                      if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
                         echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
                       }else{
                         echo '<td></td>';
