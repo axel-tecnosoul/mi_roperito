@@ -505,6 +505,21 @@ if ( !empty($_POST)) {
             $('[title]').tooltip();
           },
         })
+        var table = $("#dataTables-example666").DataTable();
+        table.on( 'draw', function () {
+          let filtrado=table.rows({search:'applied'}).nodes()
+          let search=$('input[type=search]')
+          if(search.val()!='' && filtrado.length==1){
+          //if(filtrado.length==1){
+            $(filtrado[0]).find("button.btnAnadir").click();
+            search.select();
+            /*search.val('').change();
+            table.search('').draw();*/
+            //search.val('').trigger('change');
+            //table.search('').columns().search('').draw();
+            //table.rows().nodes().draw();
+          }
+        });
       }
     
       $(document).ready(function() {
