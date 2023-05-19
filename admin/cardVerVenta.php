@@ -8,7 +8,7 @@ if (empty($id) or !empty($_GET['id'])) {
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario, dev.id as devolucion_id FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id LEFT JOIN devoluciones dev ON dev.id_nueva_venta = v.id  WHERE v.id = ? ";
+$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario, dev.id as devolucion_id FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id LEFT JOIN devoluciones dev ON dev.id_nueva_venta = v.id  WHERE v.id = ? ";
 //echo $sql;
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
@@ -53,7 +53,7 @@ Database::disconnect();
       <div class="col">
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Fecha Hora</label>
-          <div class="col-sm-9"><?php echo $data['fecha_hora']; ?>hs</div>
+          <div class="col-sm-9"><?php echo $data['fecha_hora_formatted']; ?>hs</div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Usuario</label>
@@ -90,9 +90,17 @@ Database::disconnect();
 
         <div class="form-group row">
           <label class="col-sm-12 col-form-label">Productos&nbsp;<?php
+
+            $fecha_venta_mas_un_mes=date("Y-m-d",strtotime($data["fecha_hora"]." +1 month"));
+            $hoy=date("Y-m-d",strtotime(date("Y-m-d")));
+            $puede_devolver=0;
+            if($fecha_venta_mas_un_mes>=$hoy){
+              $puede_devolver=1;
+            }
+
             $ex=explode("/",$_SERVER["PHP_SELF"]);
             $file=$ex[count($ex)-1];
-            if($file=="verVenta.php"){?>
+            if($puede_devolver==1 and $file=="verVenta.php"){?>
               <a href="#"><img src="img/cube-refund.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" id="devolver-masivo" title="Devolver Productos Seleccionados"></a><?php
             }?>
           </label>
@@ -104,7 +112,7 @@ Database::disconnect();
               <table class="display" id="tableVentaProductos">
                 <thead>
                   <tr><?php
-                    if($file=="verVenta.php"){?>
+                    if($puede_devolver==1 and $file=="verVenta.php"){?>
                       <th type="checkbock" id="id_devolucion"></th><?php
                     }?>
                     <th>Proveedor</th>
@@ -127,7 +135,7 @@ Database::disconnect();
                   $total_precio_producto = 0;
                   foreach ($pdo->query($sql) as $row) {
                     echo '<tr>';
-                    if($file=="verVenta.php"){
+                    if($puede_devolver==1 and $file=="verVenta.php"){
                       if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
                         echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
                       }else{
