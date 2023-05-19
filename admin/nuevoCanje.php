@@ -95,7 +95,7 @@ if ( !empty($_POST)) {
       //var_dump("subtotal: " . $subtotal);
 
       if ($modoDebug==1) {
-        $q->debugDumpParams();
+        //$q->debugDumpParams();
         echo "<br><br>Subtotal Con Descuento: ". $subtotal;
         echo "<br><br>";
       }
@@ -175,7 +175,7 @@ if ( !empty($_POST)) {
   
   $sql = "UPDATE proveedores set credito = credito - ? WHERE id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($total,$_POST['id_proveedor_canje']));
+  $q->execute(array($totalConDescuento,$_POST['id_proveedor_canje']));
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
@@ -249,21 +249,19 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Proveedor</label>
                             <div class="col-sm-9">
-                            <select name="id_proveedor_canje" id="id_proveedor" class="js-example-basic-single col-sm-12" required="required">
-                            <option value="">Seleccione...</option>
-                            <?php 
-                            $pdo = Database::connect();
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $sqlZon = "SELECT `id`, `dni`, `nombre`, `apellido`, `credito` FROM `proveedores` WHERE `activo` = 1";
-                            $q = $pdo->prepare($sqlZon);
-                            $q->execute();
-                            while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                              echo "<option value='".$fila['id']."'";
-                              echo ">".$fila['nombre']." ".$fila['apellido']." (".$fila['dni'].") - $".number_format($fila['credito'],2)."</option>";
-                            }
-                            Database::disconnect();
-                            ?>
-                            </select>
+                              <select name="id_proveedor_canje" id="id_proveedor" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, dni, nombre, apellido, credito FROM proveedores WHERE activo = 1 and credito>0";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['nombre']." ".$fila['apellido']." (".$fila['dni'].") - $".number_format($fila['credito'],2)."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
                             </div>
                           </div>
                           <div class="form-group row">
