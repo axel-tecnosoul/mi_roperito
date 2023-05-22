@@ -60,7 +60,7 @@ include 'database.php';
 								echo '<td>'. $row['deuda_proveedor'] . '</td>';
 								echo '</tr>';
 							}
-						$sql2 = " SELECT cj.id, a.almacen, cj.fecha_hora, p.codigo, c.categoria, p.descripcion, cd.`cantidad`, cd.`precio`, cd.`subtotal`, m.`modalidad`, cd.`pagado`, cd.`deuda_proveedor`, pr.nombre, pr.apellido FROM `canjes_detalle` cd inner join canjes cj on cj.id = cd.id_canje inner join almacenes a on a.id = cj.id_almacen inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE cj.anulado = 0 and m.id = 40 and cd.`pagado` = 0";
+						$sql2 = " SELECT cj.id as id_canje, cd.id as id_canje_detalle, a.almacen, cj.fecha_hora, p.codigo, c.categoria, p.descripcion, cd.`cantidad`, cd.`precio`, cd.`subtotal`, m.`modalidad`, cd.`pagado`, cd.`deuda_proveedor`, pr.nombre, pr.apellido FROM `canjes_detalle` cd inner join canjes cj on cj.id = cd.id_canje inner join almacenes a on a.id = cj.id_almacen inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE cj.anulado = 0 and m.id = 40 and cd.`pagado` = 0";
 						if ($_SESSION['user']['id_perfil'] == 2) {
 							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 						}
