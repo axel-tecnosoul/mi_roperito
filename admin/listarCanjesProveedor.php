@@ -66,34 +66,42 @@ if(empty($_SESSION['proveedor']))
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Fecha/Hora</th>
-						  <th>Almacen</th>
-						  <th>Total</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>Fecha/Hora</th>
+                            <th>Almacen</th>
+                            <th>Total</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE c.id_proveedor = ".$_SESSION['proveedor']['id'];
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . 'hs</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>$'. number_format($row[5],2) . '</td>';
-								echo '<td>';
-									echo '<a href="verCanjeProveedor.php?id='.$row[0].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, pr.nombre, pr.apellido, c.total FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor WHERE c.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          $sumaTotal=0;
+                          foreach ($pdo->query($sql) as $row) {
+                            $sumaTotal+=$row["total"];
+                            echo '<tr>';
+                            echo '<td>'. $row["id"] . '</td>';
+                            echo '<td>'. $row["fecha_hora"] . 'hs</td>';
+                            echo '<td>'. $row["almacen"] . '</td>';
+                            echo '<td>$'. number_format($row["total"],2) . '</td>';
+                            echo '<td>';
+                            echo '<a href="verCanjeProveedor.php?id='.$row["id"].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
                         </tbody>
+                        <tfoot>
+                          <tr>
+                            <th>ID</th>
+                            <th>Fecha/Hora</th>
+                            <th>Almacen</th>
+                            <th>$<?=number_format($sumaTotal,2)?></th>
+                            <th>Opciones</th>
+                          </tr>
+                        </tfoot>
                       </table>
                     </div>
                   </div>
