@@ -66,19 +66,27 @@ if(empty($_SESSION['user'])){
                             <th>ID</th>
                             <th>Motivo movimiento de caja</th>
                             <th>Tipo de Motivo</th>
+                            <th>Tipo de Gasto</th>
+                            <th>Aparece Balance</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT msc.id, msc.motivo, tm.nombre FROM motivos_salidas_caja msc LEFT JOIN tipos_motivos tm ON msc.id_tipo_motivo=tm.id WHERE 1";
+                          $sql = " SELECT msc.id, msc.motivo, tm.nombre, msc.tipo_gasto, msc.aparece_balance FROM motivos_salidas_caja msc LEFT JOIN tipos_motivos tm ON msc.id_tipo_motivo=tm.id WHERE 1";
                           
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row["id"] . '</td>';
                             echo '<td>'. $row["motivo"] . '</td>';
                             echo '<td>'. $row["nombre"] . '</td>';
+                            echo '<td>'. $row["tipo_gasto"] . '</td>';
+                            if($row["aparece_balance"] == 1){
+                              echo '<td>SI</td>';
+                            }else{
+                              echo '<td>NO</td>';
+                            }
                             echo '<td>';
                             if($row["id"]>2){
                               echo '<a href="modificarMotivoCaja.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
