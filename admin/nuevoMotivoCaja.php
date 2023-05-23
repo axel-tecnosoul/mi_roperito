@@ -7,12 +7,13 @@ if(empty($_SESSION['user'])){
 require 'database.php';
 if ( !empty($_POST)) {
   // insert data
+
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "INSERT INTO motivos_salidas_caja (motivo,id_tipo_motivo) VALUES (?,?)";
+  $sql = "INSERT INTO motivos_salidas_caja (motivo,id_tipo_motivo, tipo_gasto, aparece_balance) VALUES (?,?,?,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"]));
+  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"],$_POST['tipo_gasto'],$_POST['aparece_balance']));
   
   Database::disconnect();
   
@@ -91,9 +92,38 @@ if ( !empty($_POST)) {
                               </select>
                             </div>
                           </div>
+                          
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Motivo egreso de caja</label>
                             <div class="col-sm-9"><input name="motivo" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Tipo de Gasto</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input name="tipo_gasto" type="radio" class="radio_animated" id="edo-ani" value="Fijo" checked required>
+                                <label for="edo-ani1">Fijo</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input name="tipo_gasto" type="radio" class="radio_animated" id="edo-ani1" value="Variable" required>
+                                <label for="edo-ani1">Variable</label>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Aparece Balance</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input name="aparece_balance" type="radio" class="radio_animated"id="edo-ani" value="1" checked required>
+                                <label for="edo-ani1">SI</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input name="aparece_balance" type="radio" class="radio_animated" id="edo-ani1" value="0" required>
+                                <label for="edo-ani1">NO</label>
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -127,13 +157,8 @@ if ( !empty($_POST)) {
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
