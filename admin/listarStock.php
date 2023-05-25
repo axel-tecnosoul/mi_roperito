@@ -67,6 +67,7 @@ if(empty($_SESSION['user'])){
                       &nbsp;<a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
                       &nbsp;<a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
                       &nbsp;<a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
+                      &nbsp;<a href="actualizarPrecioMasivo.php"><img src="img/update_price.png" height="25" border="0" alt="Exportar Stock" title="Actualizar precio masivo"></a>
                     </h5>
                   </div>
                   <div class="card-body">
