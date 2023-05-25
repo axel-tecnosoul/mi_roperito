@@ -46,13 +46,14 @@
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarTurnos.php"><i data-feather="calendar"></i><span>Turnos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
-		if ($id_perfil != 3) {?>
+		/*if ($id_perfil != 3) {?>
 			<li><a class="sidebar-header" href="listarEmpleados.php"><i data-feather="user"></i><span>Empleados</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		  }
 		if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarUsuarios.php"><i data-feather="user"></i><span>Usuarios</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-		}
+		}*/
 		if ($id_perfil == 1) {?>
+      <li><a class="sidebar-header" href="listarParametros.php"><i data-feather="settings"></i><span>Configuraciones</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="#"><i data-feather="bar-chart"></i><span>Reportes</span><i class="fa fa-angle-right pull-right"></i></a>
         <ul class="sidebar-submenu">
           <li><a href="balanceAlmacenes.php"><i class="fa fa-circle"></i>Balance de Almacenes</a></li>
@@ -73,8 +74,13 @@
           }?>
           <li><a href="listarAlmacenes.php"><i class="fa fa-circle"></i>Almacenes</a></li>
           <li><a href="listarFormasPago.php"><i class="fa fa-circle"></i>Formas de Pago</a></li>
-		  <li><a href="listarTiposMotivos.php"><i class="fa fa-circle"></i>Tipos de Motivos</a></li>
-          <li><a href="listarMotivosCaja.php"><i class="fa fa-circle"></i>Motivos Caja</a></li>
+		      <li><a href="listarTiposMotivos.php"><i class="fa fa-circle"></i>Tipos de Motivos</a></li>
+          <li><a href="listarMotivosCaja.php"><i class="fa fa-circle"></i>Motivos Caja</a></li><?php
+          if ($id_perfil != 3) {?>
+            <li><a href="listarEmpleados.php"><i class="fa fa-circle"></i>Empleados</a></li>
+			      <!-- <li><a class="sidebar-header" href="listarEmpleados.php"><i data-feather="user"></i><span>Empleados</span><i class="fa fa-angle-right pull-right"></i></a></li> --><?php 
+		      }?>
+          <li><a href="listarUsuarios.php"><i class="fa fa-circle"></i>Usuarios</a></li>
         </ul>
       </li><?php 
 		}?>
