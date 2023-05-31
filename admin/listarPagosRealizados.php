@@ -10,7 +10,8 @@ $desde="";
 $filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
-  $filtroDesde=" AND DATE(vd.fecha_hora_pago)>='".$desde."'";
+  //$filtroDesde=" AND DATE(vd.fecha_hora_pago)>='".$desde."'";
+  $filtroDesde=" AND DATE(fecha_hora_pago)>='".$desde."'";
 }
 $hasta=date("Y-m-d");
 //$hasta=date("Y-m-t",strtotime(date("Y-m-d")." -1 month"));
@@ -18,7 +19,9 @@ $hasta=date("Y-m-d");
 if(isset($_GET["h"]) and $_GET["h"]!=""){
   $hasta=$_GET["h"];
 }
-$filtroHasta=" AND DATE(vd.fecha_hora_pago)<='".$hasta."'";
+//$filtroHasta=" AND DATE(vd.fecha_hora_pago)<='".$hasta."'";
+$filtroHasta=" AND DATE(fecha_hora_pago)<='".$hasta."'";
+
 $id_proveedor=0;
 $filtroProveedor="";
 if(isset($_GET["p"]) and $_GET["p"]!=0){
@@ -115,7 +118,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
                               $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=1 $whereAlmacen GROUP BY pr.id";
-                              echo $sql;
+                              //echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
@@ -139,7 +142,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                   $whereAlmacen= " AND v.id_almacen = ".$_SESSION['user']['id_almacen']; 
                                 }*/
                                 $sql = "SELECT id,almacen FROM almacenes WHERE activo=1 $whereAlmacen";
-                                echo $sql;
+                                //echo $sql;
                                 foreach ($pdo->query($sql) as $row) {
                                   $selected="";
                                   if($row["id"]==$id_almacen){
@@ -213,7 +216,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               <td class="d-none"><?=$row["categoria"]?></td>
                             </tr><?php
                           }
-                          $sql2 ="SELECT cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1";
+                          $sql2 ="SELECT cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql2 .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
