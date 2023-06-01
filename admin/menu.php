@@ -35,6 +35,9 @@
 		  <li><a class="sidebar-header" href="listarCanjes.php"><i data-feather="alert-circle"></i><span>Canjes Crédito</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
+			<li><a class="sidebar-header" href="listarDevoluciones.php"><i data-feather="repeat"></i><span>Devoluciones</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
+		  }
+		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProveedores.php"><i data-feather="file"></i><span>Proveedores</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil == 1) {?>
