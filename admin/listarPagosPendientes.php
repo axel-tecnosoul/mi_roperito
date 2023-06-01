@@ -15,7 +15,12 @@ if(isset($_GET["d"]) and $_GET["d"]!=""){
   $filtroDesdeC=" AND DATE(cj.fecha_hora)>='".$desde."'";
 }
 //$hasta=date("Y-m-d");
-$hasta=date("Y-m-t",strtotime(date("Y-m-01")." -1 month"));
+$dia=date("d");
+$meses_descontar=1;
+if($dia<=5){
+  $meses_descontar=2;
+}
+$hasta=date("Y-m-t",strtotime(date("Y-m-01")." -$meses_descontar month"));
 $filtroHasta="";
 $filtroHastaC="";
 if(isset($_GET["h"]) and $_GET["h"]!=""){
