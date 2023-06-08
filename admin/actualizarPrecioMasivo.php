@@ -28,22 +28,25 @@ if ( !empty($_POST)) {
   }
 
   $sql = " UPDATE productos p INNER JOIN stock s ON p.id = s.id_producto SET p.precio = $accion";// WHERE p.id = 1
+  //$sql = " UPDATE productos p INNER JOIN stock s ON p.id = s.id_producto SET p.precio = $accion WHERE p.id = 12539";//
   $q = $pdo->prepare($sql);
   $q->execute();
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
     echo "<br><br>Afe: ".$q->rowCount();
-    echo "<br><br>";
-  }
+    echo "<br><br>";  
 
-  $sql4 = "SELECT precio FROM productos WHERE id = 1 ";
-  $q4 = $pdo->prepare($sql4);
-  $q4->execute();
-  $data4 = $q4->fetch(PDO::FETCH_ASSOC);
-  var_dump($data4["precio"]);
-  /*foreach ($pdo->query($sql) as $row) {
-  }*/
+    $sql4 = "SELECT p.id,precio FROM productos p INNER JOIN stock s ON p.id = s.id_producto";// WHERE id = 12539 
+    /*$q4 = $pdo->prepare($sql4);
+    $q4->execute();
+    $data4 = $q4->fetch(PDO::FETCH_ASSOC);
+    var_dump($data4);*/
+    foreach ($pdo->query($sql4) as $data4) {
+      echo $data4["id"]." - ".$data4["precio"]."<br>";
+    }
+
+  }
 
   /*if($_POST["nueva_cantidad"]>0){
     $sql = "UPDATE stock set cantidad = ? where id = ?";

@@ -324,8 +324,12 @@ Database::disconnect();
         <button type='button' class='btn btn-light' data-dismiss='modal'>Cerrar</button><?php
       }else{
         //si se muestra desde la ventas, se da la opcion de generar NC si es el caso o de volver al listado de ventas
-        if($data["tipo_comprobante"]!="R" and $data["estado"]=="A" and is_null($data["id_venta_cbte_relacionado"])){?>
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalGenerarNC">Generar NC</button><?php
+        if($data["tipo_comprobante"]!="R"){
+          if($data["estado"]=="A" and is_null($data["id_venta_cbte_relacionado"])){?>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalGenerarNC">Generar NC</button><?php
+          }elseif($data["tipo_comprobante"]!="R" and $data["estado"]!="A"){?>
+            <a href='informarFacturaAFIP.php?id=<?=$id?>' class='btn btn-danger'>Informar a AFIP</a><?php
+          }
         }?>
         <a href='<?=$link_volver?>' class='btn btn-light'>Volver</a><?php
       }?>

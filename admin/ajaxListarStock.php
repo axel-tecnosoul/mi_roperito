@@ -7,10 +7,10 @@ $columns = $_GET['columns'];
 
 //$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 
-$data_columns = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','p.activo', 'm.modalidad', 's.cantidad'];
+$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo'];
 //$data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 
-$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad'];
+$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto'];
 
 
 $from="FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor";
@@ -19,7 +19,7 @@ $orderBy = " ORDER BY ";
 foreach ($_GET['order'] as $order) {
     //$orderBy .= $order['column'] + 1 . " {$order['dir']}, ";
     //if($order['column']!=0){
-      $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
+      $orderBy .= $data_columns[($order['column'])] . " {$order['dir']}, ";
     //}
     /*var_dump($order['column']);
     var_dump($order['dir']);
@@ -93,11 +93,16 @@ $total = $countSt->fetch()['Total'];
 // Data set length after filtering
 //$resFilterLength = self::sql_exec( $db, $bindings,"SELECT COUNT(`id`) FROM productos ".($where ? "WHERE $where " : ''));
 //$recordsFiltered = $resFilterLength[0][0];
-$queryFiltered="SELECT COUNT(s.id) AS recordsFiltered $from ".($whereFiltered ? "WHERE $whereFiltered " : '');
+//$queryFiltered="SELECT COUNT(s.id) AS recordsFiltered $from ".($whereFiltered ? "WHERE $whereFiltered " : '');
+$queryFiltered="SELECT COUNT(s.id) AS recordsFiltered $from WHERE $whereFiltered";
 //echo $queryFiltered;
-
 $resFilterLength = $pdo->query($queryFiltered);
 $recordsFiltered = $resFilterLength->fetch()['recordsFiltered'];
+
+//$queryIdProductosFiltered="SELECT GROUP_CONCAT(p.id SEPARATOR ',') AS idProductosFilatrados $from ".($whereFiltered ? "WHERE $whereFiltered " : '');
+$queryIdProductosFiltered="SELECT GROUP_CONCAT(p.id SEPARATOR ',') AS idProductosFilatrados $from WHERE s.cantidad>0 AND $whereFiltered";
+$resIdProductosFilterLength = $pdo->query($queryIdProductosFiltered);
+$recordsIdProductosFiltered = $resIdProductosFilterLength->fetch()['idProductosFilatrados'];
 
 $campos=implode(",", $fields);
 
@@ -125,6 +130,7 @@ if ($st) {
         $activo='Si';
       }
       $aStock[]=[
+        '<input type="checkbox" class="no-sort customer-selector check-row" value="'.$row['id_producto'].'" />',
         $row['id'],
         $row['codigo'],
         $row['categoria'],
@@ -158,6 +164,7 @@ echo json_encode([
   'data' => $aStock,
   'recordsTotal' => $total,
   'recordsFiltered' => $recordsFiltered,//count($aStock),
+  'idProductosFiltered' => $recordsIdProductosFiltered,
   'queryInfo'=>$queryInfo,
 ]);
 
