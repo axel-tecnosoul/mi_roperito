@@ -116,7 +116,7 @@ Database::disconnect();
             }?>
           </label>
         </div><?php
-        if($tiene_canjes == 1){?>
+        if($tiene_canjes == 0){?>
           <div class="form-group row">
             <div class="col-sm-12">
               <div class="dt-ext table-responsive">
