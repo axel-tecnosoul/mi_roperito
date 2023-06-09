@@ -96,7 +96,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 <div class="card">
                   <div class="card-header">
                     <h5>Productos Vendidos
-                      &nbsp;<a href="exportPagosRealizados.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Pagos Realizados" title="Exportar Pagos Realizados"></a>
+                      &nbsp;<a href="exportProductosVendidos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Productos Vendidos" title="Exportar Productos Vendidos"></a>
                       <!-- <div id="total_pagos_realizados" class="mr-2 d-inline"></div> -->
                     </h5>
                   </div>
@@ -168,6 +168,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         <thead>
                           <tr>
                             <th>ID</th>
+                            <th>Operacion</th>
                             <th>Fecha/Hora</th>
                             <th>Descripción</th>
                             <th>Precio</th>
@@ -176,11 +177,11 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th>Almacen</th>
                             <th>Pagado</th>
                             <th>Opciones</th>
-                            <th class="d-none">Precio</th>
-                            <th class="d-none">Subtotal</th>
-                            <th class="d-none">Cantidad</th>
-                            <th class="d-none">Código</th>
-                            <th class="d-none">Categoría</th>
+                            <th class="none">Precio</th>
+                            <th class="none">Subtotal</th>
+                            <th class="none">Cantidad</th>
+                            <th class="none">Código</th>
+                            <th class="none">Categoría</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -246,106 +247,8 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
     <script>
 
       $(document).ready(function() {
-
         getVentas();
         $(".filtraTabla").on("change",getVentas);
-
-        //$("#modalElijaCaja").modal("show")
-
-        /*$("#total_pagos_realizados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(<?=$total_deuda?>))
-
-        var total=0;
-
-        $("#desde").on("change",reloadPage)
-        $("#hasta").on("change",reloadPage)
-        $("#id_proveedor").on("change",reloadPage)
-        $("#id_almacen").on("change",reloadPage)
-
-        function format ( d ) {
-          console.log(d)
-          return `
-            <b>Precio: </b>${d[8]}<br>
-            <b>Subtotal: </b>${d[9]}<br>
-            <b>Cantidad: </b>${d[10]}<br>
-            <b>Código: </b>${d[11]}<br>
-            <b>Categoría: </b>${d[12]}<br>`;
-          
-        }
-
-        $('#dataTables-example666').DataTable({
-          stateSave: true,
-          //dom: '<"#total_pagos_seleccionados.mr-2 d-inline"l>frtip',
-          dom: 'lrtip',
-          //responsive: true,
-          paginate: false,
-          scrollY: '100vh',
-          scrollCollapse: true,
-          /*"columnDefs": [{
-            "targets": [0],
-            "searchable": false,
-            "orderable": false,
-          }],*/
-          /*language: {
-            "decimal": "",
-            "emptyTable": "No hay información",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-            "infoFiltered": "(Filtrado de _MAX_ total registros)",
-            "infoPostFix": "",
-            "thousands": ",",
-            "lengthMenu": "Mostrar _MENU_ Registros",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No hay resultados",
-            "paginate": {
-                "first": "Primero",
-                "last": "Ultimo",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-          },
-          initComplete: function(){
-            //$("#dataTables-example666_wrapper").find(".dataTables_scrollHead table thead th:first-child").removeClass("sorting_asc");
-            //$("#total_pagos_seleccionados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(0));
-            $("#dataTables-example666_wrapper").find(".dataTables_scrollBody table tbody tr").each(function(index, element){
-              $(element).find("td:first-child").each(function(){
-                $(this).on("click",function(e){
-                  let tr=$(this).parent();
-                  var row = $("#dataTables-example666").DataTable().row(tr);
-                  if ( row.child.isShown() ) {
-                    // This row is already open - close it
-                    row.child.hide();
-                    tr.removeClass('shown');
-                  }else {
-                    // Open this row
-                    row.child( format(row.data()) ).show();
-                    //row.child.show();
-                    tr.addClass('shown');
-                  }
-                });
-              });
-              $(element).find("td").not(":first-child").each(function(){
-                $(this).on("click",function(){
-                  //e.preventDefault();
-                  let tr=$(this).parent();
-                  var row = $("#dataTables-example666").DataTable().row(tr);
-                  if ( row.child.isShown() ) {
-                    // Open this row
-                    row.child( format(row.data()) ).show();
-                    //row.child.show();
-                    tr.addClass('shown');
-                  }else {
-                    // This row is already open - close it
-                    row.child.hide();
-                    tr.removeClass('shown');
-                  }
-                });
-              })
-            })
-          }
-
-        });*/
       });
 
       function getVentas(){
@@ -358,11 +261,12 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
 
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
-        table.DataTable({
+        table.DataTable({ 
           processing: true,
-          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor},
-          stateSave: true,
-          responsive: true,
+          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor,
+          'dataSrc': ''},
+				  stateSave: true,
+				  responsive: true,
           language: {
             "decimal": "",
             "emptyTable": "No hay información",
@@ -382,12 +286,20 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 "next": "Siguiente",
                 "previous": "Anterior"
             }
-          }/*,
+          },
           "columns":[
             {"data": "id"},
-            {"data": "fecha_hora"},
+            {"data": "tipo"},
+            {render: function(data, type, row, meta) {
+              return row.fecha_hora+"hs";
+            }},
             {"data": "descripcion"},
-            {"data": "deuda"},
+            {
+              render: function(data, type, row, meta) {
+                return row.total_con_descuento;
+              },
+              className: 'dt-body-right text-right',
+            },
             {"data": "caja_egreso"},
             {"data": "forma_pago"},
             {"data": "almacen"},
@@ -399,7 +311,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
             {"data": "codigo"},
             {"data": "categoria"}
             
-          ]*/
+          ]
         })
       };
 		
