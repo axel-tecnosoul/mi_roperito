@@ -14,13 +14,6 @@ $q = $pdo->prepare($sql);
 $q->execute(array($id));
 $data = $q->fetch(PDO::FETCH_ASSOC);
 
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql2 = "SELECT cj.id_venta, cj.credito_usado FROM canjes cj INNER JOIN ventas v ON v.id = cj.id_venta WHERE cj.id_venta = ? ";
-//echo $sql;
-$q2 = $pdo->prepare($sql2);
-$q2->execute(array($id));
-$data2 = $q2->fetch(PDO::FETCH_ASSOC);
-
 $descuento=$data['descripcion'];
 if($data['porcentaje']>0){
   $descuento.=" (".$data['porcentaje']."%)";
@@ -33,6 +26,17 @@ if($data['minimo_cantidad_prendas']>0){
 }
 if($data['minimo_compra']>0){
   $descuento.=" Compra minima: ".number_format($data['minimo_compra'],0,",",".");
+}
+
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$sql2 = "SELECT cj.id_venta, cj.credito_usado FROM canjes cj INNER JOIN ventas v ON v.id = cj.id_venta WHERE cj.id_venta = ? ";
+//echo $sql;
+$q2 = $pdo->prepare($sql2);
+$q2->execute(array($id));
+$data2 = $q2->fetch(PDO::FETCH_ASSOC);
+$tiene_canjes = 0;
+if(!empty($data2)){
+  $tiene_canjes = 1;
 }
 Database::disconnect();
 
@@ -112,136 +116,136 @@ Database::disconnect();
             }?>
           </label>
         </div><?php
-        if(empty($data2)){
-        ?><div class="form-group row">
-          <div class="col-sm-12">
-            <div class="dt-ext table-responsive">
-              <table class="display" id="tableVentaProductos">
-                <thead>
-                  <tr><?php
-                    if($puede_devolver==1 and $file=="verVenta.php"){?>
-                      <th type="checkbock" id="id_devolucion"></th><?php
-                    }?>
-                    <th>Proveedor</th>
-                    <th>Código</th>
-                    <th>Categoría</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Modalidad</th>
-                    <th>Pagado</th>
-                    <th>ID Devolucion</th>
-                  </tr>
-                </thead>
-                <tbody><?php
-                  $pdo = Database::connect();
-                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor, vd.id as id_venta_detalle, dd.id_venta_detalle as devoluciones_venta_detalle, d.id as id_devolucion FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = vd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE vd.id_venta = ".$data['id'];
-                  //var_dump($sql);
-                  
-                  $total_precio_producto = 0;
-                  foreach ($pdo->query($sql) as $row) {
-                    echo '<tr>';
-                    if($puede_devolver==1 and $file=="verVenta.php"){
-                      if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
-                        echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
-                      }else{
-                        echo '<td></td>';
+        if($tiene_canjes == 1){?>
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <div class="dt-ext table-responsive">
+                <table class="display" id="tableVentaProductos">
+                  <thead>
+                    <tr><?php
+                      if($puede_devolver==1 and $file=="verVenta.php"){?>
+                        <th type="checkbock" id="id_devolucion"></th><?php
+                      }?>
+                      <th>Proveedor</th>
+                      <th>Código</th>
+                      <th>Categoría</th>
+                      <th>Descripción</th>
+                      <th>Precio</th>
+                      <th>Cantidad</th>
+                      <th>Subtotal</th>
+                      <th>Modalidad</th>
+                      <th>Pagado</th>
+                      <th>ID Devolucion</th>
+                    </tr>
+                  </thead>
+                  <tbody><?php
+                    $pdo = Database::connect();
+                    $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor, vd.id as id_venta_detalle, dd.id_venta_detalle as devoluciones_venta_detalle, d.id as id_devolucion FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = vd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE vd.id_venta = ".$data['id'];
+                    //var_dump($sql);
+                    
+                    $total_precio_producto = 0;
+                    foreach ($pdo->query($sql) as $row) {
+                      echo '<tr>';
+                      if($puede_devolver==1 and $file=="verVenta.php"){
+                        if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
+                          echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
+                        }else{
+                          echo '<td></td>';
+                        }
                       }
-                    }
-                    echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
-                    echo '<td>'. $row['codigo'] . '</td>';
-                    echo '<td>'. $row['categoria'] . '</td>';
-                    echo '<td>'. $row['descripcion'] . '</td>';
-                    echo '<td>$'. number_format($row['precio'],2) . '</td>';
-                    $total_precio_producto += $row['precio'];
-                    echo '<td>'. $row['cantidad'] . '</td>';
-                    echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
-                    echo '<td>'. $row['modalidad'] . '</td>';
-                    if ($row['pagado'] == 1) {
-                      echo '<td>Si</td>';	
-                    } else {
-                      echo '<td>No</td>';	
-                    }
-                    if($row['id_devolucion'] == NULL){
-                      echo '<td></td>';
-                    }else{
-                      echo '<td>'. $row['id_devolucion'] . '</td>';
-                    }
-                    echo '</tr>';
-                  }
-                  Database::disconnect();?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div><?php
-        }else{
-        ?><div class="form-group row">
-          <div class="col-sm-12">
-            <div class="dt-ext table-responsive">
-              <table class="display" id="tableVentaProductos">
-                <thead>
-                  <tr><?php
-                    if($puede_devolver==1 and $file=="verVenta.php"){?>
-                      <th type="checkbock" id="id_devolucion"></th><?php
-                    }?>
-                    <th>Proveedor</th>
-                    <th>Código</th>
-                    <th>Categoría</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Modalidad</th>
-                    <th>Pagado</th>
-                    <th>ID Devolucion</th>
-                  </tr>
-                </thead>
-                <tbody><?php
-                  $pdo = Database::connect();
-                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, cd.precio, cd.cantidad, cd.subtotal, m.modalidad, cd.pagado, pr.apellido, pr.nombre, p.id_proveedor, cd.id as id_canje_detalle, dd.id_venta_detalle as devoluciones_canje_detalle, d.id as id_devolucion FROM canjes_detalle cd INNER JOIN canjes cj ON cj.id = cd.id_canje INNER JOIN ventas v ON v.id = cj.id_venta INNER JOIN productos p ON p.id = cd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = cd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = cd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE cj.id_venta = ".$data['id'];
-                  //var_dump($sql);
-                  
-                  $total_precio_producto = 0;
-                  foreach ($pdo->query($sql) as $row) {
-                    echo '<tr>';
-                    if($puede_devolver==1 and $file=="verVenta.php"){
-                      if (($row['id_canje_detalle'] != $row['devoluciones_canje_detalle']) && ($row['pagado'] == 0)){
-                        echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_canje_detalle"].'" /> </td></td>';
-                      }else{
-                        echo '<td></td>';
+                      echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
+                      echo '<td>'. $row['codigo'] . '</td>';
+                      echo '<td>'. $row['categoria'] . '</td>';
+                      echo '<td>'. $row['descripcion'] . '</td>';
+                      echo '<td>$'. number_format($row['precio'],2) . '</td>';
+                      $total_precio_producto += $row['precio'];
+                      echo '<td>'. $row['cantidad'] . '</td>';
+                      echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
+                      echo '<td>'. $row['modalidad'] . '</td>';
+                      if ($row['pagado'] == 1) {
+                        echo '<td>Si</td>';	
+                      } else {
+                        echo '<td>No</td>';	
                       }
+                      if($row['id_devolucion'] == NULL){
+                        echo '<td></td>';
+                      }else{
+                        echo '<td>'. $row['id_devolucion'] . '</td>';
+                      }
+                      echo '</tr>';
                     }
-                    echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
-                    echo '<td>'. $row['codigo'] . '</td>';
-                    echo '<td>'. $row['categoria'] . '</td>';
-                    echo '<td>'. $row['descripcion'] . '</td>';
-                    echo '<td>$'. number_format($row['precio'],2) . '</td>';
-                    $total_precio_producto += $row['precio'];
-                    echo '<td>'. $row['cantidad'] . '</td>';
-                    echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
-                    echo '<td>'. $row['modalidad'] . '</td>';
-                    if ($row['pagado'] == 1) {
-                      echo '<td>Si</td>';	
-                    } else {
-                      echo '<td>No</td>';	
-                    }
-                    if($row['id_devolucion'] == NULL){
-                      echo '<td></td>';
-                    }else{
-                      echo '<td>'. $row['id_devolucion'] . '</td>';
-                    }
-                    echo '</tr>';
-                  }
-                  Database::disconnect();?>
-                </tbody>
-              </table>
+                    Database::disconnect();?>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </div><?php
-        }
-        ?><div class="form-group row">
+          </div><?php
+        }else{?>
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <div class="dt-ext table-responsive">
+                <table class="display" id="tableVentaProductos">
+                  <thead>
+                    <tr><?php
+                      if($puede_devolver==1 and $file=="verVenta.php"){?>
+                        <th type="checkbock" id="id_devolucion"></th><?php
+                      }?>
+                      <th>Proveedor</th>
+                      <th>Código</th>
+                      <th>Categoría</th>
+                      <th>Descripción</th>
+                      <th>Precio</th>
+                      <th>Cantidad</th>
+                      <th>Subtotal</th>
+                      <th>Modalidad</th>
+                      <th>Pagado</th>
+                      <th>ID Devolucion</th>
+                    </tr>
+                  </thead>
+                  <tbody><?php
+                    $pdo = Database::connect();
+                    $sql = " SELECT p.codigo, c.categoria, p.descripcion, cd.precio, cd.cantidad, cd.subtotal, m.modalidad, cd.pagado, pr.apellido, pr.nombre, p.id_proveedor, cd.id as id_canje_detalle, dd.id_venta_detalle as devoluciones_canje_detalle, d.id as id_devolucion FROM canjes_detalle cd INNER JOIN canjes cj ON cj.id = cd.id_canje INNER JOIN ventas v ON v.id = cj.id_venta INNER JOIN productos p ON p.id = cd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = cd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = cd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE cj.id_venta = ".$data['id'];
+                    //var_dump($sql);
+                    
+                    $total_precio_producto = 0;
+                    foreach ($pdo->query($sql) as $row) {
+                      echo '<tr>';
+                      if($puede_devolver==1 and $file=="verVenta.php"){
+                        if (($row['id_canje_detalle'] != $row['devoluciones_canje_detalle']) && ($row['pagado'] == 0)){
+                          echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_canje_detalle"].'" /> </td></td>';
+                        }else{
+                          echo '<td></td>';
+                        }
+                      }
+                      echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
+                      echo '<td>'. $row['codigo'] . '</td>';
+                      echo '<td>'. $row['categoria'] . '</td>';
+                      echo '<td>'. $row['descripcion'] . '</td>';
+                      echo '<td>$'. number_format($row['precio'],2) . '</td>';
+                      $total_precio_producto += $row['precio'];
+                      echo '<td>'. $row['cantidad'] . '</td>';
+                      echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
+                      echo '<td>'. $row['modalidad'] . '</td>';
+                      if ($row['pagado'] == 1) {
+                        echo '<td>Si</td>';	
+                      } else {
+                        echo '<td>No</td>';	
+                      }
+                      if($row['id_devolucion'] == NULL){
+                        echo '<td></td>';
+                      }else{
+                        echo '<td>'. $row['id_devolucion'] . '</td>';
+                      }
+                      echo '</tr>';
+                    }
+                    Database::disconnect();?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div><?php
+        }?>
+        <div class="form-group row">
             <label class="col-sm-3 col-form-label">Subtotal Productos Vendidos</label>
             <div class="col-sm-9">$<?php echo number_format($total_precio_producto,2); ?></div>
         </div><?php

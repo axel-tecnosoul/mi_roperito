@@ -12,6 +12,9 @@
 		  <li><a class="sidebar-header" href="listarProductos.php"><i data-feather="clipboard"></i><span>Productos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
+			<li><a class="sidebar-header" href="listarProductosVendidos.php"><i data-feather="dollar-sign"></i><span>Productos Vendidos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
+		  }
+		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarStock.php"><i data-feather="layout"></i><span>Stock</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
@@ -37,6 +40,7 @@
 		if ($id_perfil != 3) {?>
 			<li><a class="sidebar-header" href="listarDevoluciones.php"><i data-feather="repeat"></i><span>Devoluciones</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		  }
+		  
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProveedores.php"><i data-feather="file"></i><span>Proveedores</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
