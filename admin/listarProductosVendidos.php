@@ -6,7 +6,7 @@ if(empty($_SESSION['user'])){
 }
 
 //$desde=date("Y-m-d");
-$desde="";
+$desde = date("Y-m-d", strtotime("last month"));
 $filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
@@ -72,7 +72,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Pagos Realizados</li>
+                      <li class="breadcrumb-item">Productos Vendidos</li>
                     </ol>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Pagos Realizados
+                    <h5>Productos Vendidos
                       &nbsp;<a href="exportPagosRealizados.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Pagos Realizados" title="Exportar Pagos Realizados"></a>
                       <!-- <div id="total_pagos_realizados" class="mr-2 d-inline"></div> -->
                     </h5>
@@ -109,7 +109,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td> -->
                           <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_proveedor">Proveedores:</label><br>
-                            <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100">
+                            <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100 filtraTabla">
                               <option value="0">- Seleccione -</option><?php
                               include 'database.php';
                               $pdo = Database::connect();
@@ -133,7 +133,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Almacen:</td> -->
                             <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
                               <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
-                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single w-100">
+                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single w-100 filtraTabla">
                                 <option value="0">- Seleccione -</option><?php
                                 //include 'database.php';
                                 $pdo = Database::connect();
@@ -154,7 +154,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               </select>
                             </td><?php
                           }?>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total pagado: </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_pagos_realizados"></td>
                         </tr>
                         <tr>
@@ -170,10 +170,11 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th>ID</th>
                             <th>Fecha/Hora</th>
                             <th>Descripción</th>
-                            <th>Pagado</th>
+                            <th>Precio</th>
                             <th>Caja</th>
                             <th>Forma de Pago</th>
                             <th>Almacen</th>
+                            <th>Pagado</th>
                             <th>Opciones</th>
                             <th class="d-none">Precio</th>
                             <th class="d-none">Subtotal</th>
@@ -182,71 +183,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th class="d-none">Categoría</th>
                           </tr>
                         </thead>
-                        <tbody><?php
-                          $pdo = Database::connect();
-                          $sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
-                          if ($_SESSION['user']['id_perfil'] == 2) {
-                            $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
-                          }
-                          //echo $sql;
-                          $total_deuda=0;
-                          foreach ($pdo->query($sql) as $row) {
-                            $deuda = $row["deuda_proveedor"];
-                            $total_deuda+=$deuda;?>
-                            <tr>
-                              <td><?="V#".$row["id_venta"]?></td>
-                              <td><?=$row["fecha_hora_pago"]?>hs</td>
-                              <td><?=$row["descripcion"]?></td>
-                              <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
-                              <td><?=$row["caja_egreso"]?></td>
-                              <td><?=$row["forma_pago"]?></td>
-                              <td><?=$row["almacen"]?></td>
-                              <td>
-                                <a href="modificarPagoRealizado.php?id=v/<?=$row["id_detalle_venta"]?>">
-                                  <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
-                                </a>
-                                <a href="verVenta.php?id=<?=$row["id_venta"]?>">
-                                  <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta">
-                                </a>
-                              </td>
-                              <td class="d-none">$<?=number_format($row["precio"],2)?></td>
-                              <td class="d-none">$<?=number_format($row["subtotal"],2)?></td>
-                              <td class="d-none"><?=$row["cantidad"]?></td>
-                              <td class="d-none"><?=$row["codigo"]?></td>
-                              <td class="d-none"><?=$row["categoria"]?></td>
-                            </tr><?php
-                          }
-                          $sql2 ="SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
-                          if ($_SESSION['user']['id_perfil'] == 2) {
-                            $sql2 .= " and a.id = ".$_SESSION['user']['id_almacen']; 
-                          }
-                          foreach ($pdo->query($sql2) as $row) {
-                            $deuda = $row["deuda_proveedor"];
-                            $total_deuda+=$deuda;?>
-                            <tr>
-                              <td><?="C#".$row["id_canje"]?></td>
-                              <td><?=$row["fecha_hora_pago"]?>hs</td>
-                              <td><?=$row["descripcion"]?></td>
-                              <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
-                              <td><?=$row["caja_egreso"]?></td>
-                              <td><?=$row["forma_pago"]?></td>
-                              <td><?=$row["almacen"]?></td>
-                              <td>
-                                <a href="modificarPagoRealizado.php?id=c/<?=$row["id_detalle_canje"]?>">
-                                  <img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar Pago" title="Modificar Pago">
-                                </a>
-                                <a href="verCanje.php?id=<?=$row["id_canje"]?>">
-                                  <img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje">
-                                </a>
-                              </td>
-                              <td class="d-none">$<?=number_format($row["precio"],2)?></td>
-                              <td class="d-none">$<?=number_format($row["subtotal"],2)?></td>
-                              <td class="d-none"><?=$row["cantidad"]?></td>
-                              <td class="d-none"><?=$row["codigo"]?></td>
-                              <td class="d-none"><?=$row["categoria"]?></td>
-                            </tr><?php
-                          }
-                          Database::disconnect();?>
+                        <tbody>
                         </tbody>
                       </table>
                     </div>
@@ -308,19 +245,14 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
     <script src="assets/js/script.js"></script>
     <script>
 
-      function reloadPage(){
-        let desde=$("#desde").val();
-        let hasta=$("#hasta").val();
-        let id_proveedor=$("#id_proveedor").val();
-        let id_almacen=$("#id_almacen").val();
-        window.location.href="listarPagosRealizados.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
-      }
-
       $(document).ready(function() {
+
+        getVentas();
+        $(".filtraTabla").on("change",getVentas);
 
         //$("#modalElijaCaja").modal("show")
 
-        $("#total_pagos_realizados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(<?=$total_deuda?>))
+        /*$("#total_pagos_realizados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(<?=$total_deuda?>))
 
         var total=0;
 
@@ -329,7 +261,6 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         $("#id_proveedor").on("change",reloadPage)
         $("#id_almacen").on("change",reloadPage)
 
-        /* Formatting function for child row details */
         function format ( d ) {
           console.log(d)
           return `
@@ -338,6 +269,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
             <b>Cantidad: </b>${d[10]}<br>
             <b>Código: </b>${d[11]}<br>
             <b>Categoría: </b>${d[12]}<br>`;
+          
         }
 
         $('#dataTables-example666').DataTable({
@@ -353,7 +285,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
             "searchable": false,
             "orderable": false,
           }],*/
-          language: {
+          /*language: {
             "decimal": "",
             "emptyTable": "No hay información",
             "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
@@ -413,8 +345,63 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
             })
           }
 
-        });
+        });*/
       });
+
+      function getVentas(){
+        let desde=$("#desde").val();
+        let hasta=$("#hasta").val();
+        let id_almacen=$("#id_almacen").val();
+        let proveedor=$("#id_proveedor").val();
+        console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
+        let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+
+        let table=$('#dataTables-example666')
+        table.DataTable().destroy();
+        table.DataTable({
+          processing: true,
+          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor},
+          stateSave: true,
+          responsive: true,
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+          }/*,
+          "columns":[
+            {"data": "id"},
+            {"data": "fecha_hora"},
+            {"data": "descripcion"},
+            {"data": "deuda"},
+            {"data": "caja_egreso"},
+            {"data": "forma_pago"},
+            {"data": "almacen"},
+            {"data": "pagado"},
+            {"data": "input"},
+            {"data": "precio"},
+            {"data": "subtotal"},
+            {"data": "cantidad"},
+            {"data": "codigo"},
+            {"data": "categoria"}
+            
+          ]*/
+        })
+      };
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
