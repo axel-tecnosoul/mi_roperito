@@ -437,8 +437,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Subtotal</label>
-                            <div class="col-sm-9"><label id="subtotal_compra">$ 0</label></div>
+                            <label class="col-sm-3 col-form-label">Total productos a vender</label>
+                            <div class="col-sm-9"><label id="total_productos">$ 0</label></div>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de comprobante</label>
@@ -503,14 +503,14 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total</label>
-                            <div class="col-sm-9"><label id="total_compra">$ 0</label></div><?php
+                            <label class="col-sm-3 col-form-label">Total a pagar</label>
+                            <div class="col-sm-9"><label id="total_a_pagar">$ 0</label></div><?php
                             $sql4 = "SELECT valor FROM parametros WHERE id = 6 ";
                             $q4 = $pdo->prepare($sql4);
                             $q4->execute();
                             $data4 = $q4->fetch(PDO::FETCH_ASSOC);?>
                             <input type="hidden" name="monto_maximo_sin_informar_dni" id="monto_maximo_sin_informar_dni" value="<?=$data4["valor"]?>">
-                            <input type="hidden" id="total_compra_sin_formato">
+                            <input type="hidden" id="total_a_pagar_sin_formato">
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Nombre y apellido</label>
@@ -901,7 +901,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     }
     function actualizarMontoTotal(){
       let total=calcularTotalCompra()
-      $("#subtotal_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
+      $("#total_productos").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
       mostrarTotalDescuento(total)
     }
 
@@ -914,8 +914,8 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       }
       //console.log(parseInt(total)-parseInt(totalConDescuento))
       if(isNaN(totalConDescuento)){totalConDescuento=0;}
-      $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
-      $("#total_compra_sin_formato").val(totalConDescuento)
+      $("#total_a_pagar").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
+      $("#total_a_pagar_sin_formato").val(totalConDescuento)
       checkTotalPagarDNI();
     }
 
@@ -924,10 +924,10 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       console.log(tipo_comprobante);
       let monto_maximo_sin_informar_dni=$("#monto_maximo_sin_informar_dni").val();
       console.log(monto_maximo_sin_informar_dni);
-      let total_compra_sin_formato=$("#total_compra_sin_formato").val();
-      console.log(total_compra_sin_formato);
+      let total_a_pagar_sin_formato=$("#total_a_pagar_sin_formato").val();
+      console.log(total_a_pagar_sin_formato);
       
-      if(total_compra_sin_formato>monto_maximo_sin_informar_dni && tipo_comprobante=="B"){
+      if(total_a_pagar_sin_formato>monto_maximo_sin_informar_dni && tipo_comprobante=="B"){
         $("#dni").attr("disabled",false).attr("required",true)
       }else{
         $("#dni").attr("disabled",false).attr("required",false)

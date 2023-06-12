@@ -595,7 +595,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total Productos a Vender</label>
+                            <label class="col-sm-3 col-form-label">Total productos a vender</label>
                             <div class="col-sm-9"><label id="subtotal_compra">$ 0</label></div>
                           </div>
                           <div class="form-group row">
@@ -636,7 +636,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total</label>
+                            <label class="col-sm-3 col-form-label">Total con descuento</label>
                             <div class="col-sm-9"><label id="total_venta"><?= "$".number_format(0, 2, ',', '.');?></label></div>
                           </div>
                           <div class="form-group row">
@@ -683,7 +683,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total Devolucion</label>
+                            <label class="col-sm-3 col-form-label">Total productos devueltos</label>
                             <div class="col-sm-9"><label id="precio_total"><?= "$".number_format($precio_total, 2, ',', '.');?></label></div>
                           </div>
                           <input type="hidden" name="precio_total" value="<?php echo $precio_total; ?>">
