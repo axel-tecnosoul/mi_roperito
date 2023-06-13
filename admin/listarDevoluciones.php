@@ -1,7 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -57,7 +56,7 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Devolucion&nbsp;<!--<a href="nuevaDevolucion.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a></h5><span>-->
+                    <h5>Devoluciones&nbsp;<!--<a href="nuevaDevolucion.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a></h5><span>-->
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
@@ -88,7 +87,7 @@ if(empty($_SESSION['user']))
                                 echo '&nbsp;&nbsp;';
                                 echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row['id'].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
                                 echo '&nbsp;&nbsp;';*/
-                                echo '<a href="VerVenta.php?id='.$row['id_venta'].'"><img src="img/eye.png" width="24" height="15" border="0"  alt="Ver" title="Ver Devolucion"></a>';
+                                echo '<a href="verVenta.php?id='.$row['id_venta'].'"><img src="img/eye.png" width="24" height="15" border="0"  alt="Ver" title="Ver Devolucion"></a>';
                               echo '</td>';
                               echo '</tr>';
                             }

@@ -5,6 +5,7 @@ if(empty($_SESSION['user'])){
   die("Redirecting to index.php"); 
 }
 require 'database.php';
+require 'funciones.php';
 	
 if ( !empty($_POST)) {
   
@@ -17,6 +18,7 @@ if ( !empty($_POST)) {
   if ($modoDebug==1) {
     $pdo->beginTransaction();
     var_dump($_POST);
+    
   }
   
   $sql = "INSERT INTO canjes (fecha_hora, id_proveedor, id_almacen, total, id_usuario) VALUES (now(),?,?,0,?)";
@@ -34,6 +36,34 @@ if ( !empty($_POST)) {
   //$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, p.precio, s.cantidad, s.id_modalidad, p.id_proveedor, p.id FROM stock s inner join productos p on p.id = s.id_producto inner join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 and p.activo = 1 and s.id_almacen = ".$_POST["id_almacen"];
   //foreach ($pdo->query($sql) as $row) {
     //if ($_POST['cantidad_'.$row[0]] > 0) {
+  $cantPrendas = count($_POST["id_producto"]);
+  $minimo_compra="";
+  $monto_fijo="";
+  $porcentaje="";
+  $minimo_cantidad_prendas="";
+  if (!empty($_POST['id_descuento'])) {
+    $sql2 = "SELECT minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje FROM descuentos WHERE id = ? ";
+    $q2 = $pdo->prepare($sql2);
+    $q2->execute(array($_POST['id_descuento']));
+    $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+    
+    $minimo_compra=$data2['minimo_compra'];
+    //$monto_fijo=$data2['monto_fijo'];
+    $porcentaje=$data2['porcentaje'];
+    $minimo_cantidad_prendas=$data2['minimo_cantidad_prendas'];
+    
+    if ($modoDebug==1) {
+      $q2->debugDumpParams();
+      echo "<br><br>Afe: ".$q2->rowCount();
+      echo "<br><br>porcentaje: ".$porcentaje;
+      echo "<br><br>minimo_compra: ".$minimo_compra;
+      echo "<br><br>minimo_cantidad_prendas: ".$minimo_cantidad_prendas;
+      echo "<br><br>cantidad de prendas: ".$cantPrendas;
+      echo "<br><br>";
+    }
+    
+  }
+  $totalConDescuento = 0;
   foreach ($_POST['id_stock'] as $key => $id_stock) {
 
     $cantidad = $_POST['cantidad'][$key];
@@ -42,6 +72,7 @@ if ( !empty($_POST)) {
     $modalidad = $_POST["id_modalidad"][$key];
     $idProveedor = $_POST["id_proveedor"][$key];
     $idProducto = $_POST["id_producto"][$key];
+    $forma_pago = 1;
 
     //$idProducto = $row[8];
     //$cantidad = $_POST['cantidad_'.$row[0]];
@@ -49,8 +80,31 @@ if ( !empty($_POST)) {
     //$precio = $row[4];
     $subtotal = $cantidad * $precio;
     $total += $subtotal;
+
+    echo "<br><br>total: ".$total;
+    echo "<br><br>";
+    
+    echo "<br><br>subtotal: ".$subtotal;
+    echo "<br><br>";
     //$modalidad = $row[6];
     //$idProveedor = $row[7];
+
+    if ($minimo_compra!="" and $total>$minimo_compra and $minimo_cantidad_prendas!="" and $cantPrendas>=$minimo_cantidad_prendas) {
+      //$totalConDescuento = $totalConDescuento - $monto_fijo;
+      $subtotal-=(($subtotal*$porcentaje)/100);
+      //var_dump("subtotal: " . $subtotal);
+
+      if ($modoDebug==1) {
+        //$q->debugDumpParams();
+        echo "<br><br>Subtotal Con Descuento: ". $subtotal;
+        echo "<br><br>";
+      }
+    }
+
+    $totalConDescuento += $subtotal;
+
+    $deuda_proveedor=calcularDeudaProveedor($forma_pago,$modalidad,$subtotal);
+
     $pagado = 0;
     $credito = 0;
     if ($modalidad == 1) {
@@ -65,9 +119,9 @@ if ( !empty($_POST)) {
       $pagado = 1;
     }
     
-    $sql = "INSERT INTO canjes_detalle (id_canje, id_producto, cantidad, precio, subtotal,id_modalidad) VALUES (?,?,?,?,?,?)";
+    $sql = "INSERT INTO canjes_detalle (id_canje, id_producto, cantidad, precio, subtotal,id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($idCanje,$idProducto,$cantidad,$precio,$subtotal,$modalidad));
+    $q->execute(array($idCanje,$idProducto,$cantidad,$precio,$subtotal,$modalidad,$deuda_proveedor,$pagado));
 
     if ($modoDebug==1) {
       $q->debugDumpParams();
@@ -104,6 +158,15 @@ if ( !empty($_POST)) {
   $q = $pdo->prepare($sql);
   $q->execute(array($total,$idCanje));
 
+  //Descuentos
+  $id_descuento=NULL;
+  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
+    $id_descuento=$_POST['id_descuento'];
+  }
+
+  $sql = "UPDATE canjes set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+  $q = $pdo->prepare($sql);
+  $q->execute(array($total,$id_descuento,$totalConDescuento,$idCanje));
   if ($modoDebug==1) {
     $q->debugDumpParams();
     echo "<br><br>Afe: ".$q->rowCount();
@@ -112,7 +175,7 @@ if ( !empty($_POST)) {
   
   $sql = "UPDATE proveedores set credito = credito - ? WHERE id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($total,$_POST['id_proveedor_canje']));
+  $q->execute(array($totalConDescuento,$_POST['id_proveedor_canje']));
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
@@ -186,21 +249,19 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Proveedor</label>
                             <div class="col-sm-9">
-                            <select name="id_proveedor_canje" id="id_proveedor" class="js-example-basic-single col-sm-12" required="required">
-                            <option value="">Seleccione...</option>
-                            <?php 
-                            $pdo = Database::connect();
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $sqlZon = "SELECT `id`, `dni`, `nombre`, `apellido`, `credito` FROM `proveedores` WHERE `activo` = 1";
-                            $q = $pdo->prepare($sqlZon);
-                            $q->execute();
-                            while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                              echo "<option value='".$fila['id']."'";
-                              echo ">".$fila['nombre']." ".$fila['apellido']." (".$fila['dni'].") - $".number_format($fila['credito'],2)."</option>";
-                            }
-                            Database::disconnect();
-                            ?>
-                            </select>
+                              <select name="id_proveedor_canje" id="id_proveedor" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, dni, nombre, apellido, credito FROM proveedores WHERE activo = 1 and credito>0";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['nombre']." ".$fila['apellido']." (".$fila['dni'].") - $".number_format($fila['credito'],2)."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -269,6 +330,29 @@ if ( !empty($_POST)) {
                                 </thead>
                                 <tbody></tbody>
                               </table>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Subtotal</label>
+                            <div class="col-sm-9"><label id="subtotal_compra">$ 0</label></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Descuentos Vigentes</label>
+                            <div class="col-sm-9">
+                              <select name="id_descuento" id="id_descuento" class="js-example-basic-single col-sm-12">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT d.id as id_descuento, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, dfp.id_forma_pago, f.forma_pago FROM descuentos_x_formapago dfp INNER JOIN descuentos d on d.id = dfp.id_descuento INNER JOIN forma_pago f on f.id = dfp.id_forma_pago WHERE dfp.id_forma_pago = '1' AND vigencia_desde <= now() and vigencia_hasta >= now()";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id_descuento']. "' data-porcentaje='" . $fila['porcentaje'] ."'";
+                                  echo ">".$fila['descripcion']."</option>";
+                                }
+                                Database::disconnect();?>
+                                
+                              </select>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -425,11 +509,30 @@ if ( !empty($_POST)) {
             $('[title]').tooltip();
           },
         })
+        var table = $("#dataTables-example666").DataTable();
+        table.on( 'draw', function () {
+          let filtrado=table.rows({search:'applied'}).nodes()
+          let search=$('input[type=search]')
+          if(search.val()!='' && filtrado.length==1){
+          //if(filtrado.length==1){
+            $(filtrado[0]).find("button.btnAnadir").click();
+            search.select();
+            /*search.val('').change();
+            table.search('').draw();*/
+            //search.val('').trigger('change');
+            //table.search('').columns().search('').draw();
+            //table.rows().nodes().draw();
+          }
+        });
       }
     
       $(document).ready(function() {
         jsListarProductos(0)
       });
+      $("#id_descuento").change(function() {
+        //mostrarTotalDescuento();
+        actualizarMontoTotal();
+      })
 
       $(document).on("click",".btnAnadir",function(){
         let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
@@ -464,14 +567,35 @@ if ( !empty($_POST)) {
           alert("El producto ya fue añadido")
         }
       })
-
-      function actualizarMontoTotal(){
+      
+      function calcularTotalCompra(){
         let total=0;
         $("#productos_canjear tbody tr").each(function(){
           total+=parseInt($(this).find(".precio").val())*parseInt($(this).find(".cantidad").val());
         })
         if(isNaN(total)){total=0;}
-        $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
+        return total
+      }
+
+      function actualizarMontoTotal(){
+        let total=calcularTotalCompra();
+        $("#subtotal_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
+    
+        var porcentaje = $("#id_descuento option:selected").data("porcentaje");
+        console.log('Total: '+ total + " Porcentaje: " + porcentaje);
+       
+        let totalConDescuento=total;
+        console.log('Porcentaje: ' + porcentaje + ' ' + 'Total con descuento: ' + totalConDescuento);
+        if(porcentaje!=undefined){
+          console.log('Porcentaje: ' + porcentaje + ' ' + 'Total con descuento: ' + totalConDescuento);
+          let descuento=porcentaje*total/100;
+          totalConDescuento=total-descuento;
+        }
+        
+        //console.log(parseInt(total)-parseInt(totalConDescuento))
+        if(isNaN(totalConDescuento)){totalConDescuento=0;}
+        $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento));
+        
       }
 
       $(document).on("keyup change",".cantidad",function(){

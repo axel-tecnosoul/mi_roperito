@@ -56,24 +56,28 @@ if($motivo!=""){
   $aMotivos = array_map('encerrar_entre_comillas', $aMotivos);
   $motivos=implode(",",$aMotivos);
   $filtroMotivo="AND id_motivo IN ($motivos)";
+}else{
+  $mostrarPagoProveedoresDesdePagosPendientes=1;
 }
 //$tipo_comprobante=$_GET["tipo_comprobante"];
 
 //como los pagos a proveedores se hacen solamente en efectivo por el momento debemos mostrar esta consulta solamente si se elije "efectivo" entre las formas de pago
 $id_forma_pago_efectivo=1;
 //$id_motivo_pago_proveedoras=22;
+//var_dump($motivo);
 //var_dump($mostrarPagoProveedoresDesdePagosPendientes);
 
 $aCaja=[];
 //if($desde<=$hasta and $id_almacen!=0){
 if($desde<=$hasta){
 
-  $wherePagoProv=" $filtroAlmacen";
+  $wherePagoProv=" $filtroFormaPago $filtroAlmacen";
 
   //$where="$wherePagoProv $filtroFormaPago $filtroAlmacen";
   $where="$filtroFormaPago $filtroAlmacen";
 
   $whereVentas=$where." AND v.anulada = 0";
+  $whereCanjes=$where." AND c.anulado = 0";
 
   //INICIO SALDO ANTERIOR
 
@@ -155,15 +159,23 @@ if($desde<=$hasta){
     //echo $sql4;
     $q4->execute(array());
     $data4 = $q4->fetch(PDO::FETCH_ASSOC);
-    //var_dump($data4);
-    /*$total_pago_proveedores=$data4["total_pago_proveedores"];
-    if(is_null($total_pago_proveedores)){
-      $total_pago_proveedores=0;
-    }*/
     $total_pago_proveedores=0;
     if($data4){
       $total_pago_proveedores=$data4["total_pago_proveedores"];
     }
+
+    //obtenemos los pagos a proveedores que se hicieron desde esta caja para el saldo anterior
+    $sql4 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores_canjes FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN almacenes a ON cd.id_almacen=a.id INNER JOIN forma_pago fp ON cd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereCanjes $filtroHastaSaldoAnteriorPagoProv";
+    $q4 = $pdo->prepare($sql4);
+    //echo $sql4;
+    $q4->execute(array());
+    $data4 = $q4->fetch(PDO::FETCH_ASSOC);
+    $total_pago_proveedores_canjes=0;
+    if($data4){
+      $total_pago_proveedores_canjes=$data4["total_pago_proveedores_canjes"];
+    }
+    
+    $total_pago_proveedores+=$total_pago_proveedores_canjes;
   }
 
   $saldo_anterior=$ingresos_externos+$total_facturas_recibos-$total_notas_credito-$egresos_caja_chica-$total_pago_proveedores;
@@ -240,7 +252,7 @@ if($desde<=$hasta){
 
   if($mostrarPagoProveedoresDesdePagosPendientes==1 and $filtroEmpleado==""){
     //obtenemos las pagos a proveedoras
-    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(vd.fecha_hora_pago)";
+    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(vd.fecha_hora_pago)";
     //echo $sql;
     foreach ($pdo->query($sql) as $row) {
       $aCaja[]=[
@@ -250,12 +262,53 @@ if($desde<=$hasta){
         //"detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
         "motivo"=>"Pago a proveedores",
         "detalle"=>$row["proveedor"],
-        "forma_pago"=>"Efectivo",
+        //"forma_pago"=>"Efectivo",
+        "forma_pago"=>$row["forma_pago"],
         "credito"=>0,
         "debito"=>$row["suma_deuda_proveedor"],
         "saldo"=>0,
         "detalle_productos"=>$row["detalle_productos"],
       ];
+    }
+
+    //obtenemos las pagos a proveedoras
+    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',cd.cantidad,' ',p.descripcion,': $',FORMAT(cd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.forma_pago FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON cd.id_almacen=a.id INNER JOIN forma_pago fp ON cd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereCanjes $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(cd.fecha_hora_pago)";
+    //echo $sql;
+    foreach ($pdo->query($sql) as $row) {
+      $fecha_hora_pago=date("d-m-Y H:i",strtotime($row["fecha_hora_pago"]));
+      $fecha_pago=date("d-m-Y",strtotime($fecha_hora_pago));
+      $motivo="Pago a proveedores";
+      $detalle=$row["proveedor"];
+      $indice = null;
+      //buscamos el indice del array en caso de que ya haya un pago a proveedor realizado con la misma forma de pago y en la misma fecha
+      foreach ($aCaja as $key => $value) {
+        if ($detalle==$value["detalle"] and $motivo==$value["motivo"] and $fecha_pago==date("d-m-Y",strtotime($value["fecha_hora"])) and $row["forma_pago"]==$value["forma_pago"]) {
+          $indice = $key;
+          break;
+        }
+      }
+
+      if($indice){
+        //si se encuentra el indice sumamos la deuda del proveedor y concatenamos el detalle del producto
+        $aCaja[$indice]["debito"]+=$row["suma_deuda_proveedor"];
+        $aCaja[$indice]["detalle_productos"].="<br>".$row["detalle_productos"];
+      }else{
+        //si no hay un indice agregamos todos los datos al array
+        $aCaja[]=[
+          "id_proveedor"=>$row["id_proveedor"],
+          "id"=>$row["id_proveedor"],
+          "fecha_hora"=>$fecha_hora_pago,
+          //"detalle"=>"Pago a proveedores: ".$row["proveedor"]."",
+          "motivo"=>$motivo,
+          "detalle"=>$detalle,
+          //"forma_pago"=>"Efectivo",
+          "forma_pago"=>$row["forma_pago"],
+          "credito"=>0,
+          "debito"=>$row["suma_deuda_proveedor"],
+          "saldo"=>0,
+          "detalle_productos"=>$row["detalle_productos"],
+        ];
+      }
     }
   }
 

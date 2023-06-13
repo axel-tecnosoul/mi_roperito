@@ -8,7 +8,7 @@ if (empty($id) or !empty($_GET['id'])) {
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE v.id = ? ";
+$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario, dev.id as devolucion_id FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id LEFT JOIN devoluciones dev ON dev.id_nueva_venta = v.id  WHERE v.id = ? ";
 //echo $sql;
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
@@ -27,7 +27,10 @@ if($data['minimo_cantidad_prendas']>0){
 if($data['minimo_compra']>0){
   $descuento.=" Compra minima: ".number_format($data['minimo_compra'],0,",",".");
 }
-Database::disconnect();?>
+Database::disconnect();
+
+//var_dump($data);
+//die;?>
 
 <div class="card mb-0"><?php
   $style="";
@@ -50,7 +53,7 @@ Database::disconnect();?>
       <div class="col">
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Fecha Hora</label>
-          <div class="col-sm-9"><?php echo $data['fecha_hora']; ?>hs</div>
+          <div class="col-sm-9"><?php echo $data['fecha_hora_formatted']; ?>hs</div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Usuario</label>
@@ -84,15 +87,34 @@ Database::disconnect();?>
           <label class="col-sm-3 col-form-label">Modalidad de venta</label>
           <div class="col-sm-9"><?php echo $data['modalidad_venta']; ?></div>
         </div>
+
         <div class="form-group row">
-          <label class="col-sm-12 col-form-label">Productos</label>
+          <label class="col-sm-12 col-form-label">Productos&nbsp;<?php
+
+            $fecha_venta_mas_un_mes=date("Y-m-d",strtotime($data["fecha_hora"]." +1 month"));
+            $hoy=date("Y-m-d",strtotime(date("Y-m-d")));
+            $puede_devolver=0;
+            if($fecha_venta_mas_un_mes>=$hoy){
+              $puede_devolver=1;
+            }
+
+            $ex=explode("/",$_SERVER["PHP_SELF"]);
+            $file=$ex[count($ex)-1];
+            if($puede_devolver==1 and $file=="verVenta.php"){?>
+              <a href="#"><img src="img/cube-refund.png" width="24" height="25" border="0" alt="Devolver Productos Seleccionados" id="devolver-masivo" title="Devolver Productos Seleccionados"></a><?php
+            }?>
+          </label>
         </div>
+
         <div class="form-group row">
           <div class="col-sm-12">
             <div class="dt-ext table-responsive">
               <table class="display" id="tableVentaProductos">
                 <thead>
-                  <tr>
+                  <tr><?php
+                    if($puede_devolver==1 and $file=="verVenta.php"){?>
+                      <th type="checkbock" id="id_devolucion"></th><?php
+                    }?>
                     <th>Proveedor</th>
                     <th>Código</th>
                     <th>Categoría</th>
@@ -102,27 +124,43 @@ Database::disconnect();?>
                     <th>Subtotal</th>
                     <th>Modalidad</th>
                     <th>Pagado</th>
+                    <th>ID Devolucion</th>
                   </tr>
                 </thead>
                 <tbody><?php
                   $pdo = Database::connect();
-                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE vd.id_venta = ".$data['id'];
+                  $sql = " SELECT p.codigo, c.categoria, p.descripcion, vd.precio, vd.cantidad, vd.subtotal, m.modalidad, vd.pagado, pr.apellido, pr.nombre, p.id_proveedor, vd.id as id_venta_detalle, dd.id_venta_detalle as devoluciones_venta_detalle, d.id as id_devolucion,vd.id_modalidad FROM ventas_detalle vd INNER JOIN ventas v ON v.id = vd.id_venta INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN modalidades m ON m.id = vd.id_modalidad INNER JOIN proveedores pr ON p.id_proveedor=pr.id LEFT JOIN devoluciones_detalle dd ON dd.id_venta_detalle = vd.id LEFT JOIN devoluciones d ON d.id = dd.id_devolucion WHERE vd.id_venta = ".$data['id'];
                   //var_dump($sql);
                   
+                  $total_precio_producto = 0;
                   foreach ($pdo->query($sql) as $row) {
                     echo '<tr>';
+                    if($puede_devolver==1 and $file=="verVenta.php"){
+                      //if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0)){
+                      if (($row['id_venta_detalle'] != $row['devoluciones_venta_detalle']) && ($row['pagado'] == 0 or $row["id_modalidad"]==1)){
+                        echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_venta_detalle"].'" /> </td></td>';
+                      }else{
+                        echo '<td></td>';
+                      }
+                    }
                     echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
-                    echo '<td>'. $row[0] . '</td>';
-                    echo '<td>'. $row[1] . '</td>';
-                    echo '<td>'. $row[2] . '</td>';
-                    echo '<td>$'. number_format($row[3],2) . '</td>';
-                    echo '<td>'. $row[4] . '</td>';
-                    echo '<td>$'. number_format($row[5],2) . '</td>';
-                    echo '<td>'. $row[6] . '</td>';
-                    if ($row[7] == 1) {
+                    echo '<td>'. $row['codigo'] . '</td>';
+                    echo '<td>'. $row['categoria'] . '</td>';
+                    echo '<td>'. $row['descripcion'] . '</td>';
+                    echo '<td>$'. number_format($row['precio'],2) . '</td>';
+                    $total_precio_producto += $row['precio'];
+                    echo '<td>'. $row['cantidad'] . '</td>';
+                    echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
+                    echo '<td>'. $row['modalidad'] . '</td>';
+                    if ($row['pagado'] == 1) {
                       echo '<td>Si</td>';	
                     } else {
                       echo '<td>No</td>';	
+                    }
+                    if($row['id_devolucion'] == NULL){
+                      echo '<td></td>';
+                    }else{
+                      echo '<td>'. $row['id_devolucion'] . '</td>';
                     }
                     echo '</tr>';
                   }
@@ -132,18 +170,85 @@ Database::disconnect();?>
             </div>
           </div>
         </div>
+        
         <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Subtotal</label>
-          <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
+            <label class="col-sm-3 col-form-label">Subtotal Productos Vendidos</label>
+            <div class="col-sm-9">$<?php echo number_format($total_precio_producto,2); ?></div>
         </div>
+        
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Forma de pago</label>
           <div class="col-sm-9"><?php echo $data['forma_pago']; ?></div>
         </div>
         <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Descuento</label>
-          <div class="col-sm-9"><?php echo $descuento//$data['descripcion']; ?></div>
+          <label class="col-sm-3 col-form-label">Descuento</label><?php
+          if($descuento != ""){?>
+          <div class="col-sm-9"><?php echo $descuento//$data['descripcion']; ?></div><?php
+          }else{?>
+            <div class="col-sm-9"><?php echo "No se aplicaron Descuentos"; ?></div><?php
+          }?>
         </div>
+
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Total Productos Vendidos</label>
+          <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
+        </div>
+
+        <?php if($data['devolucion_id'] != NULL){?>
+          <div class="form-group row">
+          <label class="col-sm-12 col-form-label">Devoluciones</label>
+        </div>
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                    <th>Cantidad</th>
+                    <th>Forma de Pago</th>
+                    <th>Descuentos Aplicados</th>
+                  </tr>
+                </thead>
+                <tbody><?php
+                  $pdo = Database::connect();
+                  $sql = "SELECT d.fecha_hora, p.codigo, p.descripcion, p.precio, vd.subtotal, vd.cantidad as cantidad_producto,v.id_descuento_aplicado, de.descripcion as descuento_aplicado, fp.forma_pago, d.total FROM devoluciones_detalle dd INNER JOIN devoluciones d ON d.id = dd.id_devolucion INNER JOIN ventas_detalle vd ON vd.id = dd.id_venta_detalle INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN ventas v ON v.id = vd.id_venta LEFT JOIN descuentos de ON de.id = v.id_descuento_aplicado INNER JOIN forma_pago fp ON fp.id = v.id_forma_pago WHERE d.id = ". $data['devolucion_id'];
+                  $q = $pdo->prepare($sql);
+                  $q->execute();
+                  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+                  foreach ($devoluciones as $data2) {?>
+                    <tr>
+                      <td><?php echo date("d/m/Y", strtotime($data2['fecha_hora'])); ?></td>
+                      <td><?php echo "(" . $data2["codigo"] . ") " . $data2["descripcion"]; ?></td>
+                      <td>$<?php echo number_format($data2["precio"], 2, ",", ".");?></td>
+                      <td>$<?php echo number_format($data2["subtotal"], 2, ",", ".");?></td>
+                      <td><?php echo $data2["cantidad_producto"]; ?></td>
+                      <td><?php echo $data2["forma_pago"]; ?></td>
+                      <td><?php
+                      $descuentos_aplicados = '';
+                      if ($data2['id_descuento_aplicado'] == NULL || $data2['id_descuento_aplicado'] == 0) {
+                        $descuentos_aplicados = 'Sin descuentos aplicados';
+                      } else {
+                        $descuentos_aplicados = $data2['descuento_aplicado'];
+                      }
+                      echo $descuentos_aplicados;?>
+                      </td>
+                    </tr><?php 
+                  }
+                  Database::disconnect();?>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Total Devolucion</label>
+            <div class="col-sm-9">$<?php echo number_format($data2['total'],2); ?></div>
+          </div><?php
+        }?>
+        
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Total</label>
           <div class="col-sm-9">$<?php echo number_format($data['total_con_descuento'],2); ?></div>
@@ -220,8 +325,12 @@ Database::disconnect();?>
         <button type='button' class='btn btn-light' data-dismiss='modal'>Cerrar</button><?php
       }else{
         //si se muestra desde la ventas, se da la opcion de generar NC si es el caso o de volver al listado de ventas
-        if($data["tipo_comprobante"]!="R" and $data["estado"]=="A" and is_null($data["id_venta_cbte_relacionado"])){?>
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalGenerarNC">Generar NC</button><?php
+        if($data["tipo_comprobante"]!="R"){
+          if($data["estado"]=="A" and is_null($data["id_venta_cbte_relacionado"])){?>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalGenerarNC">Generar NC</button><?php
+          }elseif($data["tipo_comprobante"]!="R" and $data["estado"]!="A"){?>
+            <a href='informarFacturaAFIP.php?id=<?=$id?>' class='btn btn-danger'>Informar a AFIP</a><?php
+          }
         }?>
         <a href='<?=$link_volver?>' class='btn btn-light'>Volver</a><?php
       }?>

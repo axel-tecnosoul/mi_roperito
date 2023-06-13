@@ -191,9 +191,9 @@ Database::disconnect();
                 <table class="display" id="tableVentaProductos">
                   <thead>
                     <tr><?php
-                      if($puede_devolver==1 and $file=="verVenta.php"){?>
+                      /*if($puede_devolver==1 and $file=="verVenta.php"){?>
                         <th type="checkbock" id="id_devolucion"></th><?php
-                      }?>
+                      }*/?>
                       <th>Proveedor</th>
                       <th>Código</th>
                       <th>Categoría</th>
@@ -213,13 +213,13 @@ Database::disconnect();
                     
                     foreach ($pdo->query($sql) as $row) {
                       echo '<tr>';
-                      if($puede_devolver==1 and $file=="verVenta.php"){
+                      /*if($puede_devolver==1 and $file=="verVenta.php"){
                         if (($row['id_canje_detalle'] != $row['devoluciones_canje_detalle']) && ($row['pagado'] == 0)){
                           echo '<td><input type="checkbox" class="no-sort customer-selector" value="'.$row["id_canje_detalle"].'" /> </td></td>';
                         }else{
                           echo '<td></td>';
                         }
-                      }
+                      }*/
                       echo '<td>('. $row["id_proveedor"] .') '. $row["nombre"] .' '. $row["apellido"] .' </td>';
                       echo '<td>'. $row['codigo'] . '</td>';
                       echo '<td>'. $row['categoria'] . '</td>';

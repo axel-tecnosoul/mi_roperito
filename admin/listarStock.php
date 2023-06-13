@@ -70,9 +70,11 @@ if(empty($_SESSION['user'])){
                       <a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
                       &nbsp;
                       <a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
-                      &nbsp;
-                      <a href="actualizarPrecioMasivo.php"><img src="img/update_price.png" height="25" border="0" alt="Exportar Stock" title="Actualizar precio masivo"></a>
-                      &nbsp;
+                      &nbsp;<?php
+                      if($_SESSION['user']['id_perfil']==1){?>
+                        <a href="actualizarPrecioMasivo.php"><img src="img/update_price.png" height="25" border="0" alt="Exportar Stock" title="Actualizar precio masivo"></a>
+                        &nbsp;<?php
+                      }?>
                       <a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
                     </h5>
                   </div>

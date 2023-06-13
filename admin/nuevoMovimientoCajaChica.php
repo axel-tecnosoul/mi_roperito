@@ -35,10 +35,20 @@ if ( !empty($_POST)) {
   }
 
   foreach ($aAlmacen as $id_almacen_corresponde => $monto) {
+
+    // Verificar si ya existe un registro similar
+    $sqlCheck = "SELECT COUNT(*) FROM movimientos_caja WHERE fecha_hora = ? AND monto = ? AND id_forma_pago = ? AND id_usuario = ? AND id_motivo = ? AND id_empleado = ? AND detalle = ? AND id_almacen_egreso = ? AND id_almacen_corresponde = ? AND tipo_movimiento = ?";
+    $qCheck = $pdo->prepare($sqlCheck);
+    $qCheck->execute(array($fecha_hora, $monto, $_POST['forma_pago'], $id_usuario, $_POST['id_motivo'], $id_empleado, $_POST['detalle'], $_POST["id_almacen_egreso"], $id_almacen_corresponde, $_POST["tipo_movimiento"]));
+    $count = $qCheck->fetchColumn();
+
+    if ($count == 0) {
     
-    $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,?,'Chica')";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($fecha_hora,$monto,$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$id_empleado,$_POST['detalle'],$_POST["id_almacen_egreso"],$id_almacen_corresponde,$_POST["tipo_movimiento"]));
+      $sql = "INSERT INTO movimientos_caja (fecha_hora,monto,id_forma_pago,id_usuario,id_motivo,id_empleado,detalle,id_almacen_egreso,id_almacen_corresponde,tipo_movimiento,tipo_caja) VALUES (?,?,?,?,?,?,?,?,?,?,'Chica')";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($fecha_hora,$monto,$_POST['forma_pago'],$id_usuario,$_POST['id_motivo'],$id_empleado,$_POST['detalle'],$_POST["id_almacen_egreso"],$id_almacen_corresponde,$_POST["tipo_movimiento"]));
+
+    }
   
   }
   
@@ -249,7 +259,7 @@ if ( !empty($_POST)) {
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
-                        <button class="btn btn-primary" type="submit">Crear</button>
+                        <button class="btn btn-primary" id="formSubmit" type="submit">Crear</button>
 						            <a href="listarCajaChica.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
@@ -261,7 +271,7 @@ if ( !empty($_POST)) {
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-		<?php include("footer.php"); ?>
+		    <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->
@@ -286,6 +296,10 @@ if ( !empty($_POST)) {
     <script src="assets/js/select2/select2-custom.js"></script>
     <script>
       $(document).ready(function () {
+
+        $("form").on("submit",function(){
+          $(this).find("#formSubmit").attr("disabled",true)
+        })
 
         $("input[name='tipo_movimiento']").on("change",function(){
           let selectMotivo=$("#id_motivo");
