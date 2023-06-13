@@ -96,7 +96,9 @@
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Productos</label>
-                            <div class="col-sm-9">
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-12">
                               <table class="display" id="dataTables-example666">
                                 <thead>
                                   <tr>
@@ -127,7 +129,7 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Subtotal</label>
+                            <label class="col-sm-3 col-form-label">Total productos</label>
                             <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
                           </div>
                           <div class="form-group row">
@@ -139,7 +141,7 @@
                             }?>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total</label>
+                            <label class="col-sm-3 col-form-label">Total con descuento</label>
                             <div class="col-sm-9">$<?php echo number_format($data['total_con_descuento'],2); ?></div>
                           </div>
                           <div class="form-group row">

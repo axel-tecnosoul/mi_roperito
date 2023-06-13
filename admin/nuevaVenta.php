@@ -437,7 +437,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total productos a vender</label>
+                            <label class="col-sm-3 col-form-label">Total productos</label>
                             <div class="col-sm-9"><label id="total_productos">$ 0</label></div>
                           </div>
                           <div class="form-group row">
