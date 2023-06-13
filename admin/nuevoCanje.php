@@ -25,12 +25,7 @@ if ( !empty($_POST)) {
   $total_a_pagar = $_POST['total_input'];
   $credito_usar = $_POST['credito_usar'];
   $forma_pago = $_POST["id_forma_pago"];
-  //Descuentos
-  $id_descuento=NULL;
-  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
-    $id_descuento=$_POST['id_descuento'];
-  }
-
+  
   $sql = "INSERT INTO canjes (fecha_hora, id_proveedor, id_almacen, total, id_usuario) VALUES (now(),?,?,0,?)";
   $q = $pdo->prepare($sql);
   $q->execute(array($id_proveedor_canje,$id_almacen,$id_usuario));
@@ -47,10 +42,13 @@ if ( !empty($_POST)) {
   $monto_fijo="";
   $porcentaje="";
   $minimo_cantidad_prendas="";
-  if (!empty($_POST['id_descuento'])) {
+  $id_descuento=NULL;
+  //Descuentos
+  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
+    $id_descuento=$_POST['id_descuento'];
     $sql2 = "SELECT minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje FROM descuentos WHERE id = ? ";
     $q2 = $pdo->prepare($sql2);
-    $q2->execute(array($_POST['id_descuento']));
+    $q2->execute(array($id_descuento));
     $data2 = $q2->fetch(PDO::FETCH_ASSOC);
     
     $minimo_compra=$data2['minimo_compra'];
@@ -178,9 +176,9 @@ if ( !empty($_POST)) {
     $modalidad = 'Presencial';
 
     //Alta Nueva Venta
-    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, id_descuento_aplicado total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$tipo_comprobante,$id_usuario,$forma_pago,$modalidad,$total_a_pagar,$total_a_pagar));
+    $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$tipo_comprobante,$id_usuario,$forma_pago,$modalidad,$total_a_pagar,$id_descuento,$total_a_pagar));
     $id_venta = $pdo->lastInsertId();
 
     if ($modoDebug==1) {
