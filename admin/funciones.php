@@ -53,16 +53,12 @@ function calcularDeudaProveedor($id_forma_pago,$id_modalidad,$precio_final){
     $fp = 0.80;
   }
 
-  //$pagado = 0;
-  //$credito = 0;
   $porcentaje_modalidad = 0;
   if ($id_modalidad == 1) {//COMPRA DIRECTA
-    //$pagado = 1;
+
   } else if ($id_modalidad == 40) {//CONSIGNACION POR PORCENTAJE
-    //$pagado = 0;
     $porcentaje_modalidad = 0.4;
   } else if ($id_modalidad == 50) {//CONSIGNACION POR CREDITO
-    //$pagado = 1;
     $porcentaje_modalidad = 0.5;
   }
   
@@ -78,16 +74,12 @@ function calcularDeudaProveedorViejo($id_forma_pago,$id_modalidad,$precio_final)
     //$fp = 0.80;
   }
 
-  //$pagado = 0;
-  //$credito = 0;
   $porcentaje_modalidad = 0;
   if ($id_modalidad == 1) {//COMPRA DIRECTA
-    //$pagado = 1;
+
   } else if ($id_modalidad == 40) {//CONSIGNACION POR PORCENTAJE
-    //$pagado = 0;
     $porcentaje_modalidad = 0.4;
   } else if ($id_modalidad == 50) {//CONSIGNACION POR CREDITO
-    //$pagado = 1;
     $porcentaje_modalidad = 0.5;
   }
   

@@ -102,13 +102,12 @@ if ( !empty($_POST)) {
     $deuda_proveedor=calcularDeudaProveedor($_POST['id_forma_pago'],$modalidad,$subtotal);
 
     $pagado = 0;
-    if($modalidad==1 or $modalidad==50){
+    if($modalidad==1){
       $pagado = 1;
-      if($modalidad==50){
-        $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($deuda_proveedor,$idProveedor));
-      }
+    }elseif($modalidad==50){
+      /*$sql = "UPDATE proveedores set credito = credito + ? where id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($deuda_proveedor,$idProveedor));*/
     }
     
     $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
@@ -899,6 +898,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       if(isNaN(total)){total=0;}
       return total
     }
+
     function actualizarMontoTotal(){
       let total=calcularTotalCompra()
       $("#total_productos").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
@@ -922,11 +922,11 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     function checkTotalPagarDNI(){
       let tipo_comprobante=$("#tipo_comprobante").val()
       console.log(tipo_comprobante);
-      let monto_maximo_sin_informar_dni=$("#monto_maximo_sin_informar_dni").val();
+      let monto_maximo_sin_informar_dni=parseInt($("#monto_maximo_sin_informar_dni").val());
       console.log(monto_maximo_sin_informar_dni);
-      let total_a_pagar_sin_formato=$("#total_a_pagar_sin_formato").val();
+      let total_a_pagar_sin_formato=parseInt($("#total_a_pagar_sin_formato").val());
       console.log(total_a_pagar_sin_formato);
-      
+      console.log(total_a_pagar_sin_formato>monto_maximo_sin_informar_dni);
       if(total_a_pagar_sin_formato>monto_maximo_sin_informar_dni && tipo_comprobante=="B"){
         $("#dni").attr("disabled",false).attr("required",true)
       }else{
