@@ -102,23 +102,22 @@ if ( !empty($_POST)) {
     $deuda_proveedor=calcularDeudaProveedor($forma_pago,$modalidad,$subtotal);
 
     $pagado = 0;
-    $credito = 0;
+    //$credito = 0;
     if ($modalidad == 1) {
       $pagado = 1;
     } else if ($modalidad == 40) {
-      $pagado = 0;
+      //$pagado = 0;
     } else if ($modalidad == 50) {
-      $credito = $subtotal/2;
+      /*$credito = $subtotal/2;
       $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
       $q = $pdo->prepare($sql);
       $q->execute(array($credito,$idProveedor));
-      $pagado = 1;
 
       if ($modoDebug==1) {
         $q->debugDumpParams();
         echo "<br><br>Proveedores: ".$q->rowCount();
         echo "<br><br>";
-      }
+      }*/
     }
 
     $sql = "INSERT INTO canjes_detalle (id_canje, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";

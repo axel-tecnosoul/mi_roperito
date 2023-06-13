@@ -197,13 +197,12 @@ if ( !empty($_POST)) {
     $deuda_proveedor=calcularDeudaProveedor($_POST['id_forma_pago'],$modalidad,$subtotal);
 
     $pagado = 0;
-    if($modalidad==1 or $modalidad==50){
+    if($modalidad==1){
       $pagado = 1;
-      if($modalidad==50){
-        $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($deuda_proveedor,$idProveedor));
-      }
+    }elseif($modalidad==50){
+      /*$sql = "UPDATE proveedores set credito = credito + ? where id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($deuda_proveedor,$idProveedor));*/
     }
     
     $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
