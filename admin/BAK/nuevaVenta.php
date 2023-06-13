@@ -198,19 +198,32 @@ if ( !empty($_POST)) {
     //$total=121;
     if($tipo_comprobante=="A"){
       $tipo_comprobante=1;//1 -> Factura A
-      $DocTipo=80;
-      $DocNro=$_POST["dni"];
+      //$DocTipo=80;
+      //$DocNro=$_POST["dni"];
 
       $ImpNeto=$ImpTotal/1.21;
       $ImpIVA=$ImpTotal-$ImpNeto;
     }elseif($tipo_comprobante=="B"){
       $tipo_comprobante=6;//6 -> Factura B
-      $DocTipo=99;
-      $DocNro=0;
+      //$DocTipo=99;
+      //$DocNro=0;
       
       $ImpNeto=$ImpTotal/1.21;
       $ImpIVA=$ImpTotal-$ImpNeto;
     }
+    $DocTipo=99;
+    $DocNro=0;
+    //$_POST["dni"]="33216897";
+    //$_POST["cuit"]="27332168970";
+    if(isset($_POST["dni"]) and $_POST["dni"]!=""){
+      $DocNro=$_POST["dni"];
+      $DocTipo=96;
+    }
+    if(isset($_POST["cuit"]) and $_POST["cuit"]!=""){
+      $DocNro=$_POST["cuit"];
+      $DocTipo=80;
+    }
+    
     $ImpNeto=number_format($ImpNeto,2,".","");
     $ImpIVA=number_format($ImpIVA,2,".","");
     
@@ -241,6 +254,11 @@ if ( !empty($_POST)) {
         )
       ), 
     );
+
+    if ($modoDebug==1) {
+      var_dump($data);
+      
+    }
     
     //$res = $afip->ElectronicBilling->CreateVoucher($data);
     $res = $afip->ElectronicBilling->CreateNextVoucher($data);
@@ -339,7 +357,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                        <div class="form-group row">
+                          <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Modalidad de venta</label>
                             <div class="col-sm-9">
                               <label class="d-block" for="edo-ani">
@@ -486,7 +504,13 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Total</label>
-                            <div class="col-sm-9"><label id="total_compra">$ 0</label></div>
+                            <div class="col-sm-9"><label id="total_compra">$ 0</label></div><?php
+                            $sql4 = "SELECT valor FROM parametros WHERE id = 6 ";
+                            $q4 = $pdo->prepare($sql4);
+                            $q4->execute();
+                            $data4 = $q4->fetch(PDO::FETCH_ASSOC);?>
+                            <input type="hidden" name="monto_maximo_sin_informar_dni" id="monto_maximo_sin_informar_dni" value="<?=$data4["valor"]?>">
+                            <input type="hidden" id="total_compra_sin_formato">
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Nombre y apellido</label>
@@ -582,6 +606,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
 	<script>
     $("#tipo_comprobante").on("change",function(){
       changeTipoDNI();
+      checkTotalPagarDNI()
     })
 
     function changeTipoDNI(){
@@ -638,7 +663,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
       $("#dataTables-example666").dataTable().fnDestroy();
       $('#dataTables-example666').DataTable({
         "ajax" : "ajaxVentas.php?almacen="+val,//&id_vehiculo="+id_vehiculo+"
-				stateSave: true,
+				stateSave: false,
 				responsive: true,
         serverSide: true,
         processing: true,
@@ -704,10 +729,26 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
             "previous": "Anterior"
           }
         },
-        initComplete: function(){
+        initComplete: function(settings, json){
           $('[title]').tooltip();
         },
       })
+
+      var table = $("#dataTables-example666").DataTable();
+      table.on( 'draw', function () {
+        let filtrado=table.rows({search:'applied'}).nodes()
+        let search=$('input[type=search]')
+        if(search.val()!='' && filtrado.length==1){
+        //if(filtrado.length==1){
+          $(filtrado[0]).find("button.btnAnadir").click();
+          search.select();
+          /*search.val('').change();
+          table.search('').draw();*/
+          //search.val('').trigger('change');
+          //table.search('').columns().search('').draw();
+          //table.rows().nodes().draw();
+        }
+      });
     }
 	
 	  $(document).ready(function() {
@@ -805,6 +846,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     })
 
     $(document).on("click",".btnAnadir",function(){
+      $(this).addClass("disabled");
       let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
       //console.log(prod_anadido)
       //console.log("cantidad encontrada");
@@ -814,7 +856,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           let clon=fila.clone();
           let precio=clon.find("input.precio");
           let id_perfil="<?=$id_perfil?>";
-          console.log(id_perfil);
+          //console.log(id_perfil);
           if(id_perfil!=1 && precio.val()==0){//controlamos que los usuarios NO adminsitradores no puedan añadir productos sin precio
             alert("No puede añadir un producto sin precio")
           }else{//los usuarios admin pueden añadir productos sin precio pero tienen que modifcarlo
@@ -826,7 +868,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
             `);
             clon.append(`
               <td class='text-center'>
-                <img src='img/icon_baja.png' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
+                <img src='img/icon_baja.png' data-id_stock='${this.dataset.id_stock}' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
               </td>
             `);
             if(id_perfil==1 && precio.val()==0){
@@ -870,9 +912,26 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
         let descuento=porcentaje*total/100;
         totalConDescuento=total-descuento;
       }
-      console.log(parseInt(total)-parseInt(totalConDescuento))
+      //console.log(parseInt(total)-parseInt(totalConDescuento))
       if(isNaN(totalConDescuento)){totalConDescuento=0;}
       $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
+      $("#total_compra_sin_formato").val(totalConDescuento)
+      checkTotalPagarDNI();
+    }
+
+    function checkTotalPagarDNI(){
+      let tipo_comprobante=$("#tipo_comprobante").val()
+      console.log(tipo_comprobante);
+      let monto_maximo_sin_informar_dni=$("#monto_maximo_sin_informar_dni").val();
+      console.log(monto_maximo_sin_informar_dni);
+      let total_compra_sin_formato=$("#total_compra_sin_formato").val();
+      console.log(total_compra_sin_formato);
+      
+      if(total_compra_sin_formato>monto_maximo_sin_informar_dni && tipo_comprobante=="B"){
+        $("#dni").attr("disabled",false).attr("required",true)
+      }else{
+        $("#dni").attr("disabled",false).attr("required",false)
+      }
     }
 
     $(document).on("keyup change",".cantidad, .precio",function(){
@@ -880,6 +939,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     })
 
     $(document).on("click",".btnEliminar",function(){
+      $(".btnAnadir[data-id_stock='"+this.dataset.id_stock+"']").removeClass("disabled");
       $(this).parent().parent().remove();
       actualizarMontoTotal()
     });

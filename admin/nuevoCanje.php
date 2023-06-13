@@ -176,7 +176,7 @@ if ( !empty($_POST)) {
     $modalidad = 'Presencial';
 
     //Alta Nueva Venta
-    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, id_descuento_aplicado total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, id_descuento_aplicado, total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
     $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$tipo_comprobante,$id_usuario,$forma_pago,$modalidad,$total_a_pagar,$id_descuento,$total_a_pagar));
     $id_venta = $pdo->lastInsertId();

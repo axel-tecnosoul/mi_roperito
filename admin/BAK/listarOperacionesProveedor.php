@@ -74,8 +74,8 @@ if(empty($_SESSION['proveedor'])){
                             <!-- <th>Precio</th>
                             <th>Subtotal</th> -->
                             <th>A cobrar</th>
-                            <th>Modalidad</th>
                             <th>Pagado</th>
+                            <th>Modalidad</th>
                           </tr>
                         </thead>
                         <tfoot>
@@ -90,14 +90,14 @@ if(empty($_SESSION['proveedor'])){
                             <!-- <th>Precio</th>
                             <th>Subtotal</th> -->
                             <th>A cobrar</th>
-                            <th>Modalidad</th>
                             <th>Pagado</th>
+                            <th>Modalidad</th>
                           </tr>
                         </tfoot>
                         <tbody><?php 
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 AND id_venta_cbte_relacionado IS NULL and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, IF(vd.pagado=1,'Si','NO') AS pagado,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 AND id_venta_cbte_relacionado IS NULL and p.id_proveedor = ".$_SESSION['proveedor']['id'];
                           
                           foreach ($pdo->query($sql) as $row) {
                             //$row["deuda_proveedor"]=1120.50;
@@ -112,16 +112,17 @@ if(empty($_SESSION['proveedor'])){
                             /*echo '<td>$'.number_format($row["precio"],2).'</td>';
                             echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
                             echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td>'.$row["pagado"].'</td>';
                             echo '<td>'.$row["modalidad"].'</td>';
-                            if ($row["pagado"] == 1) {
+                            /*if ($row["pagado"] == 1) {
                               echo '<td>Si</td>';	
                             } else {
                               echo '<td>No</td>';	
-                            }
+                            }*/
                             echo '</tr>';
                           }
 
-                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad WHERE anulado = 0 AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal, cd.deuda_proveedor, IF(cd.pagado=1,'Si','NO') AS pagado ,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad WHERE anulado = 0 AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
                           //echo $sql;
                         
                           foreach ($pdo->query($sql) as $row) {
@@ -135,16 +136,11 @@ if(empty($_SESSION['proveedor'])){
                             echo '<td>'.$row["cantidad"].'</td>';
                             /*echo '<td>$'.number_format($row["precio"],2).'</td>';
                             echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
-                            //echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
-                            echo '<td> </td>';
+                            echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td>'.$row["pagado"].'</td>';
                             echo '<td>'.$row["modalidad"].'</td>';
-                            echo '<td>';
-                            /*if ($row["pagado"] == 1) {
-                              echo 'Si';	
-                            } else {
-                              echo 'No';	
-                            }*/
-                            echo '</td>';
+                            //echo '<td>';
+                            //echo '</td>';
                             echo '</tr>';
                           }
                           Database::disconnect();?>

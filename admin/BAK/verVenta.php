@@ -10,6 +10,7 @@ require 'funciones.php';
 $id = null;
 if ( !empty($_GET['id'])) {
   $id = $_REQUEST['id'];
+  
 }
 
 if ( null==$id ) {
@@ -121,6 +122,11 @@ if ( null==$id ) {
 			$('#tableVentaProductos').DataTable({
 				stateSave: true,
 				responsive: true,
+        "columnDefs": [{
+          "targets": [0],
+          "searchable": false,
+          "orderable": false,
+        }],
 				language: {
           "decimal": "",
           "emptyTable": "No hay información",
@@ -142,6 +148,20 @@ if ( null==$id ) {
           }
         }
 			});
+
+      $('#devolver-masivo').on('click', function (e) {
+        e.preventDefault();
+        if ($('.customer-selector:checked').length < 1) {
+          alert("Debe seleccionar un producto como mínimo");
+        } else {
+          var arr = [];
+          $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
+          //window.location.href=window.location.href.replace("listarProductos.php", "etiquetarMasivo.php?id=" + arr.join(",") );
+          window.location.href="nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(",");
+          //window.open("nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(","));
+        }
+      });
+
 		});
 		
 		</script>

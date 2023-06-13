@@ -21,9 +21,9 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "UPDATE motivos_salidas_caja set motivo = ?, id_tipo_motivo = ? where id = ?";
+  $sql = "UPDATE motivos_salidas_caja set motivo = ?, id_tipo_motivo = ?, tipo_gasto = ?, aparece_balance = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"],$_GET['id']));
+  $q->execute(array($_POST['motivo'],$_POST["id_tipo_motivo"],$_POST["tipo_gasto"],$_POST["aparece_balance"],$_GET['id']));
   
   Database::disconnect();
   
@@ -33,11 +33,13 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT id, motivo, id_tipo_motivo FROM motivos_salidas_caja WHERE id = ? ";
+  $sql = "SELECT id, motivo, id_tipo_motivo, tipo_gasto, aparece_balance FROM motivos_salidas_caja WHERE id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
   
+  $tipoGasto = $data['tipo_gasto'];
+  $apareceBalance = $data['aparece_balance'];
   Database::disconnect();
 }?>
 <!DOCTYPE html>
@@ -120,6 +122,33 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="motivo" type="text" maxlength="99" class="form-control" value="<?php echo $data['motivo']; ?>" required="required"></div>
                           </div>
 
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Tipo de Gasto</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input name="tipo_gasto" type="radio" class="radio_animated" value="Fijo" id="edo-ani" required <?php if ($tipoGasto == 'Fijo') echo 'checked'; ?>>
+                                <label class="form-check-label">Fijo</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input name="tipo_gasto" type="radio" class="radio_animated" value="Variable" id="edo-ani1" required <?php if ($tipoGasto == 'Variable') echo 'checked'; ?>>
+                                <label class="form-check-label">Variable</label>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Aparece Balance</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="edo-ani">
+                                <input name="aparece_balance" type="radio" class="radio_animated" value="1" id="edo-ani" required <?php if ($apareceBalance == 1) echo 'checked'; ?>>
+                                <label class="form-check-label">SI</label>
+                              </label>
+                              <label class="d-block" for="edo-ani1">
+                                <input name="aparece_balance" type="radio" class="radio_animated" value="0" id="edo-ani1" required <?php if ($apareceBalance == 0) echo 'checked'; ?>>
+                                <label class="form-check-label">NO</label>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

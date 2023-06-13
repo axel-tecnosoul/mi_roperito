@@ -5,20 +5,26 @@ if(empty($_SESSION['user'])){
   die("Redirecting to index.php"); 
 }
 require 'database.php';
-
-$id = null;
+extract($_REQUEST);
+/*$id = null;
 if ( !empty($_GET['id'])) {
   $id = $_REQUEST['id'];
-}
+}*/
 
 if ( null==$id ) {
-  header("Location: listarProductos.php");
+  $fileVolver="listarProductos.php";
+  if(isset($volver)){
+    if($volver=="stock"){
+      $fileVolver="listarStock.php";
+    }
+  }
+  header("Location: $fileVolver");
 }
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$array = explode(',', $_GET['id']);?>
+$array = explode(',', $id);?>
 <style>
   body{
     margin: 2px;
@@ -53,9 +59,30 @@ $array = explode(',', $_GET['id']);?>
     margin-bottom: 0;
     margin-top: 0;
   }
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-text {
+    color: #fff;
+    font-size: 24px;
+  }
 </style>
 
 <!-- margin-top: -15px; -->
+<div id="loading" class="loading-overlay">
+  <div class="loading-text">Cargando...</div>
+</div>
+<div style="display: none;"><?=count($array)?></div>
 <div class='contenedor'><?php
   foreach ($array as $value){
     
@@ -78,32 +105,21 @@ $array = explode(',', $_GET['id']);?>
         </div>
         <p class="lbl_etiqueta"><?=$proveedor." "?><?=$codigo?> $<?=number_format($precio,2)?></p>
       </div>
-    </div>
-
-    <!-- <div style='border: solid 1px black; border-radius: 10px; width:153px; height:82.5px; float: left; margin: 16.5px;'>
-      <div>
-        <div>
-          <div style='max-height: 55px; max-width: 137.5px; margin: 0 auto;'>
-            <img style='margin:10 auto; max-width:100%; max-height:100%; display: block; height: 66px; align-items: center;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
-          </div>
-        </div>
-        <p style='text-align: center; margin: 0; font-size: 14px; margin-bottom: 11px;'><?=$codigo?> $<?=number_format($precio,2)?></p>
-      </div>
-    </div> -->
-
-    <!-- <div style='border: solid 1px black; border-radius: 10px; width:150px; height:75px; float: left; margin: 15px;'>
-      <div>
-        <div>
-          <div style='max-height: 50px; max-width: 125px; margin: 0 auto;'>
-            <img style='margin:10 auto; max-width:100%; max-height:100%; display: block; height: 60px; align-items: center;' alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?=$cb?>&print=true'/>
-          </div>
-        </div>
-        <p style='text-align: center; margin: 0; font-size: 14px; margin-bottom: 10px;'><?=$codigo?> $<?=number_format($precio,2)?></p>
-      </div>
-    </div> -->
-    <?php
+    </div><?php
 
   }?>
 </div><?php
 
 Database::disconnect();?>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var loadingOverlay = document.getElementById('loading');
+    loadingOverlay.style.display = 'block';
+  });
+
+  window.addEventListener('load', function() {
+    var loadingOverlay = document.getElementById('loading');
+    loadingOverlay.style.display = 'none';
+  });
+</script>

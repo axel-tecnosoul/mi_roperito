@@ -73,6 +73,12 @@ if ( !empty($_POST)) {
 
   $total_ventas= $precio_venta - $precio_devolucion;
   $total_devolucion = $precio_devolucion;
+  if ($modoDebug==1) {
+    echo "<br><br>Total_Ventas: ".$total_ventas;
+    echo "<br><br>";
+    echo "<br><br>Total_devolucion: ".$total_devolucion;
+    echo "<br><br>";
+  }
 
   //Alta Nueva Venta
   $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?)";
@@ -80,12 +86,23 @@ if ( !empty($_POST)) {
   $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$_POST['id_almacen'],$total_ventas, $tipo_comprobante,$_SESSION['user']['id'],$_POST['id_forma_pago'],$_POST["modalidad_venta"]));
   $idVenta = $pdo->lastInsertId();
 
+  if ($modoDebug==1) {
+    $q->debugDumpParams();
+    echo "<br><br>Afe: ".$q->rowCount();
+    echo "<br><br>";
+  }
+
   // Alta Nueva Devolución
   $sql2 = "INSERT INTO devoluciones(fecha_hora, id_venta, id_nueva_venta, total) VALUES (now(),?,?,?)";
   $q2 = $pdo->prepare($sql2);
   $q2->execute(array($id_venta,$idVenta, $total_devolucion));
   $idDevolucion = $pdo->lastInsertId();
 
+  if ($modoDebug==1) {
+    $q->debugDumpParams();
+    echo "<br><br>Afe: ".$q->rowCount();
+    echo "<br><br>";
+  }
 
   // Alta Nueva Devolución Detalle
   foreach ($devoluciones as $data) {
@@ -256,8 +273,14 @@ if ( !empty($_POST)) {
       $q->debugDumpParams();
       echo "<br><br>Precio Devolucion: ".$precio_devolucion;
       echo "<br><br>Total con descuentos Final: ".$total_d;
-      
       echo "<br><br>";
+      echo "<br><br>Total_Ventas con dscuento: ".$total_ventas;
+      echo "<br><br>";
+      echo "<br><br>Total_devolucion con dscuento: ".$total_devolucion;
+      echo "<br><br>";
+    }
+    if ($modoDebug==1) {
+      
     }
     //Si tiene descuentos cambia el total
     $sql5 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
@@ -279,6 +302,10 @@ if ( !empty($_POST)) {
     if ($modoDebug==1) {
       $q->debugDumpParams();
       echo "<br><br>Total sin descuentos Final: ".$totalConDescuento;
+      echo "<br><br>";
+      echo "<br><br>Total_Ventas sin dscuento: ".$total_ventas;
+      echo "<br><br>";
+      echo "<br><br>Total_devolucion sin dscuento: ".$total_devolucion;
       echo "<br><br>";
     }
   }
@@ -799,34 +826,34 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
         total = total.replace(/,/g, '.');
         total = parseInt(total);
         console.log("Total: " + total);
-        if(total > 0){
+        if(total >= 0){
           $('#total_input').val(total);
-        //console.log("submit");
-        let precio_en_cero=0;
-        $("input[type='number'].precio").each(function(){
-          if(this.value==0){
-            precio_en_cero=1;
+          //console.log("submit");
+          let precio_en_cero=0;
+          $("input[type='number'].precio").each(function(){
+            if(this.value==0){
+              precio_en_cero=1;
+            }
+          });
+          if(precio_en_cero==1){
+            alert("Tiene productos sin precio")
+          }else{
+            let descuento=$('#id_descuento option:selected')
+            console.log(descuento);
+            let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
+            if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
+              alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
+              return false
+            }
+            let minimo_compra=descuento.data("minimo_compra")
+            let total=calcularTotalCompra();
+            if(minimo_compra!=undefined && minimo_compra>total){
+              alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
+              return false
+            }
+            //console.log("submit")
+            this.submit();
           }
-        });
-        if(precio_en_cero==1){
-          alert("Tiene productos sin precio")
-        }else{
-          let descuento=$('#id_descuento option:selected')
-          console.log(descuento);
-          let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
-          if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
-            alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
-            return false
-          }
-          let minimo_compra=descuento.data("minimo_compra")
-          let total=calcularTotalCompra();
-          if(minimo_compra!=undefined && minimo_compra>total){
-            alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
-            return false
-          }
-          //console.log("submit")
-          this.submit();
-        }
         }else{
           alert("El monto total a pagar debe ser mayor a 0")
         }
@@ -911,6 +938,22 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
           $('[title]').tooltip();
         },
       })
+
+      var table = $("#dataTables-example666").DataTable();
+      table.on( 'draw', function () {
+        let filtrado=table.rows({search:'applied'}).nodes()
+        let search=$('input[type=search]')
+        if(search.val()!='' && filtrado.length==1){
+        //if(filtrado.length==1){
+          $(filtrado[0]).find("button.btnAnadir").click();
+          search.select();
+          /*search.val('').change();
+          table.search('').draw();*/
+          //search.val('').trigger('change');
+          //table.search('').columns().search('').draw();
+          //table.rows().nodes().draw();
+        }
+      });
     }
 	
 	  $(document).ready(function() {
