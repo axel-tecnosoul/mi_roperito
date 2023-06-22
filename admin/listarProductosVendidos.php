@@ -35,6 +35,12 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
   $filtroAlmacen=" AND a.id=".$id_almacen;
 }
 
+$id_categoria=0;
+$filtroCategoria="";
+if(isset($_GET["c"]) and $_GET["c"]!=0){
+  $id_categoria=$_GET["c"];
+  $filtroCategoria=" AND c.id=".$id_categoria;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,7 +123,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
-                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=1 $whereAlmacen GROUP BY pr.id";
+                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 $whereAlmacen GROUP BY pr.id";
                               //echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
@@ -125,6 +131,23 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                   $selected="selected";
                                 }?>
                                 <option value="<?=$row["id"]?>" <?=$selected?>><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
+                            <label style="margin-left: .5rem;" for="id_categoria">Categoria:</label><br>
+                            <select name="id_categoria" id="id_categoria" class="js-example-basic-single w-100 filtraTabla">
+                              <option value="0">- Seleccione -</option><?php
+                              $pdo = Database::connect();
+                              $sql = "SELECT id,categoria FROM categorias WHERE activa=1";
+                              //echo $sql;
+                              foreach ($pdo->query($sql) as $row) {
+                                $selected="";
+                                if($row["id"]==$id_categoria){
+                                  $selected="selected";
+                                }?>
+                                <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["categoria"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
@@ -155,7 +178,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             </td><?php
                           }?>
                           <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_pagos_realizados"></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
                         </tr>
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
@@ -168,19 +191,18 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th>Operacion</th>
+                            <!-- <th>Operacion</th> -->
                             <th>Fecha/Hora</th>
+                            <th>Código</th>
                             <th>Descripción</th>
+                            <th>Proveedor</th>
                             <th>Precio</th>
-                            <th>Caja</th>
-                            <th>Forma de Pago</th>
                             <th>Almacen</th>
                             <th>Pagado</th>
                             <th>Opciones</th>
-                            <th class="none">Precio</th>
-                            <th class="none">Subtotal</th>
+                            <th class="none">Caja</th>
+                            <th class="none">Forma de Pago</th>
                             <th class="none">Cantidad</th>
-                            <th class="none">Código</th>
                             <th class="none">Categoría</th>
                           </tr>
                         </thead>
@@ -256,14 +278,16 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         let hasta=$("#hasta").val();
         let id_almacen=$("#id_almacen").val();
         let proveedor=$("#id_proveedor").val();
+        let id_categoria=$("#id_categoria").val();
         console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
         let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
 
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
+        var sumaSubtotal=0;
         table.DataTable({ 
           processing: true,
-          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor,
+          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria,
           'dataSrc': ''},
 				  stateSave: true,
 				  responsive: true,
@@ -289,29 +313,64 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
           },
           "columns":[
             {"data": "id"},
-            {"data": "tipo"},
+            //{"data": "tipo"},
             {render: function(data, type, row, meta) {
-              return row.fecha_hora+"hs";
+              if(type=="display"){
+                return row.fecha_hora_formatted;
+              }else{
+                return row.fecha_hora;
+                //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+              }
             }},
-            {"data": "descripcion"},
+            {"data": "codigo"},
             {
               render: function(data, type, row, meta) {
-                return row.total_con_descuento;
+                return row.descripcion;
+              },
+              //style: 'width:50%',
+              className: 'w-25',
+            },
+            {"data": "proveedor"},
+            {
+              render: function(data, type, row, meta) {
+                if(type=="display"){
+                return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.subtotal);
+              }else{
+                sumaSubtotal+=parseFloat(row.subtotal)
+                return row.subtotal;
+                //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+              }
               },
               className: 'dt-body-right text-right',
             },
-            {"data": "caja_egreso"},
-            {"data": "forma_pago"},
             {"data": "almacen"},
             {"data": "pagado"},
             {"data": "input"},
-            {"data": "precio"},
-            {"data": "subtotal"},
+            {"data": "caja_egreso"},
+            {"data": "forma_pago"},
             {"data": "cantidad"},
-            {"data": "codigo"},
             {"data": "categoria"}
-            
-          ]
+          ],
+          columnDefs: [
+            //{ targets: [0], visible: false},
+            { targets: [1], type: 'datetime'},
+          ],
+          drawCallback: function(settings, json){
+            console.log(settings);
+            console.log(settings.json);
+            console.log(sumaSubtotal);
+            /*settings.json.forEach((row)=>{
+              console.log(row);
+            })*/
+            /*console.log(settings.json.queryInfo.total_facturas_recibos);
+            let total_facturas_recibos=settings.json.queryInfo.total_facturas_recibos
+
+            var api = this.api();
+            // Update footer*/
+            $("#total_vendido").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaSubtotal));
+
+            $('[title]').tooltip();
+          }
         })
       };
 		
