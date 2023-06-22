@@ -2,18 +2,18 @@
 	<div class="row">
 		<div class="col-1"></div>
 		<div class="col-sm-10">
-			<div style="background-color: #F8E0D2; margin-top: 20px;">
-				<div class="col-sm-12" style="display: flex;flex-wrap: wrap; justify-content: space-evenly; padding-top: 20px;">
+			<div class="contenedor-uso">
+				<div class="col-sm-12 usar-usado">
 					<div class="tt-description">
 						<div class="tt-layout-newsletter02">
 							<!--<h1 class="tt-title"><b>TESTIMONIOS</b></h1>-->
-							<img src="images/usado/usar_usado.png" alt="" style="max-width: 250px; display: block; max-height:100%;">
+							<img src="images/usado/usar_usado.png" alt="Titulo Sabes que se usa?">
 						</div>
 					</div>
 				</div>
 				
-				<div class="col-sm-12" style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
-					<div id="testimonial-slider" class="owl-carousel" style="margin-top: 20px; max-width: 50%; margin-bottom: 20px;">
+				<div class="col-sm-12 contenedor-carrusel">
+					<div id="testimonial-slider" class="owl-carousel carrusel">
 						<div class="testimonial">
 							<div class="pic">
 								<img src="images/testimonios/img-1.jpg" alt="">

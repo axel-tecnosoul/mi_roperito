@@ -20,12 +20,12 @@
 	</header>
 
 	<div class="tt-pageContent">
-		<div class="container-fluid-custom" style="margin-top: 20px;">
+		<div class="container-fluid-custom contenido-principal">
 			<main>
 				<div class="row">
 					<div class="col-1"></div>
 					<div class="col-sm-10">
-						<img src="images/Banner.png" alt="" style="max-width: 100%; display: block; max-height:100%;">
+						<img src="images/Banner.png" alt="Imagen Banner">
 					</div>
 					<div class="col-1"></div>
 					<div class="col-1"></div>
