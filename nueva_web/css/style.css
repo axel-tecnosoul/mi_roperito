@@ -1,18 +1,57 @@
 /* GLOBALES */
+html {
+    box-sizing: border-box;
+    /*font-size: 62.5;*/
+}
+*,*:before, *:after {
+    box-sizing: inherit;
+}
+
+@font-face {
+    font-family: 'BLUESALE';
+    src: url('../font/Mi_fuentes/BLUESALE.otf') format('truetype');
+}
+@font-face {
+    font-family: 'Gotham-Black';
+    src: url('../font/Mi_fuentes/Gotham-Black.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Gotham-Bold';
+    src: url('../font/Mi_fuentes/Gotham-Bold.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Gotham-Book';
+    src: url('../font/Mi_fuentes/Gotham-Book.otf') format('truetype');
+}
+
+button {
+    font-family: 'BLUESALE', sans-serif;
+}
+.btn {
+    font-family: 'BLUESALE', sans-serif;
+}
 h1,
 h2,
 h3,
 p{
-    font-family: 'Varela Round', sans-serif;
+    font-family: 'Gotham-Book', sans-serif;
     padding: 0;
     margin: 0;
 }
 
 h3{
-    font-weight: 900!important;
+    font-family: 'Gotham-Black', sans-serif;
     font-size: 25px!important;
     margin: 0;
     padding: 0;
+}
+h4{
+    font-family: 'Gotham-Bold', sans-serif;
+    font-size: 20px!important;
+    margin: 0!important;
+    padding: 0!important;
 }
 
 img {
@@ -53,6 +92,38 @@ img {
     font-weight: bold;
 }
 
+/* BTN */
+.btn-convenio {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+.btn-convenio a{
+    font-family: 'Gotham-Bold', sans-serif;
+    display: block;
+    text-transform: uppercase;
+    height: 50px;
+    min-width: 600px;
+    background-color: #fc3273;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+    padding: 10px;
+    text-align: center;
+    font-size: 27px;
+    transition: background-color .5s ease-out ;
+}
+.btn-convenio a.segundo-enlace {
+    background-color: #126812;
+}
+.btn-convenio a:hover{
+    background-color: #bb023d;
+}
+.btn-convenio a.segundo-enlace:hover {
+    background-color: #083c08;
+}
+
 /* HEADER */
 .tt-desctop-menu nav > ul > li.dropdown > a {
     font-size: 20px!important;
@@ -74,6 +145,73 @@ img {
 /* HOME */
 .contenido-principal {
     margin-top: 20px;
+}
+.main-index a{
+    height: 500px;
+}
+@media (min-width: 1300px){ 
+    .main-index a{
+        height: 600px;
+    }
+}
+@media (min-width: 1600px){ 
+    .main-index a{
+        height: 700px;
+    }
+}
+@media (min-width: 1920px){ 
+    .main-index a{
+        height: 800px;
+    }
+}
+.main-index a{
+    background-position: bottom center;
+    background-repeat: no-repeat; 
+    background-size: 162%;
+}
+.imagen-1 a{
+    background-image: url(../images/compra.jpg);
+}
+.imagen-2 a {
+    background-image: url(../images/vende.jpg);
+    background-position: -458px -351px;
+    background-size: 236%;
+}
+
+@media (min-width: 375px){ 
+    .imagen-1 a{
+        background-position: bottom center;
+        background-size: 254%;
+    }
+
+    .imagen-2 a{
+        background-position: bottom center;
+        background-size: 254%;
+    }
+}
+
+@media (min-width: 768px){ 
+    .imagen-1 a{
+        background-position: bottom center;
+        background-size: 266%;
+    }
+
+    .imagen-2 a{
+        background-position: bottom center;
+        background-size: 401%;
+    }
+}
+
+@media (min-width: 1366px){ 
+    .imagen-1 a{
+        background-position: bottom center;
+        background-size: 178%;
+    }
+
+    .imagen-2 a{
+        background-position: bottom center;
+        background-size: 282%;
+    }
 }
 
 /* TESTIMONIALES */
@@ -113,6 +251,63 @@ img {
     margin-bottom: 60px;
 }
 
+/* PREGUNTAS FRECUENTES */
+.dash-list {
+    list-style-type: '-'!important;
+}
+
+.p-main {
+    font-family: 'Gotham-Black', sans-serif;
+}
+.preguntas-frecuentes{
+    margin-top: 20px;
+}
+.preguntas-frecuentes-main{
+    margin: 40px;
+}
+.preguntas-frecuentes h4 {
+    text-transform: uppercase;
+    font-size: 25px;
+}
+.preguntas-frecuentes p{
+    margin-bottom: 20px;
+}
+
+.preguntas-frecuentes ul {
+    padding-left: 5px;
+}
+.preguntas-frecuentes li {
+    padding-left: 5px;
+}
+
+/* VENDER */
+.p-main {
+    font-family: 'Gotham-Black', sans-serif;
+}
+.p-vender{
+    margin: 50px;
+}
+
+.vender {
+    margin-top: 20px;
+}
+.vender-main{
+    margin: 40px;
+}
+.vender h4 {
+    text-transform: uppercase;
+    font-size: 25px;
+}
+.vender p{
+    margin-bottom: 20px;
+}
+
+.vender ul {
+    padding-left: 5px;
+}
+.vender li {
+    padding-left: 5px;
+}
 /* SUBSCRIBITE */
 .subscribite {
     font-size: 24px; 
@@ -122,6 +317,10 @@ img {
 /* Contenedor Subscribite */
 .contenedor-subscribite{
     margin-top: 70px;
+}
+.contenedor-subscribite .btn {
+    width: 30%;
+    font-size: 50px;
 }
 .form-subscribite {
     margin-top: 10px;

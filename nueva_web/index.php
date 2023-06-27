@@ -29,9 +29,9 @@
 					</div>
 					<div class="col-1"></div>
 					<div class="col-1"></div>
-					<div class="col-sm-5">
+					<div class="col-sm-5 main-index imagen-1">
 						<a href="http://miroperito.prestotienda.com/" class="tt-promo-box tt-one-child">
-							<img src="images/loader-08.svg" data-src="images/Imagen_boton_Compra.png" alt="">
+							
 							<div class="tt-description">
 								<div class="tt-description-wrapper">
 									<div class="tt-background"></div>
@@ -40,9 +40,8 @@
 							</div>
 						</a>
 					</div>
-					<div class="col-sm-5">
+					<div class="col-sm-5 main-index imagen-2">
 						<a href="vender.php" class="tt-promo-box tt-one-child">
-							<img src="images/loader-08.svg" data-src="images/Imagen_boton_Vende.png" alt="">
 							<div class="tt-description">
 								<div class="tt-description-wrapper">
 									<div class="tt-background"></div>
