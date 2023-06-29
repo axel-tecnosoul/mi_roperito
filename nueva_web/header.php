@@ -46,7 +46,7 @@
 			<div class="row">
 				<div class="tt-logo-container">
 					<!-- logo -->
-					<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/logo-nuevom.png" alt="" style="max-height: 80px!important; margin-left:0; margin-top: 20px;"></a>
+					<a class="tt-logo tt-logo-alignment mt-2 logo-index-mb" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
 					<!-- /logo -->
 				</div>
 			</div>
@@ -60,7 +60,7 @@
 			<div class="tt-header-holder" style="flex-direction: column!important;">
 				<div class="tt-obj-logo">
 					<!-- logo -->
-					<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/logo-nuevom.png" alt="" style="max-height: 120px!important; margin-left:0;"></a>
+					<a class="logo-index-dk" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
 					<!-- /logo -->
 				</div>
 				<div class="tt-obj-menu">
@@ -74,20 +74,20 @@
 											<li class="dropdown">
 												<a href="index.php"><span>INICIO</span></a>
 											</li>
-											<p style="margin: 0; padding: 0; color: #FF33F9; font-weight: bold;">I</p>
+											<p class="separador-violeta">I</p>
 											<li class="dropdown">
 												<!-- <a href="comprar.php"><span>Comprá</span></a> -->
                         <a href="http://miroperito.prestotienda.com/"><span>COMPRÁ</span></a>
 											</li>
-											<p style="margin: 0; padding: 0; color: #21BD21; font-weight: bold;">I</p>
+											<p class="separador-verde">I</p>
 											<li class="dropdown">
 												<a href="vender.php"><span>VENDÉ</span></a>
 											</li>
-											<p style="margin: 0; padding: 0; color: #FF33F9; font-weight: bold;">I</p>
+											<p class="separador-violeta">I</p>
 											<li class="dropdown">
 												<a href="nosotros.php"><span>NOSOTROS</span></a>
 											</li>
-											<p style="margin: 0; padding: 0; color: #21BD21; font-weight: bold;">I</p>
+											<p class="separador-verde">I</p>
 											<li class="dropdown">
 												<a href="locales.php"><span>LOCALES</span></a>
 											</li>
@@ -127,7 +127,7 @@
 				<div class="col-left col-12 col-lg-2">
 					<div class="tt-stuck-parent-logo">
 						
-						<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/logo-nuevom.png" alt="" style="max-height: 50px!important; margin-left:10px;"></a>
+						<a class="tt-logo tt-logo-alignment logo-index-nav" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
 						
 					</div>
 				</div>

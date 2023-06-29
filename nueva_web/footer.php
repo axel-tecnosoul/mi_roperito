@@ -5,7 +5,7 @@
 		  </div>
 		  <div class="col-sm centrar-div2">
 			<a href="index.php">
-				<img class="logo-footer"  src="images/logo/logo-footer.png" alt="" style="max-width: 200px; margin-top: 20px; margin-bottom: 10px;">
+				<img class="logo-footer"  src="images/logo/logo-footer.png" alt="Logo Mi Roperito">
 			</a>
 		  </div>
 		  <div class="col-sm">
@@ -16,19 +16,16 @@
 	  <br>
 	  <div class="container">
 		<div class="row">
-			<div class="col-sm">
-			
-			</div>
+			<div class="col-sm"></div>
 			<div class="col-sm">
 				<div class="col-sm">
-					
 					<div class="col-sm centrar-div margen-abajo">
 						<ul class="tt-list">
-							<li><a href="terminos-condiciones.php" class="text-uppercase" style="font-size: 25px;">Términos y Condiciones</a></li>
-							<li><a href="preguntas-frecuentes.php" class="text-uppercase" style="font-size: 25px;">Preguntas Frecuentes</a></li>
-							<li><a href="terminos-condiciones.php" class="text-uppercase" style="font-size: 25px;">Mi Cuenta</a></li>
-							<li><a href="preguntas-frecuentes.php" class="text-uppercase" style="font-size: 25px;">Locales</a></li>
-							<li><a href="contacto.php" class="text-uppercase" style="font-size: 25px;">Contacto</a></li>
+							<li><a href="terminos-condiciones.php" class="text-uppercase footer-enlaces">Términos y Condiciones</a></li>
+							<li><a href="preguntas-frecuentes.php" class="text-uppercase footer-enlaces">Preguntas Frecuentes</a></li>
+							<li><a href="terminos-condiciones.php" class="text-uppercase footer-enlaces">Mi Cuenta</a></li>
+							<li><a href="preguntas-frecuentes.php" class="text-uppercase footer-enlaces">Locales</a></li>
+							<li><a href="contacto.php" class="text-uppercase footer-enlaces">Contacto</a></li>
 							
 						</ul>
 					</div>
