@@ -5,18 +5,19 @@ if(empty($_SESSION['user'])){
 	die("Redirecting to index.php"); 
 }
 
-$desde=date("Y-m-d");
+//$desde=date("Y-m-d");
 //$desde="";
-$filtroDesde="";
+/*$filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
   //$filtroDesde=" AND DATE(vd.fecha_hora_pago)>='".$desde."'";
   $filtroDesde=" AND DATE(fecha_hora_pago)>='".$desde."'";
-}
+}*/
 $desde=date("Y-m-d",strtotime(date("Y-m-d")." -1 month"));
+
 //$filtroHasta="";
-if(isset($_GET["h"]) and $_GET["h"]!=""){
-  $desde=$_GET["h"];
+if(isset($_GET["d"]) and $_GET["d"]!=""){
+  $desde=$_GET["d"];
 }
 //$filtroHasta=" AND DATE(vd.fecha_hora_pago)<='".$desde."'";
 $filtroDesde=" AND DATE(fecha_hora_pago)>='".$desde."'";
@@ -125,7 +126,23 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
-                              $sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=1 $whereAlmacen GROUP BY pr.id";
+                              //$sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 AND vd.pagado=1 $whereAlmacen GROUP BY pr.id";
+                              $sql = "SELECT pr.id, CONCAT(pr.apellido, ' ', pr.nombre) AS proveedor, pr.id_almacen
+                              FROM proveedores pr 
+                              WHERE EXISTS (
+                                SELECT 1
+                                FROM ventas_detalle vd 
+                                INNER JOIN ventas v ON vd.id_venta = v.id 
+                                INNER JOIN productos p ON vd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 0 $whereAlmacen
+                              )
+                              OR EXISTS (
+                                SELECT 1
+                                FROM canjes_detalle cd 
+                                INNER JOIN canjes c ON cd.id_canje = c.id 
+                                INNER JOIN productos p ON cd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
+                              )";
                               //echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";

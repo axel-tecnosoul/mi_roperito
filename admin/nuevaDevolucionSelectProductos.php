@@ -78,7 +78,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Productos Vendidos</li>
+                      <li class="breadcrumb-item">Productos Vendidos aptos para devolucion</li>
                     </ol>
                   </div>
                 </div>
@@ -101,9 +101,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Productos Vendidos
-                      &nbsp;<a href="exportProductosVendidos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Productos Vendidos" title="Exportar Productos Vendidos"></a>
-                      <!-- <div id="total_pagos_realizados" class="mr-2 d-inline"></div> -->
+                    <h5>Productos Vendidos aptos para devolucion
                     </h5>
                   </div>
                   <div class="card-body">
@@ -193,8 +191,8 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                               </select>
                             </td><?php
                           }?>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total a devolver: </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_a_devolver">$ 0,00</td>
                         </tr>
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
@@ -206,6 +204,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
+                            <th></th>
                             <th>ID</th>
                             <!-- <th>Operacion</th> -->
                             <th>Fecha/Hora</th>
@@ -214,12 +213,8 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                             <th>Proveedor</th>
                             <th>Precio</th>
                             <th>Almacen</th>
-                            <th>Pagado</th>
-                            <th>Opciones</th>
-                            <th class="none">Caja</th>
-                            <th class="none">Forma de Pago</th>
-                            <th class="none">Cantidad</th>
-                            <th class="none">Categoría</th>
+                            <th>Cantidad</th>
+                            <!-- <th>Categoría</th> -->
                           </tr>
                         </thead>
                         <tbody>
@@ -284,10 +279,27 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
     <script src="assets/js/script.js"></script>
     <script>
 
+      var filasSeleccionadas = [];
+
       $(document).ready(function() {
         getVentas();
         $(".filtraTabla").on("change",getVentas);
+        
+        $(".check-row").on("click",function(){
+          console.log(this);
+          calcular_total_seleccionado()
+        })
       });
+
+      function calcular_total_seleccionado(){
+        let total_seleccionado=0;
+        $(".check-row").each(function (index, element) {
+          if(this.checked){
+            total_seleccionado+=parseFloat($(this).parent().parent().find(".deuda").html());
+          }
+        });
+        $("#total_a_devolver").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_seleccionado))
+      }
 
       function getVentas(){
         let desde=$("#desde").val();
@@ -295,17 +307,18 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
         let id_almacen=$("#id_almacen").val();
         let proveedor=$("#id_proveedor").val();
         let id_categoria=$("#id_categoria").val();
-        console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
+        //console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
         let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
 
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
+        var sumaSubtotal=0;
         table.DataTable({ 
           processing: true,
-          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria,
+          ajax:{url:'ajaxProductosVendidosDevolucion.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria,
           'dataSrc': ''},
 				  stateSave: true,
-				  responsive: true,
+				  responsive: false,
           language: {
             "decimal": "",
             "emptyTable": "No hay información",
@@ -327,6 +340,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
             }
           },
           "columns":[
+            {"data": "input"},
             {"data": "id"},
             //{"data": "tipo"},
             {render: function(data, type, row, meta) {
@@ -342,13 +356,13 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
               render: function(data, type, row, meta) {
                 return row.descripcion;
               },
-              //style: 'width:50%',
               className: 'w-25',
             },
             {"data": "proveedor"},
             {
               render: function(data, type, row, meta) {
                 if(type=="display"){
+                  sumaSubtotal+=parseFloat(row.subtotal)
                   return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.subtotal);
                 }else{
                   return row.subtotal;
@@ -358,30 +372,68 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
               className: 'dt-body-right text-right',
             },
             {"data": "almacen"},
-            {"data": "pagado"},
-            {"data": "input"},
-            {"data": "caja_egreso"},
-            {"data": "forma_pago"},
+            //{"data": "pagado"},
+            /*{"data": "caja_egreso"},
+            {"data": "forma_pago"},*/
             {"data": "cantidad"},
-            {"data": "categoria"}
+            //{"data": "categoria"}
           ],
           columnDefs: [
-            //{ targets: [0], visible: false},
+            { targets: [0], order: false},
             { targets: [1], type: 'datetime'},
           ],
-          initComplete: function(settings, json){
-            sumaSubtotal=0;
-            json.forEach((row)=>{
-              //console.log(row);
-              sumaSubtotal+=parseFloat(row.subtotal);
-            })
-            $("#total_vendido").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaSubtotal));
-          },
           drawCallback: function(settings, json){
             $('[title]').tooltip();
           }
         })
       };
+
+      $(document).on('change', '.check-row', function() {
+        let id=this.value
+        let monto;
+        console.log(id);
+        console.log($(this));
+        console.log($(this).parent());
+        console.log($(this).parent().parent());
+        /*if ($(this).is(':checked')) {
+          filasSeleccionadas.push(id);
+        } else {
+          var index = filasSeleccionadas.indexOf(id);
+          if (index > -1) {
+            filasSeleccionadas.splice(index, 1);
+          }
+        }*/
+        if ($(this).is(':checked')) {
+          filasSeleccionadas.push({ id: id, monto: monto });
+        } else {
+          var index = -1;
+          for (var i = 0; i < filasSeleccionadas.length; i++) {
+            if (filasSeleccionadas[i].id === id) {
+              index = i;
+              break;
+            }
+          }
+          if (index > -1) {
+            filasSeleccionadas.splice(index, 1);
+          }
+        }
+        console.log(filasSeleccionadas);
+      });
+
+      $('#dataTables-example666').on('draw.dt', function() {
+        $('#selectAll').prop("checked",false)
+        //$('.check-row').prop('checked', false);
+        //filasSeleccionadas = [];
+        var checkboxes = $('.check-row');
+        checkboxes.each(function() {
+          var valor = $(this).val();
+          if (filasSeleccionadas.includes(valor)) {
+            $(this).prop('checked', true);
+          } else {
+            $(this).prop('checked', false);
+          }
+        });
+      });
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>

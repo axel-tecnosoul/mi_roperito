@@ -56,7 +56,10 @@ if(empty($_SESSION['user'])){
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Devoluciones&nbsp;<!--<a href="nuevaDevolucion.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a></h5><span>-->
+                    <h5>
+                      Devoluciones&nbsp;
+                      <a href="nuevaDevolucionSelectProductos.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a>
+                    </h5><span>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">

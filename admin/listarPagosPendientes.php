@@ -140,7 +140,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 INNER JOIN productos p ON cd.id_producto = p.id 
                                 WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
                               )";
-                              echo $sql3;
+                              //echo $sql3;
                               foreach ($pdo->query($sql3) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
