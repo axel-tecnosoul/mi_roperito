@@ -16,6 +16,9 @@
 			<li>
 				<a href="nosotros.php">Nosotros</a>
 			</li>
+			<li>
+				<a href="locales.php">Locales</a>
+			</li>
 		</ul>
 		<div class="mm-navbtn-names">
 			<div class="mm-closebtn">Cerrar</div>
