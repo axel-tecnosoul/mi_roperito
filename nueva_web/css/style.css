@@ -331,17 +331,17 @@ img {
     width: 100%;
     height: 400px;
 }
-.iln-1{
+.imagen-local-nosotros.iln-1{
     background-image: url("../images/locales/nosotros/LocalBallester.jpg");
     background-position: -11px -58px;
     background-size: 104%;
 }
-.iln-2{
+.imagen-local-nosotros.iln-2{
     background-image: url("../images/locales/nosotros/LocalSanIsidro.jpg");
     background-position: -4px -1px;
     background-size: 101%;
 }
-.iln-3{
+.imagen-local-nosotros.iln-3{
     background-image: url("../images/locales/nosotros/LocalNuñez.jpg");
     background-position: -16px -6px;
     background-size: 103%;
@@ -363,6 +363,142 @@ img {
     flex-wrap: wrap; 
     justify-content: space-evenly;
 }
+/* LOCALES */
+.contenedor-banner {
+    margin-bottom: 60px;
+}
+.contenedor-main-locales {
+    display: flex;
+    flex-direction: column;
+}
+.contenido-nosotros {
+    margin-bottom: 40px;
+}
+
+.contenido-locales h3{
+    font-size: 37px!important;
+    text-transform: uppercase;
+    padding: 0!important;
+    margin: 0;
+}
+.contenido-locales span{
+    font-family: 'Gotham-Black', sans-serif;
+    color:#fc3273;
+    font-size: 24px;
+}
+.contenido-locales h3{
+    font-family: 'Gotham-Black', sans-serif;
+    color:#fc3273;
+    font-size: 24px;
+}
+.contenido-locales:nth-child(even) span{
+    color:#126812;
+}
+.contenido-locales:nth-child(even) h3{
+    color:#126812;
+}
+.contenido-locales p{
+    font-family: 'Gotham-Bold', sans-serif;
+}
+.contenido-locales-descripcion {
+    margin-top: 40px;
+}
+@media (min-width: 1360px){
+    .contenedor-locales {
+        margin-top: 20px;
+    }
+    .contenedor-main-locales {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 60px;
+        max-width: 84%;
+    }
+    .contenido-locales h3{
+        text-align: left;
+    }
+    .contenido-descripcion-btn {
+        background-image: url("../images/locales/ubicacion_violeta.png");
+        background-position: top left;
+        background-repeat: no-repeat; 
+        background-size: 31%;
+        width: 100%;
+        height: 252px;
+        
+    }
+    .contenido-locales:nth-child(even) > .contenido-descripcion-btn{
+        background-image: url("../images/locales/ubicacion_verde.png");
+    }
+    .contenido-locales-img {
+        height: 600px;
+        overflow:hidden;
+    } 
+    .contenido-locales-descripcion {
+        margin-top: 20px;
+    }
+}
+
+@media (min-width: 1700px){ 
+    .contenido-descripcion-btn{
+        background-size: 27%;
+    }
+}
+
+.contenido-locales {
+    margin: 20px 0 20px 0;
+}
+@media (min-width: 1360px){
+    .contenido-locales {
+        margin: 20px 0 0 0;
+    }    
+}
+.imagen-locales{
+    background-position: bottom center;
+    background-repeat: no-repeat; 
+    background-size: 162%;
+    width: 100%;
+    height: 600px;
+}
+.imagen-locales.iln-1{
+    background-image: url("../images/locales/nosotros/LocalBallester.jpg");
+    background-position: -11px -58px;
+    background-size: 104%;
+}
+.imagen-locales.iln-2{
+    background-image: url("../images/locales/nosotros/LocalSanIsidro.jpg");
+    background-position: -4px -1px;
+    background-size: 101%;
+}
+.imagen-locales.iln-3{
+    background-image: url("../images/locales/nosotros/LocalNuñez.jpg");
+    background-position: -16px -6px;
+    background-size: 103%;
+}
+
+
+.contenido-locales.custom-styles .btn{ /*.custom-styles para aumentar la especificidad de CSS.*/
+    height: 40px!important;
+    width: 165px!important;
+    font-size: 35px!important;
+    margin-top:60px!important;
+}
+.contenido-locales-img img{
+    margin-top: 40px;
+}
+@media (min-width: 1360px){ 
+    .contenido-locales-descripcion {
+        padding-left: 40px;
+    }
+    .contenido-locales.custom-styles .btn{ /*.custom-styles para aumentar la especificidad de CSS.*/
+        height: 40px!important;
+        width: 165px!important;
+        font-size: 35px!important;
+        margin-top:60px!important;
+        margin-left:175px!important;
+    }
+}
+/* Linea de puntos */
+
+  
 /* PREGUNTAS FRECUENTES */
 .dash-list {
     list-style-type: '-'!important;
