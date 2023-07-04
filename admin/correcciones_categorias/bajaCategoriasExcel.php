@@ -44,7 +44,7 @@ if (file_exists ($file)){//validacion para saber si el archivo ya existe previam
     return $r;
   }
 
-  $modoDebug=0;
+  $modoDebug=1;
         
   var_dump($archivo);
   echo "<br>";

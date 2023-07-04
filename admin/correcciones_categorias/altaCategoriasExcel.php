@@ -4,7 +4,8 @@ ini_set('max_execution_time', '0');
 //$ruta="E:/TRABAJO/00 - Nelson Murstein/Newine/importaciones modulo produccion/";
 $ruta="";
 
-$archivo=$ruta."CATEGORIAS ordenamiento nuevas.xlsx";
+//$archivo=$ruta."CATEGORIAS ordenamiento nuevas.xlsx";
+$archivo=$ruta."CATEGORIAS ordenamiento nuevas faltaron.xlsx";
 
 //$destino=$archivo;
 //copy($_FILES['archivo']['tmp_name'],$destino);
@@ -70,37 +71,34 @@ if (file_exists ($file)){//validacion para saber si el archivo ya existe previam
       $categoria=str_replace("'"," ",$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue());
       $accion=str_replace("'"," ",$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue());
 
-      if($accion=="NUEVO"){
-        //echo $categoria." - ".$accion."<br>";
+      //echo $categoria." - ".$accion."<br>";
 
-        //$sql2 = " SELECT id, categoria, activa FROM categorias WHERE categoria = '$categoria'";
-        $sql2 = "INSERT INTO categorias (categoria, activa) VALUES (?,1)";
-        $sql2 = $pdo->prepare($sql2);
-        $sql2->execute([$categoria]);
+      //$sql2 = " SELECT id, categoria, activa FROM categorias WHERE categoria = '$categoria'";
+      $sql2 = "INSERT INTO categorias (categoria, activa) VALUES (?,1)";
+      $sql2 = $pdo->prepare($sql2);
+      $sql2->execute([$categoria]);
 
-        $afe=$sql2->rowCount();
-        $contador++;
-        if($afe==1){
-          //echo "<strong>ENCONTRADO</strong>";
-          $ok++;
-        }else{
-          echo $categoria." - ".$accion."<br>";
-          echo "<strong>NO ENCONTRADO</strong>";
-          echo "<hr>";
-        }
-
-        if ($modoDebug==1) {
-          $sql2->debugDumpParams();
-          echo "<br><br>Afe: ".$afe;
-          $err = $sql2->errorInfo();
-          if($err[1]){
-            var_dump($err);
-          }
-          echo "<br><br>";
-        }
+      $afe=$sql2->rowCount();
+      $contador++;
+      if($afe==1){
+        //echo "<strong>ENCONTRADO</strong>";
+        $ok++;
       }else{
-        echo $categoria." - ".$accion." - <strong>ENCONTRADO</strong><hr>";
+        echo $categoria." - ".$accion."<br>";
+        echo "<strong>NO ENCONTRADO</strong>";
+        echo "<hr>";
       }
+
+      if ($modoDebug==1) {
+        $sql2->debugDumpParams();
+        echo "<br><br>Afe: ".$afe;
+        $err = $sql2->errorInfo();
+        if($err[1]){
+          var_dump($err);
+        }
+        echo "<br><br>";
+      }
+
     }
     $i++;
   }
