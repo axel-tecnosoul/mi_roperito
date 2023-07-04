@@ -32,6 +32,11 @@ button {
 .btn {
     font-family: 'BLUESALE', sans-serif;
 }
+.button {
+    font-family: 'BLUESALE', sans-serif;
+    text-transform: uppercase;
+    font-size: 55px;
+}
 h1,
 h2,
 h3,
@@ -170,10 +175,10 @@ img {
     background-size: 162%;
 }
 .imagen-1 a{
-    background-image: url(../images/compra.jpg);
+    background-image: url("../images/compra.jpg");
 }
 .imagen-2 a {
-    background-image: url(../images/vende.jpg);
+    background-image: url("../images/vende.jpg");
     background-position: -458px -351px;
     background-size: 236%;
 }
@@ -243,14 +248,121 @@ img {
 }
 
 /* NOSOTROS */
-.contenedor-nosotros {
-    margin-top: 20px;
+.contenedor-main{
+    display: flex;
+    justify-content: space-evenly;
 }
-
 .contenedor-banner {
     margin-bottom: 60px;
 }
+.contenedor-main-nosotros {
+    display: flex;
+    flex-direction: column;
+}
+.contenido-nosotros {
+    margin-bottom: 40px;
+}
 
+.contenido-nosotros h3{
+    text-align: center;
+}
+.contenido-nosotros-descripcion {
+    margin-top: 40px;
+}
+@media (min-width: 1360px){
+    .contenedor-nosotros {
+        margin-top: 20px;
+    }
+    .contenedor-main-nosotros {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        max-width: 84%;
+    }
+    .contenido-nosotros h3{
+        text-align: left;
+    }
+    .contenido-nosotros-img {
+        height: 600px;
+        overflow:hidden;
+    } 
+    .contenido-nosotros-descripcion {
+        margin-top: 40px;
+    }
+}
+.contenedor-locales-nosotros{
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-evenly;
+    background-image: url("../images/nosotros/fondo-locales-nosotros.jpg");
+}
+.contenedor-locales-titulo{
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-evenly;
+    text-transform: uppercase;
+    margin-top: 40px;
+}
+.locales-nosotros{
+    width: 600px;
+    margin-bottom: 60px;
+}
+@media (min-width: 1360px){ 
+    .locales-nosotros{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        width: 1300px;
+        margin-bottom: 60px;
+    }
+}
+.contenido-locales {
+    margin: 20px 0 20px 0;
+}
+@media (min-width: 1360px){
+    .contenido-locales {
+        margin: 20px 0 0 0;
+    }    
+}
+.imagen-local-nosotros{
+    background-position: bottom center;
+    background-repeat: no-repeat; 
+    background-size: 162%;
+    width: 100%;
+    height: 400px;
+}
+.iln-1{
+    background-image: url("../images/locales/nosotros/LocalBallester.jpg");
+    background-position: -11px -58px;
+    background-size: 104%;
+}
+.iln-2{
+    background-image: url("../images/locales/nosotros/LocalSanIsidro.jpg");
+    background-position: -4px -1px;
+    background-size: 101%;
+}
+.iln-3{
+    background-image: url("../images/locales/nosotros/LocalNuñez.jpg");
+    background-position: -16px -6px;
+    background-size: 103%;
+}
+
+.locales h4{
+    font-family: 'Gotham-Black', sans-serif;
+    color:#fc3273;
+    font-size: 24px;
+}
+.locales:nth-child(even) h4{
+   color:#126812;
+}
+.locales p{
+    font-family: 'Gotham-Black', sans-serif;
+}
+.btn-tienda-online{
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-evenly;
+}
 /* PREGUNTAS FRECUENTES */
 .dash-list {
     list-style-type: '-'!important;
