@@ -154,7 +154,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                             <select name="id_categoria" id="id_categoria" class="js-example-basic-single w-100 filtraTabla">
                               <option value="0">- Seleccione -</option><?php
                               $pdo = Database::connect();
-                              $sql = "SELECT id,categoria FROM categorias WHERE activa=1";
+                              $sql = "SELECT id,categoria FROM categorias WHERE 1";
                               //echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";

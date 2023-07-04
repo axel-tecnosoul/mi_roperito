@@ -84,7 +84,7 @@ if(empty($_SESSION['user'])){
                         <tr>
                           <td class="text-right border-0 p-1">Proveedor:</td>
                           <td class="border-0 p-1">
-                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
                               include 'database.php';
                               $pdo = Database::connect();
                               $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS proveedor FROM proveedores";
@@ -107,7 +107,7 @@ if(empty($_SESSION['user'])){
                           </td>
                           <td class="text-right border-0 p-1">Categoria:</td>
                           <td class="border-0 p-1">
-                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $sql = " SELECT id, categoria FROM categorias";
                               foreach ($pdo->query($sql) as $row) {?>

@@ -41,6 +41,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
   $id_categoria=$_GET["c"];
   $filtroCategoria=" AND c.id=".$id_categoria;
 }
+include 'database.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,6 +53,11 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
       .select2-container{
         border: 1px solid #ccc;
         border-radius: 5px;
+      }
+      .multiselect{
+        color:#212529 !important;
+        background-color:#fff;
+        border-color:#ccc;
       }
     </style>
   </head>
@@ -115,10 +121,9 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                           <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td> -->
                           <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_proveedor">Proveedores:</label><br>
-                            <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100 filtraTabla">
+                            <!-- <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100 filtraTabla">
                               <option value="0">- Seleccione -</option><?php
-                              include 'database.php';
-                              $pdo = Database::connect();
+                              /*$pdo = Database::connect();
                               $whereAlmacen="";
                               if ($_SESSION['user']['id_perfil'] == 2) {
                                 $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
@@ -148,16 +153,59 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                                 }?>
                                 <option value="<?=$row["id"]?>" <?=$selected?>><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
                               }
+                              Database::disconnect();*/?>
+                            </select> -->
+                            <select id="id_proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                              $pdo = Database::connect();
+                              $whereAlmacen="";
+                              if ($_SESSION['user']['id_perfil'] == 2) {
+                                $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
+                              }
+                              $sql = "SELECT pr.id, CONCAT(pr.apellido, ' ', pr.nombre) AS proveedor, pr.id_almacen
+                              FROM proveedores pr 
+                              WHERE EXISTS (
+                                SELECT 1
+                                FROM ventas_detalle vd 
+                                INNER JOIN ventas v ON vd.id_venta = v.id 
+                                INNER JOIN productos p ON vd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 0 $whereAlmacen
+                              )
+                              OR EXISTS (
+                                SELECT 1
+                                FROM canjes_detalle cd 
+                                INNER JOIN canjes c ON cd.id_canje = c.id 
+                                INNER JOIN productos p ON cd.id_producto = p.id 
+                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
+                              )";
+                              foreach ($pdo->query($sql) as $row) {
+                                $selected="";
+                                if($row["id"]==$id_proveedor){
+                                  $selected="selected";
+                                }?>
+                                <option value="<?=$row["id"]?>" <?=$selected?>><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
+                              }
                               Database::disconnect();?>
                             </select>
                           </td>
                           <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_categoria">Categoria:</label><br>
-                            <select name="id_categoria" id="id_categoria" class="js-example-basic-single w-100 filtraTabla">
+                            <!-- <select name="id_categoria" id="id_categoria" class="js-example-basic-single w-100 filtraTabla">
                               <option value="0">- Seleccione -</option><?php
-                              $pdo = Database::connect();
-                              $sql = "SELECT id,categoria FROM categorias WHERE activa=1";
+                              /*$pdo = Database::connect();
+                              $sql = "SELECT id,categoria FROM categorias WHERE 1";
                               //echo $sql;
+                              foreach ($pdo->query($sql) as $row) {
+                                $selected="";
+                                if($row["id"]==$id_categoria){
+                                  $selected="selected";
+                                }?>
+                                <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["categoria"]?></option><?php
+                              }
+                              Database::disconnect();*/?>
+                            </select> -->
+                            <select id="id_categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                              $pdo = Database::connect();
+                              $sql = "SELECT id,categoria FROM categorias WHERE 1";
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_categoria){
@@ -167,21 +215,35 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                               }
                               Database::disconnect();?>
                             </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {?>
+                              <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                                <option value="0">- Todos -</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, almacen FROM almacenes";
+                                foreach ($pdo->query($sql) as $row) {
+                                  $selected="";
+                                  if($row["id"]==$id_almacen){
+                                    $selected="selected";
+                                  }?>
+                                  <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["almacen"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select><?php
+                            }else{?>
+                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                            }?>
                           </td><?php
-                          if($_SESSION['user']['id_perfil']==1){?>
-                            <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Almacen:</td> -->
+                          /*if($_SESSION['user']['id_perfil']==1){?>
                             <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
                               <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
                               <select name="id_almacen" id="id_almacen" class="js-example-basic-single w-100 filtraTabla">
                                 <option value="0">- Seleccione -</option><?php
-                                //include 'database.php';
                                 $pdo = Database::connect();
                                 $whereAlmacen="";
-                                /*if ($_SESSION['user']['id_perfil'] == 2) {
-                                  $whereAlmacen= " AND v.id_almacen = ".$_SESSION['user']['id_almacen']; 
-                                }*/
                                 $sql = "SELECT id,almacen FROM almacenes WHERE activo=1 $whereAlmacen";
-                                //echo $sql;
                                 foreach ($pdo->query($sql) as $row) {
                                   $selected="";
                                   if($row["id"]==$id_almacen){
@@ -192,7 +254,7 @@ if(isset($_GET["c"]) and $_GET["c"]!=0){
                                 Database::disconnect();?>
                               </select>
                             </td><?php
-                          }?>
+                          }*/?>
                           <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
                         </tr>
