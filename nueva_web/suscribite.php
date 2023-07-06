@@ -6,7 +6,7 @@
 								<div class="tt-layout-newsletter02">
 									<h3 class="tt-title subscribite">ENTERATE DE LAS ÚLTIMAS NOVEDADES</h3>
 									
-									<form id="" class="form-inline form-default form-subscribite" method="post" action="../suscribir.php">
+									<form id="" class="form-inline form-default form-subscribite" method="post" action="suscribir.php">
 										<div class="form-group">
 											<input type="email" name="email" class="form-control form-subscribite-input" placeholder="Ingresá tu email" required="required" style="">
 											<button type="submit" class="btn btn-lg">Suscribite!</button>
