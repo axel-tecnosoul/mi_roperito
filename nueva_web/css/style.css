@@ -556,6 +556,11 @@ img {
 .vender li {
     padding-left: 5px;
 }
+
+/* Terminos Condiciones*/
+.contenedor-terminos-condiciones p{
+    margin-top: 20px;
+}
 /* SUBSCRIBITE */
 .subscribite {
     font-size: 24px; 
