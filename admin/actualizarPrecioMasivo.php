@@ -133,8 +133,8 @@ if ( !empty($_POST)) {
 							            </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Valor de redondeo superior</label>
-                            <div class="col-sm-3"><input name="redondeo" id="redondeo" type="number" class="form-control" required value="1" step="1" min="1"></div>
-                            <label class="col-sm-6 col-form-label" id="ejemplo_redondeo">$ <?=number_format($ej,2,",",".")?></label>
+                            <div class="col-sm-3"><input name="redondeo" id="redondeo" type="number" class="form-control" required value="100" step="1" min="1"></div>
+                            <label class="col-sm-6 col-form-label" id="ejemplo_redondeo">$ <?=number_format((ceil($ej / 100) * 100),2,",",".")?></label>
                           </div>
                         </div>
                       </div>
