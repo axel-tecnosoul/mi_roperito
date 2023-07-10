@@ -19,12 +19,29 @@
 			<?php include("header.php"); ?>
 		</header>
 		<div class="tt-pageContent">
-			<div class="container preguntas-frecuentes">
-				
+			<div class="container container-banner">
 				<div class="col-sm-12">
-					<img src="images/Banner_preguntas frecuentes.png" alt="Imagen Banner Preguntas Frecuentes">
+					<div class="banner">
+						<div class="banner-contenido">
+							<div class="banner-img">
+								<img src="images/banner-vende-btn.png" alt="Imagen Logo vende">
+							</div>
+							<div class="banner-descripcion">
+								<div class="banner-descripcion-titulo">
+									<h1>Preguntas Frecuentes</h1>
+								</div>
+								<div class="banner-descripcion-parrafo">
+									<p>
+										Te recomendamos leer las preguntas frecuentes antes de sacar 
+									</p>
+									<p>tu turno, ya que pueden haber cambiado.</p>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				
+			</div>
+			<div class="container preguntas-frecuentes">			
 				<main class="preguntas-frecuentes-main">
 					<div class="col-md-12 mb-2">
 						<p class="p-main">Por eso contamos con un espacio super lindo para exhibir tus prendas, personal para la venta, un deposito con una persona a cargo, marketing digital constante y movimiento de redes, deseamos tanto como vos que tus prendas se vendan muy rápido y con éxito!</p>

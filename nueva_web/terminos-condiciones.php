@@ -19,8 +19,6 @@
 	<?php include("header.php"); ?>
 </header>
 <br>
-<br>
-<br>
 	<div class="tt-pageContent">
 		<div class="container">
 			<div class="row gx-2 ">
