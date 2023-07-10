@@ -21,14 +21,30 @@
 	</header>
 
 	<div class="tt-pageContent">
-		<div class="container-fluid-custom contenedor-nosotros">
-			<div class="row">
-				<div class="col-1"></div>
-				<div class="col-sm-10 contenedor-banner">
-					<img src="images/nosotros/Banner_nosotros.png" alt="Imagen Banner Nosotros">
+		<div class="container container-banner">
+			<div class="col-sm-12">
+				<div class="banner">
+					<div class="banner-contenido">
+						<div class="banner-img">
+							<img src="images/banner-nosotros-btn.png" alt="Imagen Logo vende">
+						</div>
+						<div class="banner-descripcion">
+							<div class="banner-descripcion-titulo">
+								<h1>Nosotros</h1>
+							</div>
+							<div class="banner-descripcion-parrafo">
+								<p>
+									Una verdadera comunidad dedicada a un futuro más sustentable, 
+								</p>
+								<p>el futuro es la moda circular.</p>
+							</div>
+						</div>
+					</div>
 				</div>
-				<div class="col-1"></div>
 			</div>
+		</div>
+
+		<div class="container-fluid-custom contenedor-nosotros">
 			<div class="contenedor-main">
 			<main class="contenedor-main-nosotros">
 				<div class="contenido-nosotros">
