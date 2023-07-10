@@ -617,9 +617,6 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     <!-- Theme js-->
 
 	<script>
-    $("form").on("submit",function(){
-      $(this).find("#formSubmit").attr("disabled",true)
-    })
 
     $("#tipo_comprobante").on("change",function(){
       changeTipoDNI();
@@ -669,6 +666,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
             return false
           }
           //console.log("submit")
+          $(this).find("#formSubmit").attr("disabled",true).addClass("disabled")
           this.submit();
         }
       }else{

@@ -16,14 +16,107 @@ if (null==$id) {
 }
 
 if (!empty($_POST)) {
+
+  $modo_debug=0;
   
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = "UPDATE `parametros` set `valor` = ? where id = ?";
+  $id=$_GET['id'];
+
+  $sql = "UPDATE parametros set valor = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute([$_POST['valor'],$_GET['id']]);
+  $q->execute([$_POST['valor'],$id]);
+
+  if($id==8 and isset($_POST["fecha_desde"]) and $_POST["fecha_desde"]!=""){
+    
+    require 'funciones.php';
+
+    $fecha_desde=$_POST["fecha_desde"];
+
+    $sql = "SELECT vd.id AS id_venta_detalle,v.id_forma_pago,d.porcentaje,vd.precio,vd.subtotal,vd.id_modalidad,vd.deuda_proveedor,vd.pagado,p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id LEFT JOIN productos p ON vd.id_producto=p.id LEFT JOIN descuentos d ON v.id_descuento_aplicado=d.id WHERE v.id_forma_pago != 1 AND pagado = 0 and date(v.fecha_hora)>='$fecha_desde'";//WHERE p.id_proveedor=667;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $venta_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
+    echo $q->rowCount()."<br>";
+    foreach ($venta_detalle as $data){
+      
+      $forma_pago = $data['id_forma_pago'];
+      $modalidad = $data['id_modalidad'];
+      $subtotal = $data['subtotal'];
+      $idProveedor = $data['id_proveedor'];
+      $deuda_proveedor = calcularDeudaProveedor($forma_pago,$modalidad,$subtotal);
+
+      if(!$idProveedor and $modo_debug==1){
+        var_dump($data);
+      }
+
+      //$data["deuda_proveedor"]=(float) $data["deuda_proveedor"];
+
+      //echo $data["deuda_proveedor"]." - ".$deuda_proveedor." - ".$deuda_proveedor_viejo."<br>";
+      if($deuda_proveedor==$data["deuda_proveedor"]){
+        //la deuda del proveedor se calculo con el 80%
+        if($modo_debug==1){
+          var_dump("deuda proveedor es igual");
+        }
+      }else{
+        if($modo_debug==1){
+          echo "Deuda proveedor nueva: ".$deuda_proveedor."<br>";
+          echo "Deuda proveedor actual: ".$data["deuda_proveedor"]."<br>";
+          var_dump($data);
+          var_dump($deuda_proveedor==$data["deuda_proveedor"]);
+        }
+
+        $sql = "UPDATE ventas_detalle set deuda_proveedor = ? where id = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute([$deuda_proveedor,$data["id_venta_detalle"]]);
+      }
+    }
+
+    $sql = "SELECT cd.id AS id_canje_detalle,d.porcentaje,cd.precio,cd.subtotal,cd.id_modalidad,cd.deuda_proveedor,cd.pagado,p.id_proveedor,c.id_venta,IF(c.id_venta IS NULL,1,v.id_forma_pago) AS id_forma_pago FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id LEFT JOIN productos p ON cd.id_producto=p.id LEFT JOIN descuentos d ON c.id_descuento_aplicado=d.id LEFT JOIN ventas v ON c.id_venta=v.id WHERE pagado = 0 and date(c.fecha_hora)>='$fecha_desde' HAVING id_forma_pago!=1";//WHERE p.id_proveedor=667;
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $canje_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
+    echo $q->rowCount()."<br>";
+    foreach ($canje_detalle as $data){
+      
+      $forma_pago = $data['id_forma_pago'];
+      $modalidad = $data['id_modalidad'];
+      $subtotal = $data['subtotal'];
+      $idProveedor = $data['id_proveedor'];
+      $deuda_proveedor = calcularDeudaProveedor($forma_pago,$modalidad,$subtotal);
+
+      if(!$idProveedor and $modo_debug==1){
+        var_dump($data);
+      }
+
+      //$data["deuda_proveedor"]=(float) $data["deuda_proveedor"];
+
+      //echo $data["deuda_proveedor"]." - ".$deuda_proveedor." - ".$deuda_proveedor_viejo."<br>";
+      if($deuda_proveedor==$data["deuda_proveedor"]){
+        //la deuda del proveedor se calculo con el 80%
+        if($modo_debug==1){
+          var_dump("deuda proveedor es igual");
+        }
+      }else{
+        if($modo_debug==1){
+          echo "Deuda proveedor nueva: ".$deuda_proveedor."<br>";
+          echo "Deuda proveedor actual: ".$data["deuda_proveedor"]."<br>";
+          var_dump($data);
+          var_dump($deuda_proveedor==$data["deuda_proveedor"]);
+        }
+
+        $sql = "UPDATE canjes_detalle set deuda_proveedor = ? where id = ?";
+        $q = $pdo->prepare($sql);
+        $q->execute([$deuda_proveedor,$data["id_canje_detalle"]]);
+      }
+    }
+  }
+  
+  if($modo_debug==1){
+    die();
+  }
   
   Database::disconnect();
   
@@ -35,7 +128,7 @@ if (!empty($_POST)) {
   $q = $pdo->prepare($sql);
   $q->execute([$id]);
   $data = $q->fetch(PDO::FETCH_ASSOC);
-  
+
   Database::disconnect();
 }?>
 <!DOCTYPE html>
@@ -99,7 +192,15 @@ if (!empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Valor</label>
                             <div class="col-sm-9"><input name="valor" type="text" maxlength="99" class="form-control" value="<?php echo $data['valor']; ?>" required="required"></div>
-                          </div>
+                          </div><?php
+
+                          if($id==8){
+                            $fecha_desde=date("Y-m-d",strtotime(date("Y-m-01")." -1 month"))?>
+                            <div class="form-group row d-flex align-items-center">
+                              <label class="col-sm-3 col-form-label">Fecha desde la cual se actualizará el porcentaje de las prendas vendidas que aún no fueron pagadas </label>
+                              <div class="col-sm-9"><input name="fecha_desde" type="date" class="form-control" value="<?=$fecha_desde?>" max="<?=date("Y-m-d")?>" required="required"></div>
+                          </div><?php
+                          }?>
               
                         </div>
                       </div>
@@ -118,7 +219,7 @@ if (!empty($_POST)) {
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-    <?php include("footer.php"); ?>
+        <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->
@@ -133,18 +234,21 @@ if (!empty($_POST)) {
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-  <script src="assets/js/select2/select2.full.min.js"></script>
+    <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("form").on("submit",function(e){
+          //e.preventDefault();
+          $("button[type='submit']").addClass("disabled").attr("disabled",true);
+        })
+      });
+    </script>
   </body>
 </html>

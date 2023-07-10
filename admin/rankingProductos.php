@@ -1,15 +1,13 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -54,7 +52,7 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <div class="row">
               <!-- Zero Configuration  Starts-->
-			  <div class="col-sm-12 col-xl-6">
+			        <div class="col-sm-12 col-xl-6">
                 <div class="card">
                   <div class="card-header">
                     <h5>Gráfico Comparativo</h5>
@@ -67,35 +65,33 @@ if(empty($_SESSION['user']))
               <div class="col-sm-12 col-xl-6">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Ranking de Productos
-					&nbsp;<a href="exportRankingProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
-					</h5>
-					</div>
+                    <h5>Ranking de Productos&nbsp;
+                      <a href="exportRankingProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
+                    </h5>
+                  </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Producto</th>
-						  <th>Cantidad Pedidos</th>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Cantidad Pedidos</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " select vd.id_producto, pr.descripcion, count(*) cant from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos pr on pr.id = vd.id_producto where v.anulada = 0 group by vd.id_producto order by cant desc ";
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT vd.id_producto, pr.descripcion, count(*) AS cant from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos pr on pr.id = vd.id_producto where v.anulada = 0 group by vd.id_producto order by cant desc ";
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row[0] . '</td>';
+                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row[2] . '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
                         </tbody>
                       </table>
                     </div>
@@ -112,7 +108,7 @@ if(empty($_SESSION['user']))
         <?php include("footer.php"); ?>
       </div>
     </div>
-	<!-- latest jquery-->
+	  <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
     <script src="assets/js/bootstrap/popper.min.js"></script>
@@ -150,81 +146,86 @@ if(empty($_SESSION['user']))
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
-	<script>
-		$(document).ready(function() {
-			$('#dataTables-example666').DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
-			});
-		});
-		
-		</script>
-		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
-		
-		<script src="assets/js/chart/google/google-chart-loader.js"></script>
-		<script src="assets/js/chart/google/google-chart.js"></script>
-		
-		<script>
-		
-		google.charts.load('current', {packages: ['corechart', 'bar']});
-		google.charts.load('current', {'packages':['line']});
-		google.charts.load('current', {'packages':['corechart']});
-		google.charts.setOnLoadCallback(drawBasic);
-		function drawBasic() {
-		  if ($("#bar-chart1").length > 0) {
-			  var data = google.visualization.arrayToDataTable([
-				["Producto", "Cantidad Pedidos", { role: "style" } ],
-				<?php 
-				$pdo = Database::connect();
-				$sql = " select vd.id_producto, pr.descripcion, count(*) cant from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos pr on pr.id = vd.id_producto where v.anulada = 0 group by vd.id_producto order by cant desc ";
-				foreach ($pdo->query($sql) as $row) {
-					echo '["'.$row[1].'", '.$row[2].', "color: #007bff"],';
-				}
-				Database::disconnect();
-				?>
-			  ]);
-			  var view = new google.visualization.DataView(data);
-			  view.setColumns([0, 1,
-				{ calc: "stringify",
-				  sourceColumn: 1,
-				  type: "string",
-				  role: "annotation" 
-				},
-				2]);
-			  var options = {
-				title: "",
-				width:'100%',
-				height: 400,
-				bar: {groupWidth: "95%"},
-				legend: { position: "none" },
-			  };
-			  var chart = new google.visualization.ColumnChart(document.getElementById("bar-chart1"));
-			  chart.draw(view, options);
-		  }
+    <script>
+      $(document).ready(function() {
+        $('#dataTables-example666').DataTable({
+          stateSave: true,
+          responsive: true,
+          language: {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+          }}
+        });
+      });
+      
+    </script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
+    <script src="assets/js/chart/google/google-chart-loader.js"></script>
+    <script src="assets/js/chart/google/google-chart.js"></script>
+    
+    <script>
+      google.charts.load('current', {packages: ['corechart', 'bar']});
+      google.charts.load('current', {'packages':['line']});
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawBasic);
 
-		  
-		}
+      function drawBasic() {
+        if ($("#bar-chart1").length > 0) {
+          var data = google.visualization.arrayToDataTable([
+          ["Producto", "Cantidad Pedidos", { role: "style" } ],<?php 
+            $pdo = Database::connect();
+            $sql = " SELECT vd.id_producto, pr.descripcion, count(*) cant from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos pr on pr.id = vd.id_producto where v.anulada = 0 group by vd.id_producto order by cant desc ";
+            foreach ($pdo->query($sql) as $row) {
+              echo '["'.$row[1].'", '.addslashes($row[2]).', "color: #007bff"],';
+            }
+            Database::disconnect();?>
+          ]);
+          var view = new google.visualization.DataView(data);
+          view.setColumns([0, 1,
+            { calc: "stringify",
+              sourceColumn: 1,
+              type: "string",
+              role: "annotation" 
+            },
+          2]);
+          var options = {
+            title: "",
+            width:'100%',
+            height: 400,
+            bar: {groupWidth: "95%"},
+            legend: { position: "none" },
+          };
+          var chart = new google.visualization.ColumnChart(document.getElementById("bar-chart1"));
+          chart.draw(view, options);
+        }
+      }
 
-	</script>
+      function escapeCaracteres(variable) {
+        // Lista de caracteres especiales que deseas escapar
+        var caracteresEspeciales = /[.*+?^${}()|[\]\\]/g;
+
+        // Escapar los caracteres especiales utilizando replace()
+        var variableEscapada = variable.replace(caracteresEspeciales, '\\$&');
+
+        return variableEscapada;
+      }
+
+    </script>
     <!-- Plugin used-->
   </body>
 </html>
