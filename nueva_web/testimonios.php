@@ -14,7 +14,7 @@
 				
 				<div class="col-sm-12 contenedor-carrusel">
 					<div id="testimonial-slider" class="owl-carousel carrusel">
-						<div class="testimonial">
+						<div class="testimonial custom-styles">
 							<div class="pic">
 								<img src="images/testimonios/img-1.jpg" alt="">
 							</div>
