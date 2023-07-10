@@ -5,6 +5,7 @@ $total=0;
 $recordsFiltered=0;
 $debug="";
 $queryInfo="";
+
 if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
 
   $id_almacen=$_GET["almacen"];

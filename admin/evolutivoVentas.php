@@ -51,7 +51,7 @@ if(empty($_SESSION['user']))
           <!-- Container-fluid starts-->
           <div class="container-fluid">
             <div class="row">
-			  <div class="col-md-6">
+			        <div class="col-md-6">
                 <div class="card">
                   <div class="card-header">
                     <h5>Cantidad de Pedidos</h5>
@@ -71,7 +71,7 @@ if(empty($_SESSION['user']))
                   </div>
                 </div>
               </div>
-			</div>
+			      </div>
           </div>
           <!-- Container-fluid Ends-->
         </div>
@@ -92,7 +92,7 @@ if(empty($_SESSION['user']))
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-	<script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+	  <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/jszip.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/buttons.colVis.min.js"></script>
@@ -114,8 +114,8 @@ if(empty($_SESSION['user']))
     <script src="assets/js/datatable/datatable-extension/custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-	<script src="assets/js/bootstrap/tableExport.js"></script>
-	<script src="assets/js/bootstrap/jquery.base64.js"></script>
+    <script src="assets/js/bootstrap/tableExport.js"></script>
+    <script src="assets/js/bootstrap/jquery.base64.js"></script>
     <script src="assets/js/chart/chartist/chartist.js"></script>
     <script src="assets/js/chart/morris-chart/raphael.js"></script>
     <script src="assets/js/chart/morris-chart/morris.js"></script>
@@ -155,80 +155,72 @@ if(empty($_SESSION['user']))
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script>
-	var myLineChart = {
-	labels: [
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT date_format(`fecha_hora`,'%m-%Y') fecha,count(*) cant FROM `ventas` where anulada = 0 group by fecha order by fecha_hora asc limit 0,12 ";
-	foreach ($pdo->query($sql) as $row) {
-		echo "'".$row[0]."',";
-	}
-	Database::disconnect();
-	?>
-	],
-	datasets: [{
-		fillColor: "transparent",
-		strokeColor: endlessAdminConfig.primary,
-		pointColor: endlessAdminConfig.primary,
-		data: [
-		<?php 
-		$pdo = Database::connect();
-		$sql = " SELECT date_format(`fecha_hora`,'%m-%Y') fecha,count(*) cant FROM `ventas` where anulada = 0 group by fecha order by fecha_hora asc limit 0,12 ";
-		foreach ($pdo->query($sql) as $row) {
-			echo $row[1].",";
-		}
-		Database::disconnect();
-		?>
-		]
-	}]
-	}
-	var ctx = document.getElementById("myLineCharts").getContext("2d");
-	var LineChartDemo = new Chart(ctx).Line(myLineChart, {
-		pointDotRadius: 2,
-		pointDotStrokeWidth: 5,
-		pointDotStrokeColor: "#ffffff",
-		bezierCurve: false,
-		scaleShowVerticalLines: false,
-		scaleGridLineColor: "#eeeeee"
-	});
+      var myLineChart = {
+        labels: [<?php 
+          $pdo = Database::connect();
+          $sql = " SELECT date_format(fecha_hora,'%m-%Y') fecha,count(*) cant FROM ventas where anulada = 0 group by fecha order by fecha_hora asc limit 0,12 ";
+          foreach ($pdo->query($sql) as $row) {
+            echo "'".$row[0]."',";
+          }
+          Database::disconnect();?>
+        ],
+        datasets: [{
+          fillColor: "transparent",
+          strokeColor: endlessAdminConfig.primary,
+          pointColor: endlessAdminConfig.primary,
+          data: [<?php 
+            $pdo = Database::connect();
+            $sql = " SELECT date_format(fecha_hora,'%m-%Y') fecha,count(*) cant FROM ventas where anulada = 0 group by fecha order by fecha_hora asc limit 0,12 ";
+            foreach ($pdo->query($sql) as $row) {
+              echo $row[1].",";
+            }
+            Database::disconnect();?>
+          ]
+        }]
+      }
+      var ctx = document.getElementById("myLineCharts").getContext("2d");
+      var LineChartDemo = new Chart(ctx).Line(myLineChart, {
+        pointDotRadius: 2,
+        pointDotStrokeWidth: 5,
+        pointDotStrokeColor: "#ffffff",
+        bezierCurve: false,
+        scaleShowVerticalLines: false,
+        scaleGridLineColor: "#eeeeee"
+      });
 
-	var myLineChart1 = {
-		labels: [
-		<?php 
-		$pdo = Database::connect();
-		$sql = " SELECT date_format(`fecha_hora`,'%m-%Y') fecha,sum(total_con_descuento) total FROM `ventas` where anulada = 0  group by fecha order by fecha_hora asc limit 0,12 ";
-		foreach ($pdo->query($sql) as $row) {
-			echo "'".$row[0]."',";
-		}
-		Database::disconnect();
-		?>
-		],
-		datasets: [{
-			fillColor: "transparent",
-			strokeColor: endlessAdminConfig.primary,
-			pointColor: endlessAdminConfig.primary,
-			data: [
-			<?php 
-			$pdo = Database::connect();
-			$sql = " SELECT date_format(`fecha_hora`,'%m-%Y') fecha,sum(total_con_descuento) total FROM `ventas` where anulada = 0  group by fecha order by fecha_hora asc limit 0,12 ";
-			foreach ($pdo->query($sql) as $row) {
-				echo $row[1].",";
-			}
-			Database::disconnect();
-			?>
-			]
-		}]
-	}
-	var ctx = document.getElementById("profitchart").getContext("2d");
-	var LineChartDemo = new Chart(ctx).Line(myLineChart1, {
-		pointDotRadius: 2,
-		pointDotStrokeWidth: 5,
-		pointDotStrokeColor: "#ffffff",
-		bezierCurve: false,
-		scaleShowVerticalLines: false,
-		scaleGridLineColor: "#eeeeee"
-	});
-	</script>
+      var myLineChart1 = {
+        labels: [<?php 
+          $pdo = Database::connect();
+          $sql = " SELECT date_format(fecha_hora,'%m-%Y') fecha,sum(total_con_descuento) total FROM ventas where anulada = 0  group by fecha order by fecha_hora asc limit 0,12 ";
+          foreach ($pdo->query($sql) as $row) {
+            echo "'".$row[0]."',";
+          }
+          Database::disconnect();?>
+        ],
+        datasets: [{
+          fillColor: "transparent",
+          strokeColor: endlessAdminConfig.primary,
+          pointColor: endlessAdminConfig.primary,
+          data: [<?php
+            $pdo = Database::connect();
+            $sql = " SELECT date_format(fecha_hora,'%m-%Y') fecha,sum(total_con_descuento) total FROM ventas where anulada = 0  group by fecha order by fecha_hora asc limit 0,12 ";
+            foreach ($pdo->query($sql) as $row) {
+              echo $row[1].",";
+            }
+            Database::disconnect();?>
+          ]
+        }]
+      }
+      var ctx = document.getElementById("profitchart").getContext("2d");
+      var LineChartDemo = new Chart(ctx).Line(myLineChart1, {
+        pointDotRadius: 2,
+        pointDotStrokeWidth: 5,
+        pointDotStrokeColor: "#ffffff",
+        bezierCurve: false,
+        scaleShowVerticalLines: false,
+        scaleGridLineColor: "#eeeeee"
+      });
+	  </script>
     <!-- Plugin used-->
   </body>
 </html>

@@ -64,6 +64,7 @@
       <li><a class="sidebar-header" href="#"><i data-feather="bar-chart"></i><span>Reportes</span><i class="fa fa-angle-right pull-right"></i></a>
         <ul class="sidebar-submenu">
           <li><a href="balanceAlmacenes.php"><i class="fa fa-circle"></i>Balance de Almacenes</a></li>
+          <li><a href="rankingProveedores.php"><i class="fa fa-circle"></i>Ranking Proveedores</a></li>
           <li><a href="rankingProductos.php"><i class="fa fa-circle"></i>Ranking Productos</a></li>
           <li><a href="rankingCategorias.php"><i class="fa fa-circle"></i>Ranking Categorías</a></li>
           <li><a href="evolutivoVentas.php"><i class="fa fa-circle"></i>Evolutivo Ventas</a></li>
