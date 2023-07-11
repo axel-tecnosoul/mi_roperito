@@ -119,42 +119,8 @@ include 'database.php';
                           <td class="text-right border-0 p-1">Desde: </td>
                           <td class="border-0 p-1"><input type="date" name="desde" id="desde" value="<?=$desde?>" class="form-control form-control-sm filtraTabla"></td>
                           <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td> -->
-                          <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
+                          <td rowspan="2" style="vertical-align: middle;width:18%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_proveedor">Proveedores:</label><br>
-                            <!-- <select name="id_proveedor" id="id_proveedor" class="js-example-basic-single w-100 filtraTabla">
-                              <option value="0">- Seleccione -</option><?php
-                              /*$pdo = Database::connect();
-                              $whereAlmacen="";
-                              if ($_SESSION['user']['id_perfil'] == 2) {
-                                $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
-                              }
-                              //$sql = "SELECT pr.id,CONCAT(pr.apellido,' ',pr.nombre) AS proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id WHERE v.anulada=0 $whereAlmacen GROUP BY pr.id";
-                              $sql = "SELECT pr.id, CONCAT(pr.apellido, ' ', pr.nombre) AS proveedor, pr.id_almacen
-                              FROM proveedores pr 
-                              WHERE EXISTS (
-                                SELECT 1
-                                FROM ventas_detalle vd 
-                                INNER JOIN ventas v ON vd.id_venta = v.id 
-                                INNER JOIN productos p ON vd.id_producto = p.id 
-                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 0 $whereAlmacen
-                              )
-                              OR EXISTS (
-                                SELECT 1
-                                FROM canjes_detalle cd 
-                                INNER JOIN canjes c ON cd.id_canje = c.id 
-                                INNER JOIN productos p ON cd.id_producto = p.id 
-                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
-                              )";
-                              //echo $sql;
-                              foreach ($pdo->query($sql) as $row) {
-                                $selected="";
-                                if($row["id"]==$id_proveedor){
-                                  $selected="selected";
-                                }?>
-                                <option value="<?=$row["id"]?>" <?=$selected?>><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
-                              }
-                              Database::disconnect();*/?>
-                            </select> -->
                             <select id="id_proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $whereAlmacen="";
@@ -187,7 +153,7 @@ include 'database.php';
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
+                          <td rowspan="2" style="vertical-align: middle;width:18%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_categoria">Categoria:</label><br>
                             <!-- <select name="id_categoria" id="id_categoria" class="js-example-basic-single w-100 filtraTabla">
                               <option value="0">- Seleccione -</option><?php
@@ -235,26 +201,18 @@ include 'database.php';
                             }else{?>
                               <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
                             }?>
-                          </td><?php
-                          /*if($_SESSION['user']['id_perfil']==1){?>
-                            <td rowspan="2" style="vertical-align: middle;width:20%" class="border-0 p-1">
-                              <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
-                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single w-100 filtraTabla">
-                                <option value="0">- Seleccione -</option><?php
-                                $pdo = Database::connect();
-                                $whereAlmacen="";
-                                $sql = "SELECT id,almacen FROM almacenes WHERE activo=1 $whereAlmacen";
-                                foreach ($pdo->query($sql) as $row) {
-                                  $selected="";
-                                  if($row["id"]==$id_almacen){
-                                    $selected="selected";
-                                  }?>
-                                  <option value="<?=$row["id"]?>" <?=$selected?>><?=$row["almacen"]?></option><?php
-                                }
-                                Database::disconnect();?>
-                              </select>
-                            </td><?php
-                          }*/?>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <label class="d-block" for="checkbox-ventas">
+                              <input class="checkbox_animated filtraTabla" value="Ventas" checked required id="checkbox-ventas" type="checkbox" name="tipo_venta[]">
+                              <label for="checkbox-ventas">Ventas</label>
+                            </label>
+
+                            <label class="d-block" for="checkbox-canjes">
+                              <input class="checkbox_animated filtraTabla" value="Canjes" checked required id="checkbox-canjes" type="checkbox" name="tipo_venta[]">
+                              <label for="checkbox-canjes">Canjes</label>
+                            </label>
+                          </td>
                           <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
                         </tr>
@@ -357,14 +315,20 @@ include 'database.php';
         let id_almacen=$("#id_almacen").val();
         let proveedor=$("#id_proveedor").val();
         let id_categoria=$("#id_categoria").val();
-        console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
+        let ventas=$("#checkbox-ventas").prop("checked")
+        let canjes=$("#checkbox-canjes").prop("checked")
+
+        let tipo_venta=$("input[name='tipo_venta[]']").val();
+        //console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
+        console.log(ventas);
+        console.log(canjes);
         let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
 
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
         table.DataTable({ 
           processing: true,
-          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria,
+          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria+'&ventas='+ventas+'&canjes='+canjes,
           'dataSrc': ''},
 				  stateSave: true,
 				  responsive: true,
