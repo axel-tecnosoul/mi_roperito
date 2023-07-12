@@ -213,11 +213,21 @@ img {
     background-repeat: no-repeat; 
     background-size: 162%;
 }
-.imagen-1 a{
-    background-image: url("../images/compra.jpg");
+
+.notavif.notwebp .imagen-1 a{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/Home/JPG/compra1200px.jpg");
+}
+.webp .imagen-1 a{
+    background-image: url("../images/Home/WEBP/compra1200px.webp");
+}
+
+.notavif.notwebp .imagen-2 a{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/Home/JPG/vende1200px.jpg");
+}
+.webp .imagen-2 a{
+    background-image: url("../images/Home/WEBP/vende1200px.webp");
 }
 .imagen-2 a {
-    background-image: url("../images/vende.jpg");
     background-position: -458px -351px;
     background-size: 236%;
 }
@@ -230,7 +240,7 @@ img {
 
     .imagen-2 a{
         background-position: bottom center;
-        background-size: 254%;
+        background-size: 144%;
     }
 }
 
@@ -241,35 +251,43 @@ img {
     }
 
     .imagen-2 a{
-        background-position: bottom center;
-        background-size: 254%;
+        background-position: -260px center;
+        background-size: 222%;
     }
 }
 
 @media (min-width: 768px){ 
     .imagen-1 a{
         background-position: bottom center;
-        background-size: 266%;
+        background-size: 206%;
     }
 
     .imagen-2 a{
-        background-position: bottom center;
-        background-size: 401%;
+        background-position: -260px center;
+        background-size: 206%;
     }
 }
 
-@media (min-width: 1366px){ 
+@media (min-width: 1360px){ 
     .imagen-1 a{
         background-position: bottom center;
-        background-size: 178%;
+        background-size: 152%;
     }
 
     .imagen-2 a{
         background-position: bottom center;
-        background-size: 282%;
+        background-size: 151%;
     }
 }
-
+.imagen-banner-descuento img{
+    width: 100%;
+    height: 100%;
+}
+@media (min-width: 1300px){ 
+    .imagen-banner-descuento img{
+        width: 100%;
+    }
+}
 /* TESTIMONIALES */
 .contenedor-uso {
     background-color: #F8E0D2; 
@@ -336,6 +354,11 @@ img {
 .contenido-nosotros {
     margin-bottom: 40px;
 }
+.contenido-nosotros-img img {
+    max-width: 100%;
+    max-height: 100%;
+}
+  
 
 .contenido-nosotros h3{
     text-align: center;
@@ -374,7 +397,12 @@ img {
     display: flex;
     flex-wrap: wrap; 
     justify-content: space-evenly;
-    background-image: url("../images/nosotros/fondo-locales-nosotros.jpg");
+}
+.notavif.notwebp .contenedor-locales-nosotros{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/nosotros/JPG/fondo-locales-nosotros1200px.jpg");
+}
+.webp .contenedor-locales-nosotros{
+    background-image: url("../images/nosotros/WEBP/fondo-locales-nosotros1200px.webp");
 }
 .contenedor-locales-titulo{
     display: flex;
@@ -417,18 +445,33 @@ img {
     width: 100%;
     height: 400px;
 }
+.notavif.notwebp .imagen-local-nosotros.iln-1{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalBallester.jpg");
+}
+.webp .imagen-local-nosotros.iln-1{
+    background-image: url("../images/locales/nosotros/WEBP/LocalBallester.webp");
+}
+.notavif.notwebp .imagen-local-nosotros.iln-2{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalSanIsidro.jpg");
+}
+.webp .imagen-local-nosotros.iln-2{
+    background-image: url("../images/locales/nosotros/WEBP/LocalSanIsidro.webp");
+}
+.notavif.notwebp .imagen-local-nosotros.iln-3{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalNunez.jpg");
+}
+.webp .imagen-local-nosotros.iln-3{
+    background-image: url("../images/locales/nosotros/WEBP/LocalNunez.webp");
+}
 .imagen-local-nosotros.iln-1{
-    background-image: url("../images/locales/nosotros/LocalBallester.jpg");
     background-position: -11px -58px;
     background-size: 104%;
 }
 .imagen-local-nosotros.iln-2{
-    background-image: url("../images/locales/nosotros/LocalSanIsidro.jpg");
     background-position: -4px -1px;
     background-size: 101%;
 }
 .imagen-local-nosotros.iln-3{
-    background-image: url("../images/locales/nosotros/LocalNuñez.jpg");
     background-position: -16px -6px;
     background-size: 103%;
 }
@@ -448,6 +491,9 @@ img {
     display: flex;
     flex-wrap: wrap; 
     justify-content: space-evenly;
+}
+.imagen-nosotros-mision{
+    height: 100%;
 }
 /* LOCALES */
 .contenedor-locales {
@@ -593,18 +639,33 @@ img {
         height: 600px;
     }
 }
+.notavif.notwebp .imagen-locales.iln-1{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalBallester.jpg");
+}
+.webp .imagen-locales.iln-1{
+    background-image: url("../images/locales/nosotros/WEBP/LocalBallester.webp");
+}
+.notavif.notwebp .imagen-locales.iln-2{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalSanIsidro.jpg");
+}
+.webp .imagen-locales.iln-2{
+    background-image: url("../images/locales/nosotros/WEBP/LocalSanIsidro.webp");
+}
+.notavif.notwebp .imagen-locales.iln-3{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/locales/nosotros/JPG/LocalNunez.jpg");
+}
+.webp .imagen-locales.iln-3{
+    background-image: url("../images/locales/nosotros/WEBP/LocalNunez.webp");
+}
 .imagen-locales.iln-1{
-    background-image: url("../images/locales/nosotros/LocalBallester.jpg");
     background-position: -11px -58px;
     background-size: 104%;
 }
 .imagen-locales.iln-2{
-    background-image: url("../images/locales/nosotros/LocalSanIsidro.jpg");
     background-position: -4px -1px;
     background-size: 101%;
 }
 .imagen-locales.iln-3{
-    background-image: url("../images/locales/nosotros/LocalNuñez.jpg");
     background-position: -16px -6px;
     background-size: 103%;
 }
@@ -739,23 +800,33 @@ img {
     row-gap: 20px;
     grid-template-columns: none;
 }
-
+.notavif.notwebp .prenda{/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/vender/JPG/imagen-vender-1.jpg");
+}
+.webp .prenda{
+    background-image: url("../images/vender/WEBP/imagen-vender-1.webp");
+}
+.notavif.notwebp .prenda:nth-child(even){/* Clase del snippet img.js .notavif .notwebp*/
+    background-image: url("../images/vender/JPG/imagen-vender-2.jpg");
+}
+.webp .prenda:nth-child(even){
+    background-image: url("../images/vender/WEBP/imagen-vender-2.webp");
+}
 .prenda {
-    background-image: url("../images/imagen-vender-1.jpg");
     background-position: bottom center;
     background-repeat: no-repeat; 
     width: 100%;
     height: 350px;
-    background-size: 160%;
-    background-position: -173px -301px;
+    background-size: 100%;
+    background-position: 0px 0px;
     transform: scaleX(-1);
 }
 .prenda:nth-child(even){
-    background-image: url("../images/imagen-vender-2.jpg");
-    background-size: 143%;
-    background-position: -36px -8px;
+    background-size: 100%;
+    background-position: 0px 0px;
     transform: scaleX(1);
 }
+
 
 @media (min-width: 720px){
     .prenda {   
@@ -769,6 +840,18 @@ img {
     }  
 }
 
+@media (min-width: 768px){
+    .prenda {   
+        background-size: 110%;
+        background-position: 0px 0px;
+        height: 600px;
+    }
+    .prenda:nth-child(even){
+        background-size: 110%;
+        background-position: 0px 0px;
+    }  
+}
+
 @media (min-width: 1300px){
     .vender-prenda {
         display: grid;
@@ -778,13 +861,13 @@ img {
         position: relative;
     }
     .prenda {   
-        background-size: 156%;
-        background-position: -288px -468px;
+        background-size: 103%;
+        background-position: 0px -2px;
         height: 600px;
     }
     .prenda:nth-child(even){
-        background-size: 132%;
-        background-position: -36px -8px;
+        background-size: 104%;
+        background-position: 1px 0px;
     }  
 }
 .green-button {
