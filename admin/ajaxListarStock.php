@@ -7,10 +7,10 @@ $columns = $_GET['columns'];
 
 //$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 
-$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo'];
+$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo','s.inventario_ok'];
 //$data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 
-$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto'];
+$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto','s.inventario_ok'];
 
 
 $from="FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor";
@@ -129,6 +129,11 @@ if ($st) {
       if ($row[8]==1) {
         $activo='Si';
       }
+      $inventario_ok="No";
+      if ($row["inventario_ok"]==1) {
+        $inventario_ok='Si';
+      }
+
       $aStock[]=[
         '<input type="checkbox" class="no-sort customer-selector check-row" value="'.$row['id_producto'].'" />',
         $row['id'],
@@ -139,9 +144,10 @@ if ($st) {
         '$'. number_format($row['precio'],2),
         $row['nombre']." ".$row['apellido'],
         $row['almacen'],
+        $inventario_ok,
         $row['modalidad'],
         $activo,
-        '<a href="modificarStock.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Ajustar Cantidad" title="Ajustar Cantidad"></a>',
+        '<a href="modificarStock.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Ajustar" title="Ajustar"></a>',
       ];
     }
     $queryInfo=[
