@@ -74,8 +74,8 @@ include("database.php");
                     <div class="row">
                       <table class="table">
                         <tr>
-                          <td class="border-0 p-1" style="text-align: right;"><label for="id_almacen">Almacen:</label></td>
-                          <td class="border-0 p-1">
+                          <td class="border-0 p-1" style="text-align: right;vertical-align: middle;"><label for="id_almacen">Almacen:</label></td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
                             <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
                               <option value="0">- Todos -</option><?php
                               $pdo = Database::connect();
@@ -86,8 +86,8 @@ include("database.php");
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td class="border-0 p-1" style="text-align: right;"><label for="id_modalidad">Modalidad:</label></td>
-                          <td class="border-0 p-1">
+                          <td class="border-0 p-1" style="text-align: right;vertical-align: middle;"><label for="id_modalidad">Modalidad:</label></td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
                             <select id="id_modalidad" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
                               <option value="0">- Todos -</option><?php
                               $pdo = Database::connect();
@@ -97,6 +97,17 @@ include("database.php");
                               }
                               Database::disconnect();?>
                             </select>
+                          </td>
+                          <td style="vertical-align: middle;" class="border-0 p-1">
+                            <label class="d-block" for="checkbox-activas">
+                              <input class="checkbox_animated filtraTabla" value="1" checked required id="checkbox-activas" type="checkbox" name="activa[]">
+                              <label for="checkbox-activas">Activas</label>
+                            </label>
+
+                            <label class="d-block" for="checkbox-inactivas">
+                              <input class="checkbox_animated filtraTabla" value="0" required id="checkbox-inactivas" type="checkbox" name="activa[]">
+                              <label for="checkbox-inactivas">Inactivas</label>
+                            </label>
                           </td>
                         </tr>
                       </table>
@@ -108,16 +119,17 @@ include("database.php");
                           <tr>
                             <th>ID</th>
                             <th>DNI</th>
-                            <th>Nombre y apellido</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
                             <!-- <th>Apellido</th> -->
-                            <th>Ventas por pesos</th>
+                            <!-- <th>Ventas por pesos</th>
                             <th>Ventas por canje</th>
-                            <th>En stock</th>
-                            <th>Activo</th>
+                            <th>En stock</th> -->
+                            <th>Almacén</th>
+                            <th>Modalidad</th>
+                            <th>E-Mail</th>
                             <th>Opciones</th>
-                            <th class="none">Almacén</th>
-                            <th class="none">Modalidad</th>
-                            <th class="none">E-Mail</th>
+                            <th class="none">Activo</th>
                             <th class="none">Teléfono</th>
                             <th class="none">Crédito</th>
                             <th class="none">Fecha Alta</th>
@@ -243,12 +255,20 @@ include("database.php");
         let id_almacen=$("#id_almacen").val();
         let id_modalidad=$("#id_modalidad").val();
         let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+        
+        // Obtener el valor de todos los checkboxes seleccionados
+        var activo = [];
+        $("input[name='activa[]']:checked").each(function() {
+          activo.push($(this).val());
+        });
+        activo=activo.join(',');
+        console.log(activo);//.val()
 
         //document.getElementById("overlay").style.display = "block";
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
         table.DataTable({ 
-          ajax:{url:'ajaxProveedores.php?id_almacen='+id_almacen+'&id_modalidad='+id_modalidad},
+          ajax:{url:'ajaxProveedores.php?id_almacen='+id_almacen+'&id_modalidad='+id_modalidad+'&activo='+activo},
 				  //stateSave: true,
           serverSide: true,
           processing: true,
@@ -276,8 +296,10 @@ include("database.php");
           "columns":[
             {"data": "id"},
             {"data": "dni"},
-            {"data": "proveedor"},
-            {
+            //{"data": "proveedor"},
+            {"data": "nombre"},
+            {"data": "apellido"},
+            /*{
               render: function(data, type, row, meta) {
                 if(type=="display"){
                   return new Intl.NumberFormat('es-AR', {useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0}).format(row.ventasPesos);
@@ -311,12 +333,12 @@ include("database.php");
                 }
               },
               className: 'dt-body-right text-right',
-            },
-            {"data": "activo"},
-            {"data": "acciones"},
+            },*/
             {"data": "almacen"},
             {"data": "modalidad"},
             {"data": "email"},
+            {"data": "acciones"},
+            {"data": "activo"},
             {"data": "telefono"},
             {
               render: function(data, type, row, meta) {
