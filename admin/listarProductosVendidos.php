@@ -213,12 +213,15 @@ include 'database.php';
                               <label for="checkbox-canjes">Canjes</label>
                             </label>
                           </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
+                          <td colspan="2" class="text-center border-0 p-1"><button class="btn btn-primary btnFiltrar">Filtrar</button></td>
+                          <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td> -->
                         </tr>
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
                           <td class="border-0 p-1"><input type="date" name="hasta" id="hasta" value="<?=$hasta?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
+                          <td style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
                         </tr>
                       </table>
                     </div>
@@ -306,7 +309,8 @@ include 'database.php';
 
       $(document).ready(function() {
         getVentas();
-        $(".filtraTabla").on("change",getVentas);
+        //$(".filtraTabla").on("change",getVentas);
+        $(".btnFiltrar").on("click",getVentas);
       });
 
       function getVentas(){

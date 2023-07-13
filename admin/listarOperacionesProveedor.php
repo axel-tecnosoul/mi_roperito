@@ -55,8 +55,8 @@ if(empty($_SESSION['proveedor'])){
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Mis Ventas
-					            &nbsp;<a href="exportOperacionesProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Ventas" title="Exportar Mis Ventas"></a>
+                    <h5>Mis Ventas por cobrar
+					            &nbsp;<a href="exportOperacionesProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Ventas por cobrar" title="Exportar Mis Ventas por cobrar"></a>
 					          </h5>
                   </div>
                   <div class="card-body">
@@ -97,7 +97,7 @@ if(empty($_SESSION['proveedor'])){
                         <tbody><?php 
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, IF(vd.pagado=1,'Si','NO') AS pagado,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, IF(vd.pagado=1,'Si','NO') AS pagado,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND vd.pagado=0 AND id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL and p.id_proveedor = ".$_SESSION['proveedor']['id'];
                           
                           foreach ($pdo->query($sql) as $row) {
                             //$row["deuda_proveedor"]=1120.50;
@@ -122,7 +122,102 @@ if(empty($_SESSION['proveedor'])){
                             echo '</tr>';
                           }
 
-                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal, cd.deuda_proveedor, IF(cd.pagado=1,'Si','NO') AS pagado ,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal, cd.deuda_proveedor, IF(cd.pagado=1,'Si','NO') AS pagado ,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND cd.pagado=0 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          //echo $sql;
+                        
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>C# '.$row["id"].'</td>';
+                            echo '<td>'.$row["almacen"].'</td>';
+                            echo '<td>'.$row["fecha_hora"].'hs</td>';
+                            echo '<td>'.$row["codigo"].'</td>';
+                            echo '<td>'.$row["categoria"].'</td>';
+                            echo '<td>'.$row["descripcion"].'</td>';
+                            echo '<td>'.$row["cantidad"].'</td>';
+                            /*echo '<td>$'.number_format($row["precio"],2).'</td>';
+                            echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
+                            echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td>'.$row["pagado"].'</td>';
+                            echo '<td>'.$row["modalidad"].'</td>';
+                            //echo '<td>';
+                            //echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <h5>Mis Ventas cobradas
+					            &nbsp;<a href="exportOperacionesProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Ventas Cobradas" title="Exportar Mis Ventas Cobradas"></a>
+					          </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="dt-ext table-responsive">
+                      <table class="display" id="dataTables-example667">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Almacen</th>
+                            <th>Fecha/Hora</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <!-- <th>Precio</th>
+                            <th>Subtotal</th> -->
+                            <th>A cobrar</th>
+                            <th>Pagado</th>
+                            <th>Modalidad</th>
+                          </tr>
+                        </thead>
+                        <tfoot>
+                          <tr>
+                            <th>ID</th>
+                            <th>Almacen</th>
+                            <th>Fecha/Hora</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <!-- <th>Precio</th>
+                            <th>Subtotal</th> -->
+                            <th>A cobrar</th>
+                            <th>Pagado</th>
+                            <th>Modalidad</th>
+                          </tr>
+                        </tfoot>
+                        <tbody><?php 
+                          $pdo = Database::connect();
+                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, IF(vd.pagado=1,'Si','NO') AS pagado,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND vd.pagado=1 AND id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            //$row["deuda_proveedor"]=1120.50;
+                            echo '<tr>';
+                            echo '<td>V# '.$row["id"].'</td>';
+                            echo '<td>'.$row["almacen"].'</td>';
+                            echo '<td>'.$row["fecha_hora"].'hs</td>';
+                            echo '<td>'.$row["codigo"].'</td>';
+                            echo '<td>'.$row["categoria"].'</td>';
+                            echo '<td>'.$row["descripcion"].'</td>';
+                            echo '<td>'.$row["cantidad"].'</td>';
+                            /*echo '<td>$'.number_format($row["precio"],2).'</td>';
+                            echo '<td>$'.number_format($row["subtotal"],2).'</td>';*/
+                            echo '<td>$'.number_format($row["deuda_proveedor"],2).'</td>';
+                            echo '<td>'.$row["pagado"].'</td>';
+                            echo '<td>'.$row["modalidad"].'</td>';
+                            /*if ($row["pagado"] == 1) {
+                              echo '<td>Si</td>';	
+                            } else {
+                              echo '<td>No</td>';	
+                            }*/
+                            echo '</tr>';
+                          }
+
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal, cd.deuda_proveedor, IF(cd.pagado=1,'Si','NO') AS pagado ,c2.categoria,p.codigo,p.descripcion, m.modalidad FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen inner join modalidades m on m.id = cd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND cd.pagado=1 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$_SESSION['proveedor']['id'];
                           //echo $sql;
                         
                           foreach ($pdo->query($sql) as $row) {
@@ -198,70 +293,135 @@ if(empty($_SESSION['proveedor'])){
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
-	<script>
-		$(document).ready(function() {
-			let table=$('#dataTables-example666')
-      table.DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-          "decimal": "",
-          "emptyTable": "No hay información",
-          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-          "infoFiltered": "(Filtrado de _MAX_ total registros)",
-          "infoPostFix": "",
-          "thousands": ",",
-          "lengthMenu": "Mostrar _MENU_ Registros",
-          "loadingRecords": "Cargando...",
-          "processing": "Procesando...",
-          "search": "Buscar:",
-          "zeroRecords": "No hay resultados",
-          "paginate": {
-              "first": "Primero",
-              "last": "Ultimo",
-              "next": "Siguiente",
-              "previous": "Anterior"
+    <script>
+      $(document).ready(function() {
+        let table=$('#dataTables-example666')
+        table.DataTable({
+          stateSave: true,
+          responsive: true,
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+          },
+          filter:function(){
+            console.log("filtrando");
+            this.api().columns().every(function(){//Columns() con parentesis
+              var column=this;
+              if(column.footer().innerHTML=="A cobrar"){
+                getTotalACobrar(column)
+              }
+            });
+          },
+          initComplete: function(){
+            this.api().columns.adjust().draw();//Columns sin parentesis
+            this.api().columns().every(function(){//Columns() con parentesis
+              var column=this;
+              if(column.footer().innerHTML!="A cobrar"){
+                var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
+                  .appendTo($(column.footer()).empty())
+                  .on("change",function(){
+                    var val=$.fn.dataTable.util.escapeRegex(
+                      $(this).val()
+                    );
+                    column.search(val ? '^'+val+'$':'',true,false).draw();
+                  });
+                column.data().unique().sort().each(function(d,j){
+                  var val=$("<div/>").html(d).text();
+                  if(column.search()==='^'+val+'$'){
+                    select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
+                  }else{
+                    select.append("<option value='"+val+"'>"+val+"</option>");
+                  }
+                })
+              }else{
+                getTotalACobrar(table)
+              }
+            })
           }
-        },
-        filter:function(){
-          console.log("filtrando");
-          this.api().columns().every(function(){//Columns() con parentesis
-            var column=this;
-            if(column.footer().innerHTML=="A cobrar"){
-              getTotalACobrar(column)
+        }).on( 'search.dt', function () {
+          getTotalACobrar(table)
+        } );
+
+        let table2=$('#dataTables-example667')
+        table2.DataTable({
+          stateSave: true,
+          responsive: true,
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
             }
-          });
-        },
-        initComplete: function(){
-          this.api().columns.adjust().draw();//Columns sin parentesis
-          this.api().columns().every(function(){//Columns() con parentesis
-            var column=this;
-            if(column.footer().innerHTML!="A cobrar"){
-              var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
-                .appendTo($(column.footer()).empty())
-                .on("change",function(){
-                  var val=$.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                  );
-                  column.search(val ? '^'+val+'$':'',true,false).draw();
-                });
-              column.data().unique().sort().each(function(d,j){
-                var val=$("<div/>").html(d).text();
-                if(column.search()==='^'+val+'$'){
-                  select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
-                }else{
-                  select.append("<option value='"+val+"'>"+val+"</option>");
-                }
-              })
-            }else{
-              getTotalACobrar(table)
-            }
-          })
-        }
-			}).on( 'search.dt', function () {
-        getTotalACobrar(table)
-      } );
+          },
+          filter:function(){
+            console.log("filtrando");
+            this.api().columns().every(function(){//Columns() con parentesis
+              var column=this;
+              if(column.footer().innerHTML=="A cobrar"){
+                getTotalACobrar(column)
+              }
+            });
+          },
+          initComplete: function(){
+            this.api().columns.adjust().draw();//Columns sin parentesis
+            this.api().columns().every(function(){//Columns() con parentesis
+              var column=this;
+              if(column.footer().innerHTML!="A cobrar"){
+                var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
+                  .appendTo($(column.footer()).empty())
+                  .on("change",function(){
+                    var val=$.fn.dataTable.util.escapeRegex(
+                      $(this).val()
+                    );
+                    column.search(val ? '^'+val+'$':'',true,false).draw();
+                  });
+                column.data().unique().sort().each(function(d,j){
+                  var val=$("<div/>").html(d).text();
+                  if(column.search()==='^'+val+'$'){
+                    select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
+                  }else{
+                    select.append("<option value='"+val+"'>"+val+"</option>");
+                  }
+                })
+              }else{
+                getTotalACobrar(table)
+              }
+            })
+          }
+        }).on( 'search.dt', function () {
+          getTotalACobrar(table2)
+        } );
+
+      });
 
       function getTotalACobrar(table){
         let total=0;
@@ -275,7 +435,6 @@ if(empty($_SESSION['proveedor'])){
         let column_a_cobrar=table.columns(7).footer()
         $(column_a_cobrar).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total));
       }
-		});
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>

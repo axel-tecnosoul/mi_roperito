@@ -65,21 +65,8 @@ $columns = $_GET['columns'];
 
 //$data_columns = ["","p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];//PARA EL ORDENAMIENTO
 
-/*"SELECT p.id AS id_proveedor, p.dni, CONCAT(p.nombre,' ',p.apellido) AS proveedor, p.email, IF(p.activo=1,'Si','No') AS activo, date_format(fecha_alta,'%d/%m/%Y') AS fecha_alta_formatted,fecha_alta, p.telefono, p.credito, a.almacen, m.modalidad, 
-  (SELECT COUNT(vd.id) 
-    FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p2 ON p2.id=vd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id 
-    WHERE v.anulada = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id
-  ) AS ventasPesos,
-  (SELECT COUNT(cd.id) 
-    FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p2 ON p2.id=cd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id 
-    WHERE c.anulado = 0 AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id
-  ) AS ventasCanjes 
-FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE 1 $filtroAlmacen $filtroModalidad";*/
-
-//"SELECT s.id,p.codigo,c.categoria,p.descripcion,p.precio,nombre,apellido,a.almacen,p.activo,m.modalidad,s.cantidad,s.id_producto FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE p.activo = 1 AND p.id_proveedor IN (1)  ORDER BY s.id desc LIMIT 10 OFFSET 0";
-
-$data_columns = $fields = ['p.id AS id_proveedor','p.dni','CONCAT(p.nombre," ",p.apellido) AS proveedor','(SELECT COUNT(vd.id) 
-FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p2 ON p2.id=vd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id) AS ventasPesos','(SELECT COUNT(cd.id) FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p2 ON p2.id=cd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE c.anulado = 0 AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id) AS ventasCanjes','(SELECT COUNT(s.id) FROM stock s INNER JOIN productos p2 ON p2.id=s.id_producto WHERE p2.id_proveedor=p.id AND s.cantidad > 0) AS enStock','IF(p.activo=1,"Si","No") AS activo','p.email','date_format(p.fecha_alta,"%d/%m/%Y") AS fecha_alta_formatted','p.fecha_alta','p.telefono','p.credito','a.almacen','m.modalidad'];
+//$data_columns = $fields = ['p.id AS id_proveedor','p.dni','CONCAT(p.nombre," ",p.apellido) AS proveedor','(SELECT COUNT(vd.id) FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p2 ON p2.id=vd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id) AS ventasPesos','(SELECT COUNT(cd.id) FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p2 ON p2.id=cd.id_producto LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE c.anulado = 0 AND de.id_devolucion IS NULL AND p2.id_proveedor=p.id) AS ventasCanjes','(SELECT COUNT(s.id) FROM stock s INNER JOIN productos p2 ON p2.id=s.id_producto WHERE p2.id_proveedor=p.id AND s.cantidad > 0) AS enStock','IF(p.activo=1,"Si","No") AS activo','p.email','date_format(p.fecha_alta,"%d/%m/%Y") AS fecha_alta_formatted','p.fecha_alta','p.telefono','p.credito','a.almacen','m.modalidad'];
+$data_columns = $fields = ['p.id AS id_proveedor','p.dni','p.nombre','p.apellido','IF(p.activo=1,"Si","No") AS activo','p.email','date_format(p.fecha_alta,"%d/%m/%Y") AS fecha_alta_formatted','p.fecha_alta','p.telefono','p.credito','a.almacen','m.modalidad'];
 
 $from="FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad";
 
@@ -94,13 +81,18 @@ foreach ($_GET['order'] as $order) {
 $id_modalidad=$_GET["id_modalidad"];
 $filtroModalidad="";
 if($id_modalidad!="" and $id_modalidad>0){
-  $filtroModalidad=" AND v.id_modalidad IN ($id_modalidad)";
+  $filtroModalidad=" AND p.id_modalidad IN ($id_modalidad)";
 }
 
 $id_almacen=$_GET["id_almacen"];
 $filtroAlmacen="";
 if($id_almacen!=0){
-  $filtroAlmacen=" AND v.id_almacen IN ($id_almacen)";
+  $filtroAlmacen=" AND p.id_almacen IN ($id_almacen)";
+}
+$activo=$_GET["activo"];
+$filtroActivo="";
+if($activo!=""){
+  $filtroActivo=" AND p.activo IN ($activo)";
 }
 
 //var_dump($orderBy);
@@ -126,13 +118,17 @@ $globalSearch = $_GET['search'];
 if ( $globalSearchValue = $globalSearch['value'] ) {
   $aWhere=[];
   foreach ($fields as $k => $field) {
+    //$campo=$field;
+    $ex=explode(" AS ",$field);
+    $field=$ex[0];
+
     $aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
     //$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
   }
   $where .= ' AND ('.implode(' OR ', $aWhere).')';
 }
 
-$whereFiltered=$where.$filtroAlmacen.$filtroModalidad;
+$whereFiltered=$where.$filtroAlmacen.$filtroModalidad.$filtroActivo;
 
 $length = $_GET['length'];
 $start = $_GET['start'];
@@ -151,6 +147,7 @@ $total = $countSt->fetch()['Total'];
 //$resFilterLength = self::sql_exec( $db, $bindings,"SELECT COUNT(`id`) FROM productos ".($where ? "WHERE $where " : ''));
 $queryFiltered="SELECT COUNT(p.id) AS recordsFiltered $from ".($whereFiltered ? "WHERE $whereFiltered " : '');
 //var_dump($queryFiltered);
+//echo $queryFiltered;
 $resFilterLength = $pdo->query($queryFiltered);
 $recordsFiltered = $resFilterLength->fetch()['recordsFiltered'];
 
@@ -173,12 +170,14 @@ if ($st) {
       
       $aProveedores[]=[
         "id"=>$row["id_proveedor"],
-        "proveedor"=>$row["proveedor"],
+        "proveedor"=>$row["nombre"]." ".$row["apellido"],
+        "nombre"=>$row["nombre"],
+        "apellido"=>$row["apellido"],
         "dni"=>$row["dni"],
         "almacen"=>$row["almacen"],
-        "ventasPesos"=>$row["ventasPesos"],
+        /*"ventasPesos"=>$row["ventasPesos"],
         "ventasCanjes"=>$row["ventasCanjes"],
-        "enStock"=>$row["enStock"],
+        "enStock"=>$row["enStock"],*/
         "modalidad"=>$row["modalidad"],
         "email"=>$row["email"],
         "activo"=>$row["activo"],
@@ -188,24 +187,6 @@ if ($st) {
         "fecha_alta_formatted"=>$row["fecha_alta_formatted"],
         "acciones" => $btnModificar.$btnEliminar.$btnVer
       ];
-      /*$aProveedores[]=[
-        "id_venta"=>$row['id'],
-        "fecha_hora"=>$row[1],// AS fecha_hora
-        "tipo_comprobante"=>$tipo_cbte=get_nombre_comprobante($row["tipo_comprobante"]),
-        "almacen"=>$row['almacen'],
-        "forma_pago"=>$row['forma_pago'],
-        "total_con_descuento"=>$row["total_con_descuento"],// AS proveedor
-        "nombre_cliente"=>$row['nombre_cliente'],
-        "dni"=>$row['dni'],
-        "direccion"=>$row['direccion'],
-        "email"=>$row['email'],
-        "telefono"=>$row['telefono'],
-        "total"=>$row['total'],
-        "descuento"=>$row['descripcion'],
-        "id_cierre_caja"=>$row['id_cierre_caja'],
-        "modalidad_venta"=>$row["modalidad_venta"],
-        "estado"=>$row['estado']
-      ];*/
     }
 
     $queryInfo=[
