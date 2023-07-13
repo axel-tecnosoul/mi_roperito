@@ -149,7 +149,7 @@ if(empty($_SESSION['user'])){
                         <thead>
                           <tr>
                             <th><input type="checkbox" class="no-sort customer-selector" id="selectAll" title="Seleccionar todo"/></th>
-                            <th>ID</th>
+                            <th class="d-none">ID</th>
                             <th>Código</th>
                             <th class="d-none">Categoría</th>
                             <th>Descripción</th>
@@ -157,6 +157,7 @@ if(empty($_SESSION['user'])){
                             <th>Precio</th>
                             <th>Proveedor</th>
                             <th>Almacen</th>
+                            <th>Inventariado</th>
                             <th class="d-none">Modalidad</th>
                             <th class="d-none">Activo</th>
                             <th>Opciones</th>
@@ -165,9 +166,10 @@ if(empty($_SESSION['user'])){
                         <tfoot>
                           <tr>
                             <th style="text-align: right;">Total</th>
-                            <th></th>
+                            <th class="d-none"></th>
                             <th></th>
                             <th class="d-none"></th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -306,7 +308,7 @@ if(empty($_SESSION['user'])){
               "searchable": false,
               "orderable": false,
             },{
-              "targets": [3,9,10],
+              "targets": [1,3,10,11],
               "className": 'd-none'
             }
           ],
