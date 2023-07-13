@@ -26,7 +26,7 @@
 				<div class="banner">
 					<div class="banner-contenido">
 						<div class="banner-img">
-							<img src="images/banner-nosotros-btn.png" alt="Imagen Logo vende">
+							<img src="images/logo/banner-nosotros-btn.png" alt="Imagen Logo vende">
 						</div>
 						<div class="banner-descripcion">
 							<div class="banner-descripcion-titulo">
@@ -50,7 +50,15 @@
 				<div class="contenido-nosotros">
 					<div class="contenido-nosotros-img">
 						<a href="#" class="tt-collection-item ">
-							<img src="images/nosotros/Imagen_Recircula.png" alt="Imagen Recircula">	
+						<div class="imagen-nosotos-mision">
+							<picture>
+								<source
+									sizes="600w" 
+									srcset="images/nosotros/WEBP/imagen_reticula1200px.webp 1200w" 
+									type="image/webp">
+								<img loading="lazy" decoding="async" src="images/nosotros/JPG/imagen_reticula1200px.jpg" lazyalt="imagen" width="600" height="800">
+							</picture>
+						</div>	
 						</a>
 					</div>
 					<div class="contenido-nosotros-descripcion">
@@ -62,9 +70,19 @@
 					
 				<div class="contenido-nosotros">
 					<div class="contenido-nosotros-img">
+					<div class="contenido-nosotros-img">
 						<a href="#" class="tt-collection-item ">
-							<img src="images/nosotros/Imagen_Agentes de cambio.png" alt="Imagen Somos Agentes de Cambio">
+							<div class="imagen-nosotos-mision">
+								<picture>
+									<source
+										sizes="600w" 
+										srcset="images/nosotros/WEBP/imagen-agente-cambio1200px.webp 1200w" 
+										type="image/webp">
+									<img loading="lazy" decoding="async" src="images/nosotros/JPG/imagen-agente-cambio1200px.jpg" lazyalt="imagen" width="600" height="800">
+								</picture>
+							</div>	
 						</a>
+					</div>
 					</div>
 					<div class="contenido-nosotros-descripcion">
 								
@@ -134,16 +152,6 @@
 		</footer>
 	</div>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="external/jquery/jquery.min.js"><\/script>')</script>
-	<script defer src="js/bundle.js"></script>
-
-	<script defer src="separate-include/single-product/single-product.js"></script>
-	<script src="separate-include/portfolio/portfolio.js"></script>
-
-	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
-
-	<a href="#" class="tt-back-to-top">Volver al inicio</a>
+	<?php include("scripts.php"); ?>
 </body>
 </html>
