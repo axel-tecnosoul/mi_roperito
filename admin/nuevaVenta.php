@@ -617,13 +617,190 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     <!-- Theme js-->
 
 	<script>
+	  $(document).ready(function() {
+			jsListarProductos(0)
 
-    $("#tipo_comprobante").on("change",function(){
-      changeTipoDNI();
-      checkTotalPagarDNI()
-    })
+      $("#id_almacen").on("change",function(){
+
+        $("#tipo_comprobante").val(null).trigger('change');
+
+        let punto_venta=parseInt($(this).find(":checked").data("punto_venta"))
+        let cbte_only_punto_venta=$(".cbte_only_punto_venta")
+        
+        if(isNaN(punto_venta)){
+          cbte_only_punto_venta.prop("disabled","disabled");
+        }else{
+          cbte_only_punto_venta.prop("disabled",false);
+        }
+        $("#tipo_comprobante").select2("destroy").select2();
+
+        changeTipoDNI();
+      })
+      
+      $("#id_forma_pago").on("change",function(){
+
+          var formaPagoId = $(this).val();
+          
+          if (formaPagoId) {
+            $.ajax({
+              url: 'obtener_descuentos.php', 
+              method: 'POST',
+              data: { forma_pago_id: formaPagoId }, 
+              dataType: 'json', 
+            }).done(function(data){
+              
+              var descuentosSelect = $('#id_descuento');
+              descuentosSelect.html("");
+              var descuentos = $(data);
+              
+              if (descuentos.length) {
+                descuentosSelect.append('<option value="">Seleccione...</option>');
+                console.log(descuentos);
+                $.each(descuentos, function(i, descuento) {
+                  let selected=""
+                  if(descuento.id==1){
+                    selected="selected"
+                  }
+                  descuentosSelect.append('<option '+selected+' data-minimo_cantidad_prendas="'+descuento.minimo_cantidad_prendas+'" data-minimo_compra="'+descuento.minimo_compra+'" data-porcentaje="'+descuento.porcentaje+'" value="'+descuento.id+'">'+descuento.nombre+'</option>');
+                });
+                  
+                descuentosSelect.prop('disabled', false); 
+              } else {
+                descuentosSelect.append('<option value="">No se encontraron descuentos</option>');
+                descuentosSelect.prop('disabled', true);
+              }
+              actualizarMontoTotal();
+
+              //Descuento por defecto 10%
+              
+            }).fail(function(data){
+              console.log(data);
+              alert('Error al obtener las descuentos');
+              actualizarMontoTotal();
+            });
+          } else {
+            $('#id_descuento').empty().prop('disabled', true);
+            actualizarMontoTotal();
+          }
+          
+ 
+        /*let habilitarOFF=0;
+        if(this.value){
+          //id_descuento.value=0;
+          id_descuento.prop("disabled",false);
+          if(id_descuento.find("option").length==2){
+            habilitarOFF=1;
+          }
+        }else{
+          //id_descuento.value=0;
+          id_descuento.prop("disabled",true);
+        }
+
+        if(habilitarOFF==1){
+          id_descuento.val(1).trigger('change');
+          //mostrarTotalDescuento()
+          actualizarMontoTotal();
+        }else{
+          id_descuento.val(null).trigger('change');
+        }*/
+      })
+
+      $("#id_descuento").on("change",function(){
+        //mostrarTotalDescuento();
+        actualizarMontoTotal();
+      })
+
+      $(document).on("click",".btnAnadir",function(){
+        $(this).addClass("disabled");
+        let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
+        //console.log(prod_anadido)
+        //console.log("cantidad encontrada");
+        if(prod_anadido.length==0){//controlamos que el producto ya no haya sido añadido
+          if(parseInt(this.dataset.cantidad)>0){//controlamos que haya stock del producto
+            let fila=$(this).parent().parent();
+            let clon=fila.clone();
+            let precio=clon.find("input.precio");
+            let id_perfil="<?=$id_perfil?>";
+            //console.log(id_perfil);
+            if(id_perfil!=1 && precio.val()==0){//controlamos que los usuarios NO adminsitradores no puedan añadir productos sin precio
+              alert("No puede añadir un producto sin precio")
+            }else{//los usuarios admin pueden añadir productos sin precio pero tienen que modifcarlo
+              let btn=clon.find("button");
+              //console.log(btn);
+              btn.parent().html(`
+                <input type='hidden' name='id_stock[]' value='${this.dataset.id_stock}'></input>
+                <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' style='width: 60px;' min='1' max='${this.dataset.cantidad}' value="1" required></input>
+              `);
+              clon.append(`
+                <td class='text-center'>
+                  <img src='img/icon_baja.png' data-id_stock='${this.dataset.id_stock}' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
+                </td>
+              `);
+              if(id_perfil==1 && precio.val()==0){
+                precio.attr("type","number").addClass("form-control form-control-sm mx-auto").attr("style","width: 60px;");//.attr("disabled",false)
+                clon.find("label.precio").remove();
+              }
+              /*clon.find("input[name='precio[]']").attr("disabled",false);
+              clon.find("input[name='stock[]']").attr("disabled",false);*/
+              clon.find(".enviar_form").attr("disabled",false);
+
+              $("#productos_vender tbody").append(clon[0]);
+
+              actualizarMontoTotal();
+            }
+          }else{
+            alert("No hay stock suficiente")
+          }
+        }else{
+          alert("El producto ya fue añadido")
+        }
+      })
+
+      $("#tipo_comprobante").on("change",function(){
+        changeTipoDNI();
+        checkTotalPagarDNI()
+      })
+
+      $("form").on("submit",function(e){
+        e.preventDefault();
+        let cant_productos=$('#productos_vender tbody tr').length;
+        if(cant_productos){
+          //console.log("submit");
+          let precio_en_cero=0;
+          $("input[type='number'].precio").each(function(){
+            if(this.value==0){
+              precio_en_cero=1;
+            }
+          });
+          if(precio_en_cero==1){
+            alert("Tiene productos sin precio")
+          }else{
+            let descuento=$('#id_descuento option:selected')
+            console.log(descuento);
+            let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
+            if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
+              alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
+              return false
+            }
+            let minimo_compra=descuento.data("minimo_compra")
+            let total=calcularTotalCompra();
+            if(minimo_compra!=undefined && minimo_compra>total){
+              alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
+              return false
+            }
+            //console.log("submit")
+            $(this).find("#formSubmit").attr("disabled",true).addClass("disabled")
+            this.submit();
+          }
+        }else{
+          alert("Añada algún producto")
+        }
+      });
+
+		});
 
     function changeTipoDNI(){
+      console.log(changeTipoDNI);
       let tipo_comprobante=$("#tipo_comprobante").val()
       if(tipo_comprobante=="A"){
         $("#dni_group").addClass("d-none")
@@ -637,42 +814,6 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
         $("#cuit").attr("disabled",true).attr("required",false)
       }
     }
-
-    $("form").on("submit",function(e){
-      e.preventDefault();
-      let cant_productos=$('#productos_vender tbody tr').length;
-      if(cant_productos){
-        //console.log("submit");
-        let precio_en_cero=0;
-        $("input[type='number'].precio").each(function(){
-          if(this.value==0){
-            precio_en_cero=1;
-          }
-        });
-        if(precio_en_cero==1){
-          alert("Tiene productos sin precio")
-        }else{
-          let descuento=$('#id_descuento option:selected')
-          console.log(descuento);
-          let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
-          if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
-            alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
-            return false
-          }
-          let minimo_compra=descuento.data("minimo_compra")
-          let total=calcularTotalCompra();
-          if(minimo_compra!=undefined && minimo_compra>total){
-            alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
-            return false
-          }
-          //console.log("submit")
-          $(this).find("#formSubmit").attr("disabled",true).addClass("disabled")
-          this.submit();
-        }
-      }else{
-        alert("Añada algún producto")
-      }
-    });
 		
     function jsListarProductos(val) {
       $("#dataTables-example666").dataTable().fnDestroy();
@@ -765,146 +906,6 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
         }
       });
     }
-	
-	  $(document).ready(function() {
-			jsListarProductos(0)
-
-      $("#id_almacen").on("change",function(){
-
-        $("#tipo_comprobante").val(null).trigger('change');
-
-        let punto_venta=parseInt($(this).find(":checked").data("punto_venta"))
-        let cbte_only_punto_venta=$(".cbte_only_punto_venta")
-        
-        if(isNaN(punto_venta)){
-          cbte_only_punto_venta.prop("disabled","disabled");
-        }else{
-          cbte_only_punto_venta.prop("disabled",false);
-        }
-        $("#tipo_comprobante").select2("destroy").select2();
-
-        changeTipoDNI();
-      })
-      
-      $("#id_forma_pago").on("change",function(){
-
-          var formaPagoId = $(this).val();
-          
-          if (formaPagoId) {
-            $.ajax({
-              url: 'obtener_descuentos.php', 
-              method: 'POST',
-              data: { forma_pago_id: formaPagoId }, 
-              dataType: 'json', 
-            }).done(function(data){
-              
-              var descuentosSelect = $('#id_descuento');
-              descuentosSelect.html("");
-              var descuentos = $(data);
-              
-              if (descuentos.length) {
-                descuentosSelect.append('<option value="">Seleccione...</option>');
-                console.log(descuentos);
-                $.each(descuentos, function(i, descuento) {
-                  let selected=""
-                  if(descuento.id==1){
-                    selected="selected"
-                  }
-                  descuentosSelect.append('<option '+selected+' data-minimo_cantidad_prendas="'+descuento.minimo_cantidad_prendas+'" data-minimo_compra="'+descuento.minimo_compra+'" data-porcentaje="'+descuento.porcentaje+'" value="'+descuento.id+'">'+descuento.nombre+'</option>');
-                });
-                  
-                descuentosSelect.prop('disabled', false); 
-              } else {
-                descuentosSelect.append('<option value="">No se encontraron descuentos</option>');
-                descuentosSelect.prop('disabled', true);
-              }
-              actualizarMontoTotal();
-
-              //Descuento por defecto 10%
-              
-            }).fail(function(data){
-              console.log(data);
-              alert('Error al obtener las descuentos');
-              actualizarMontoTotal();
-            });
-          } else {
-            $('#id_descuento').empty().prop('disabled', true);
-            actualizarMontoTotal();
-          }
-          
- 
-        /*let habilitarOFF=0;
-        if(this.value){
-          //id_descuento.value=0;
-          id_descuento.prop("disabled",false);
-          if(id_descuento.find("option").length==2){
-            habilitarOFF=1;
-          }
-        }else{
-          //id_descuento.value=0;
-          id_descuento.prop("disabled",true);
-        }
-
-        if(habilitarOFF==1){
-          id_descuento.val(1).trigger('change');
-          //mostrarTotalDescuento()
-          actualizarMontoTotal();
-        }else{
-          id_descuento.val(null).trigger('change');
-        }*/
-      })
-		});
-
-    $("#id_descuento").on("change",function(){
-      //mostrarTotalDescuento();
-      actualizarMontoTotal();
-    })
-
-    $(document).on("click",".btnAnadir",function(){
-      $(this).addClass("disabled");
-      let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
-      //console.log(prod_anadido)
-      //console.log("cantidad encontrada");
-      if(prod_anadido.length==0){//controlamos que el producto ya no haya sido añadido
-        if(parseInt(this.dataset.cantidad)>0){//controlamos que haya stock del producto
-          let fila=$(this).parent().parent();
-          let clon=fila.clone();
-          let precio=clon.find("input.precio");
-          let id_perfil="<?=$id_perfil?>";
-          //console.log(id_perfil);
-          if(id_perfil!=1 && precio.val()==0){//controlamos que los usuarios NO adminsitradores no puedan añadir productos sin precio
-            alert("No puede añadir un producto sin precio")
-          }else{//los usuarios admin pueden añadir productos sin precio pero tienen que modifcarlo
-            let btn=clon.find("button");
-            //console.log(btn);
-            btn.parent().html(`
-              <input type='hidden' name='id_stock[]' value='${this.dataset.id_stock}'></input>
-              <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' style='width: 60px;' min='1' max='${this.dataset.cantidad}' value="1" required></input>
-            `);
-            clon.append(`
-              <td class='text-center'>
-                <img src='img/icon_baja.png' data-id_stock='${this.dataset.id_stock}' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
-              </td>
-            `);
-            if(id_perfil==1 && precio.val()==0){
-              precio.attr("type","number").addClass("form-control form-control-sm mx-auto").attr("style","width: 60px;");//.attr("disabled",false)
-              clon.find("label.precio").remove();
-            }
-            /*clon.find("input[name='precio[]']").attr("disabled",false);
-            clon.find("input[name='stock[]']").attr("disabled",false);*/
-            clon.find(".enviar_form").attr("disabled",false);
-
-            $("#productos_vender tbody").append(clon[0]);
-
-            actualizarMontoTotal();
-          }
-        }else{
-          alert("No hay stock suficiente")
-        }
-      }else{
-        alert("El producto ya fue añadido")
-      }
-    })
 
     function calcularTotalCompra(){
       var total=0;
@@ -936,6 +937,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
     }
 
     function checkTotalPagarDNI(){
+      console.log("checkTotalPagarDNI");
       let tipo_comprobante=$("#tipo_comprobante").val()
       console.log(tipo_comprobante);
       let monto_maximo_sin_informar_dni=parseInt($("#monto_maximo_sin_informar_dni").val());

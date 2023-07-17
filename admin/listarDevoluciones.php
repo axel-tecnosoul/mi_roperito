@@ -59,7 +59,7 @@ if(empty($_SESSION['user'])){
                     <h5>
                       Devoluciones&nbsp;
                       <a href="nuevaDevolucionSelectProductos.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a>
-                    </h5><span>
+                    </h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
@@ -77,20 +77,19 @@ if(empty($_SESSION['user'])){
                           <?php 
                             include 'database.php';
                             $pdo = Database::connect();
-                            $sql = " SELECT `id`, date_format(`fecha_hora`,'%d/%m/%Y %H:%i') as fecha_hora, `id_venta`, `total` FROM `devoluciones` WHERE 1 ";
+                            $sql = " SELECT id, date_format(fecha_hora,'%d/%m/%Y %H:%i') as fecha_hora, id_nueva_venta, total FROM devoluciones WHERE 1 ";
                             
                             foreach ($pdo->query($sql) as $row) {
                               echo '<tr>';
                               echo '<td>'. $row['id'] . '</td>';
-                              echo '<td>'. $row['id_venta'] . '</td>';
+                              echo '<td>';
+                              echo $row['id_nueva_venta'];
+                              echo ' <a href="verVenta.php?id='.$row['id_nueva_venta'].'" target="_blank"><img src="img/eye.png" width="24" height="15" border="0"  alt="Ver" title="Ver Venta"></a>';
+                              echo '</td>';
                               echo '<td>$'. number_format($row['total'],2) . '</td>';
                               echo '<td>'. $row['fecha_hora'] . 'hs</td>';
                               echo '<td>';
-                                /*echo '<a href="modificarDevolucion.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-                                echo '&nbsp;&nbsp;';
-                                echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row['id'].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-                                echo '&nbsp;&nbsp;';*/
-                                echo '<a href="verVenta.php?id='.$row['id_venta'].'"><img src="img/eye.png" width="24" height="15" border="0"  alt="Ver" title="Ver Devolucion"></a>';
+                              echo '<a href="verDevolucion.php?id='.$row['id'].'"><img src="img/eye.png" width="24" height="15" border="0"  alt="Ver" title="Ver Devolucion"></a>';
                               echo '</td>';
                               echo '</tr>';
                             }

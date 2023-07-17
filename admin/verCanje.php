@@ -108,12 +108,17 @@
                                     <th>Precio</th>
                                     <th>Cantidad</th>
                                     <th>Subtotal</th>
+                                    <th>ID Devolucion</th>
                                   </tr>
                                 </thead>
                                 <tbody><?php
                                   $pdo = Database::connect();
-                                  $sql2 = " SELECT p.codigo, cat.categoria, p.descripcion, cd.precio, cd.cantidad, cd.subtotal FROM canjes_detalle cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria WHERE cd.id_canje = ".$data['id'];
+                                  $sql2 = " SELECT p.codigo, cat.categoria, p.descripcion, cd.precio, cd.cantidad, cd.subtotal, dd.id_devolucion FROM canjes_detalle cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria LEFT JOIN devoluciones_detalle dd ON dd.id_canje_detalle = cd.id WHERE cd.id_canje = ".$data['id'];
                                   foreach ($pdo->query($sql2) as $row) {
+                                    $id_devolucion="";
+                                    if ($row['id_devolucion'] != NULL) {
+                                      $id_devolucion=$row['id_devolucion'];
+                                    }
                                     echo '<tr>';
                                     echo '<td>'. $row['codigo'] . '</td>';
                                     echo '<td>'. $row['categoria'] . '</td>';
@@ -121,6 +126,7 @@
                                     echo '<td>$'. number_format($row['precio'],2) . '</td>';
                                     echo '<td>'. $row['cantidad'] . '</td>';
                                     echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
+                                    echo '<td>'. $id_devolucion . '</td>';
                                     echo '</tr>';
                                   }
                                   Database::disconnect();?>
