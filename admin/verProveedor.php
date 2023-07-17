@@ -292,6 +292,7 @@ Database::disconnect();?>
                       <thead>
                         <tr>
                           <th>ID</th>
+                          <th>Fecha</th>
                           <th>Código</th>
                           <th>Categoría</th>
                           <th>Descripción</th>
@@ -305,13 +306,14 @@ Database::disconnect();?>
                       <tbody><?php
                         $pdo = Database::connect();
                         //$sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.precio,vd.cantidad,vd.pagado FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id WHERE pr.id = ".$id;
-                        $sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 AND p.id_proveedor = ".$id;
+                        $sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo,date_format(p.fecha_hora_alta,'%d/%m/%Y %H:%i') AS fecha_hora FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 AND p.id_proveedor = ".$id;
                         if ($_SESSION['user']['id_perfil'] == 2) {
                           $sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
                         }
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
                           echo '<td>'.$row["id"].'</td>';
+                          echo '<td>'.$row["fecha_hora"] .'</td>';
                           echo '<td>'.$row["codigo"] .'</td>';
                           echo '<td>'.$row["categoria"] .'</td>';
                           echo '<td>'.$row["descripcion"] .'</td>';

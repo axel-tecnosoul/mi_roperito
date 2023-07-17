@@ -303,7 +303,6 @@ if ( !empty($_POST)) {
   
       if ($modoDebug==1) {
         var_dump($data);
-        
       }
       
       //$res = $afip->ElectronicBilling->CreateVoucher($data);
@@ -432,7 +431,7 @@ if ( !empty($_POST)) {
                                 $q = $pdo->prepare($sqlZon);
                                 $q->execute();
                                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
-                                  echo "<option value='".$fila['id']."'data-credito='".$fila['credito']."'";
+                                  echo "<option value='".$fila['id']."' data-credito='".$fila['credito']."' data-dni='".$fila['dni']."'";
                                   echo ">".$fila['nombre']." ".$fila['apellido']." (".$fila['dni'].")</option>";
                                 }
                                 Database::disconnect();?>
@@ -606,8 +605,14 @@ if ( !empty($_POST)) {
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Total a Pagar</label>
-                            <div class="col-sm-9"><label id="total_compra"><?= "$".number_format(0, 2, ',', '.');?></label></div>
-                            <input type="hidden" id="total_input" name="total_input" value="">
+                            <div class="col-sm-9"><label id="total_a_pagar"><?= "$".number_format(0, 2, ',', '.');?></label></div>
+                            <input type="hidden" id="total_input" name="total_input" value=""><?php
+                            $sql4 = "SELECT valor FROM parametros WHERE id = 6 ";
+                            $q4 = $pdo->prepare($sql4);
+                            $q4->execute();
+                            $data4 = $q4->fetch(PDO::FETCH_ASSOC);?>
+                            <input type="hidden" name="monto_maximo_sin_informar_dni" id="monto_maximo_sin_informar_dni" value="<?=$data4["valor"]?>">
+                            <input type="hidden" id="total_a_pagar_sin_formato">
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de comprobante</label>
@@ -620,12 +625,16 @@ if ( !empty($_POST)) {
                               </select>
                             </div>
                           </div>
+                          <div class="form-group row d-none" id="dniGroup">
+                            <label class="col-sm-3 col-form-label">DNI</label>
+                            <div class="col-sm-9"><input type="number" class="form-control" id="dni" name="dni"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
-                        <button class="btn btn-primary" type="submit">Crear</button>
+                        <button class="btn btn-primary" type="submit" id="formSubmit">Crear</button>
 						            <a href="listarCanjes.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
@@ -691,56 +700,132 @@ if ( !empty($_POST)) {
     <!-- Plugins JS Ends-->
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
-
     <script>
-      $("form").on("submit",function(e){
-        e.preventDefault();
-        let cant_productos=$('#productos_canjear tbody tr').length;
-        if(cant_productos){
-          let total = $('#total_compra');
-          total = total.text();
-          // Eliminar el signo de moneda y el punto de separación de miles
-          total = total.replace('$', '').replace(/\./g, '');
-          //Eliminar los espacios
-          total = total.replace(/\s/g, '');
-          //Reemplazar la coma por un punto
-          total = total.replace(/,/g, '.');
-          total = parseInt(total);
-          console.log("Total: " + total);
-          if(total >= 0){
-            $('#total_input').val(total);
-            //console.log("submit");
-            let precio_en_cero=0;
-            $("input[type='number'].precio").each(function(){
-              if(this.value==0){
-                precio_en_cero=1;
+      $(document).ready(function() {
+        jsListarProductos(0);
+        //$('#id_forma_pago option:not(:contains("Efectivo"))').prop('disabled', true);
+        get_descuentos();
+
+        $("form").on("submit",function(e){
+          e.preventDefault();
+          let cant_productos=$('#productos_canjear tbody tr').length;
+          if(cant_productos){
+            let total = $('#total_a_pagar');
+            total = total.text();
+            // Eliminar el signo de moneda y el punto de separación de miles
+            total = total.replace('$', '').replace(/\./g, '');
+            //Eliminar los espacios
+            total = total.replace(/\s/g, '');
+            //Reemplazar la coma por un punto
+            total = total.replace(/,/g, '.');
+            total = parseInt(total);
+            console.log("Total: " + total);
+            if(total >= 0){
+              $('#total_input').val(total);
+              //console.log("submit");
+              let precio_en_cero=0;
+              $("input[type='number'].precio").each(function(){
+                if(this.value==0){
+                  precio_en_cero=1;
+                }
+              });
+              if(precio_en_cero==1){
+                alert("Tiene productos sin precio")
+              }else{
+                let descuento=$('#id_descuento option:selected')
+                console.log(descuento);
+                let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
+                if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
+                  alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
+                  return false
+                }
+                let minimo_compra=descuento.data("minimo_compra")
+                let total=calcularTotalCompra();
+                if(minimo_compra!=undefined && minimo_compra>total){
+                  alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
+                  return false
+                }
+                //console.log("submit")
+                $(this).find("#formSubmit").attr("disabled",true).addClass("disabled")
+                this.submit();
               }
-            });
-            if(precio_en_cero==1){
-              alert("Tiene productos sin precio")
-            }else{
-              let descuento=$('#id_descuento option:selected')
-              console.log(descuento);
-              let minimo_cantidad_prendas=descuento.data("minimo_cantidad_prendas")
-              if(minimo_cantidad_prendas!=undefined && minimo_cantidad_prendas>cant_productos){
-                alert("La cantidad de productos añadidos ("+cant_productos+") no alcanza para aplicar el descuento ("+minimo_cantidad_prendas+")")
-                return false
-              }
-              let minimo_compra=descuento.data("minimo_compra")
-              let total=calcularTotalCompra();
-              if(minimo_compra!=undefined && minimo_compra>total){
-                alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
-                return false
-              }
-              //console.log("submit")
-              this.submit();
             }
+          }else{
+            alert("Añada algún producto")
           }
-        }else{
-          alert("Añada algún producto")
-        }
+        });
+
+        $("#id_forma_pago").on("change",function(){
+          get_descuentos();
+        });
+
+        $("#id_descuento").change(function() {
+          //mostrarTotalDescuento();
+          actualizarMontoTotal();
+        });
+
+        $("#id_proveedor").on("change", function () {
+          let option_elegido = $(this).find("option:selected");
+          let credito = option_elegido.data("credito");
+          let dni = option_elegido.data("dni");
+          $("#dni").val(dni);
+
+          $("#credito_disponible_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(credito));
+          $("#credito_disponible").val(credito);
+          $("#credito_usar_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(credito));
+          $("#credito_usar").val(credito);
+          actualizarMontoTotal();
+        });
+
+        $(document).on("click",".btnAnadir",function(){
+          let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
+          //console.log(prod_anadido)
+          //console.log("cantidad encontrada");
+          if(prod_anadido.length==0){
+            if(parseInt(this.dataset.cantidad)>0){
+              let fila=$(this).parent().parent();
+              let clon=fila.clone();
+              let btn=clon.find("button");
+              //console.log(btn);
+              btn.parent().html(`
+                <input type='hidden' name='id_stock[]' value='${this.dataset.id_stock}'></input>
+                <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' style='width: 60px;' min='1' max='${this.dataset.cantidad}' value="1" required></input>
+              `);
+              clon.append(`
+                <td class='text-center'>
+                  <img src='img/icon_baja.png' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
+                </td>
+              `);
+              /*clon.find("input[name='precio[]']").attr("disabled",false);
+              clon.find("input[name='stock[]']").attr("disabled",false);*/
+              clon.find(".enviar_form").attr("disabled",false);
+
+              $("#productos_canjear tbody").append(clon[0]);
+
+              actualizarMontoTotal();
+            }else{
+              alert("No hay stock suficiente")
+            }
+          }else{
+            alert("El producto ya fue añadido")
+          }
+        })
+
+        $(document).on("keyup change",".cantidad",function(){
+          actualizarMontoTotal()
+        })
+
+        $(document).on("click",".btnEliminar",function(){
+          $(this).parent().parent().remove();
+          actualizarMontoTotal()
+        })
+
+        $("#tipo_comprobante").on("change",function(){
+          checkTotalPagarDNI()
+        })
+
       });
-      
+
       function jsListarProductos(val) {
         $("#dataTables-example666").dataTable().fnDestroy();
         $('#dataTables-example666').DataTable({
@@ -824,16 +909,90 @@ if ( !empty($_POST)) {
           }
         });
       }
-    
-      $(document).ready(function() {
-        jsListarProductos(0);
-        //$('#id_forma_pago option:not(:contains("Efectivo"))').prop('disabled', true);
-        get_descuentos();
-      });
 
-      $("#id_forma_pago").on("change",function(){
-        get_descuentos();
-      });
+      function jsListarProductos(val) {
+        $("#dataTables-example666").dataTable().fnDestroy();
+        $('#dataTables-example666').DataTable({
+          "ajax" : "ajaxVentas.php?almacen="+val,//&id_vehiculo="+id_vehiculo+"
+          stateSave: true,
+          responsive: true,
+          serverSide: true,
+          processing: true,
+          scrollY: false,
+          "columns":[
+            {"data": "cb"},//"fecha_mostrar"},
+            {"data": "codigo"},//"vehiculo.marca"},
+            {"data": "categoria"},//"vehiculo.modelo"},
+            {"data": "descripcion"},//"vehiculo.patente"},
+            {
+              "data": "cantidad",
+              orderDataType: "num-fmt",
+              className: 'dt-body-center text-center',
+            },{
+              render: function(data, type, row, meta) {
+                return `
+                  <input type="hidden" disabled name="id_modalidad[]" class="enviar_form id_modalidad" value="${row.id_modalidad}">
+                  <input type="hidden" disabled name="id_proveedor[]" class="enviar_form id_proveedor" value="${row.id_proveedor}">
+                  <input type="hidden" disabled name="id_producto[]" class="enviar_form id_producto" value="${row.id_producto}">
+                  <input type="hidden" disabled name="stock[]" class="enviar_form stock" value="${row.cantidad}">
+                  <input type="hidden" disabled name="precio[]" class="enviar_form precio" value="${row.precio}">`+
+                  new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.precio);
+              },
+              className: 'dt-body-right text-right',
+              orderDataType: "num-fmt"
+            },{
+              render: function(data, type, row, meta) {
+                let disabled=""
+                if(row.cantidad<1){
+                  disabled="disabled"
+                }
+                return `<button type="button" class="btn btn-success btn-sm btnAnadir" ${disabled} data-id_stock="${row.id_stock}" data-cantidad="${row.cantidad}">Añadir</button>`;
+              }
+            }/*,{
+              "data": "precio",
+              className: 'd-none precio'
+            }*/
+          ],
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+            }
+          },
+          initComplete: function(){
+            $('[title]').tooltip();
+          },
+        })
+        var table = $("#dataTables-example666").DataTable();
+        table.on( 'draw', function () {
+          let filtrado=table.rows({search:'applied'}).nodes()
+          let search=$('input[type=search]')
+          if(search.val()!='' && filtrado.length==1){
+          //if(filtrado.length==1){
+            $(filtrado[0]).find("button.btnAnadir").click();
+            search.select();
+            /*search.val('').change();
+            table.search('').draw();*/
+            //search.val('').trigger('change');
+            //table.search('').columns().search('').draw();
+            //table.rows().nodes().draw();
+          }
+        });
+      }
 
       function get_descuentos(){
         var formaPagoId = $("#id_forma_pago").val();
@@ -901,57 +1060,6 @@ if ( !empty($_POST)) {
         id_descuento.val(null).trigger('change');
         }*/
       }
-
-      $("#id_descuento").change(function() {
-        //mostrarTotalDescuento();
-        actualizarMontoTotal();
-      });
-
-      $("#id_proveedor").on("change", function () {
-        let option_elegido = $(this).find("option:selected");
-        let credito = option_elegido.data("credito");
-
-        $("#credito_disponible_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(credito));
-        $("#credito_disponible").val(credito);
-        $("#credito_usar_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(credito));
-        $("#credito_usar").val(credito);
-        actualizarMontoTotal();
-      });
-
-      $(document).on("click",".btnAnadir",function(){
-        let prod_anadido=$("input[name='id_stock[]'][value='"+this.dataset.id_stock+"']");
-        //console.log(prod_anadido)
-        //console.log("cantidad encontrada");
-        if(prod_anadido.length==0){
-          if(parseInt(this.dataset.cantidad)>0){
-            let fila=$(this).parent().parent();
-            let clon=fila.clone();
-            let btn=clon.find("button");
-            //console.log(btn);
-            btn.parent().html(`
-              <input type='hidden' name='id_stock[]' value='${this.dataset.id_stock}'></input>
-              <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' style='width: 60px;' min='1' max='${this.dataset.cantidad}' value="1" required></input>
-            `);
-            clon.append(`
-              <td class='text-center'>
-                <img src='img/icon_baja.png' class='btnEliminar' width='24' height='25' border='0' alt='Eliminar' title='Eliminar'>
-              </td>
-            `);
-            /*clon.find("input[name='precio[]']").attr("disabled",false);
-            clon.find("input[name='stock[]']").attr("disabled",false);*/
-            clon.find(".enviar_form").attr("disabled",false);
-
-            $("#productos_canjear tbody").append(clon[0]);
-
-            actualizarMontoTotal();
-          }else{
-            alert("No hay stock suficiente")
-          }
-        }else{
-          alert("El producto ya fue añadido")
-        }
-      })
-      
       
       function calcularTotalCompra(){
         let total=0;
@@ -969,22 +1077,20 @@ if ( !empty($_POST)) {
       }
 
       function mostrarTotalDescuento(total){
-        //let totalConDescuento = total;
         let totalFinal = 0;
         let porcentaje=$("#id_descuento option:selected").data("porcentaje");
         let subtotal=$("#total_productos_canjear").val();
         let credito_disponible=$("#credito_disponible");
         let credito=credito_disponible.val();
 
-        let total_con_descuento=total;
+        let totalConDescuento=total;
         if(porcentaje!=undefined){
           let descuento=total*porcentaje/100;
-          total_con_descuento=total-descuento;
+          totalConDescuento=total-descuento;
         }
 
-        $("#total_con_descuento_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_con_descuento));
-        $("#total_con_descuento").val(total_con_descuento);
-
+        $("#total_con_descuento_formatted").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento));
+        $("#total_con_descuento").val(totalConDescuento);
         calcularCreditoUsar()
       }
 
@@ -1002,7 +1108,8 @@ if ( !empty($_POST)) {
         $("#credito_usar").val(credito_usar);
 
         let total_a_pagar=total_con_descuento-credito_usar
-        $("#total_compra").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_a_pagar));
+        $("#total_a_pagar").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_a_pagar));
+        $("#total_a_pagar_sin_formato").val(total_a_pagar);
 
         //si el total a pagar a pagar es mayor a 0 habilitamos las otras formas de pago y si es menor a 0 deshabilitamos todas y luego habilitamos solo efectivo y marcamos como selected
         let id_forma_pago=$('#id_forma_pago')
@@ -1016,16 +1123,26 @@ if ( !empty($_POST)) {
           tipo_comprobante.prop('disabled', true).prop('required', false);
         }
         id_forma_pago.select2("destroy").select2()
+        checkTotalPagarDNI();
       }
 
-      $(document).on("keyup change",".cantidad",function(){
-        actualizarMontoTotal()
-      })
-
-      $(document).on("click",".btnEliminar",function(){
-        $(this).parent().parent().remove();
-        actualizarMontoTotal()
-      })
+      function checkTotalPagarDNI(){
+        console.log("checkTotalPagarDNI");
+        let tipo_comprobante=$("#tipo_comprobante").val()
+        console.log(tipo_comprobante);
+        let monto_maximo_sin_informar_dni=parseInt($("#monto_maximo_sin_informar_dni").val());
+        console.log(monto_maximo_sin_informar_dni);
+        let total_a_pagar_sin_formato=parseInt($("#total_a_pagar_sin_formato").val());
+        console.log(total_a_pagar_sin_formato);
+        console.log(total_a_pagar_sin_formato>monto_maximo_sin_informar_dni);
+        if(total_a_pagar_sin_formato>monto_maximo_sin_informar_dni && tipo_comprobante=="B"){
+          $("#dniGroup").removeClass("d-none")
+          $("#dni").attr("required",true)
+        }else{
+          $("#dniGroup").addClass("d-none")
+          $("#dni").attr("required",false)
+        }
+      }
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>

@@ -64,8 +64,8 @@ if(empty($_SESSION['user'])){
                 <div class="card">
                   <div class="card-header">
                     <h5>Stock
-                      &nbsp;
-                      <a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
+                      <!-- &nbsp;
+                      <a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a> -->
                       &nbsp;
                       <a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
                       &nbsp;

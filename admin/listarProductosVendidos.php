@@ -322,7 +322,6 @@ include 'database.php';
         let ventas=$("#checkbox-ventas").prop("checked")
         let canjes=$("#checkbox-canjes").prop("checked")
 
-        let tipo_venta=$("input[name='tipo_venta[]']").val();
         //console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
         console.log(ventas);
         console.log(canjes);
