@@ -26,7 +26,7 @@
 				<div class="banner">
 					<div class="banner-contenido">
 						<div class="banner-img">
-							<img src="images/logo/banner-nosotros-btn.png" alt="Imagen Logo vende">
+							<img src="images/logo/banner-vende-btn.png" alt="Imagen Logo vende">
 						</div>
 						<div class="banner-descripcion">
 							<div class="banner-descripcion-titulo">
@@ -48,19 +48,7 @@
 			<div class="contenedor-main">
 			<main class="contenedor-main-nosotros">
 				<div class="contenido-nosotros">
-					<div class="contenido-nosotros-img">
-						<a href="#" class="tt-collection-item ">
-						<div class="imagen-nosotos-mision">
-							<picture>
-								<source
-									sizes="600w" 
-									srcset="images/nosotros/WEBP/imagen_reticula1200px.webp 1200w" 
-									type="image/webp">
-								<img loading="lazy" decoding="async" src="images/nosotros/JPG/imagen_reticula1200px.jpg" lazyalt="imagen" width="600" height="800">
-							</picture>
-						</div>	
-						</a>
-					</div>
+					<div class="contenido-nosotros-img"></div>
 					<div class="contenido-nosotros-descripcion">
 						<h3>NUESTRA MISION</h3>
 						<p>Extender el ciclo de vida de las prendas de marca. Las prendas elaboradas por marcas reconocidas están diseñadas para durar toda la vida; pueden cambiar de manos innumerables veces y aún conservan su calidad y valor.<br>
@@ -70,19 +58,7 @@
 					
 				<div class="contenido-nosotros">
 					<div class="contenido-nosotros-img">
-					<div class="contenido-nosotros-img">
-						<a href="#" class="tt-collection-item ">
-							<div class="imagen-nosotos-mision">
-								<picture>
-									<source
-										sizes="600w" 
-										srcset="images/nosotros/WEBP/imagen-agente-cambio1200px.webp 1200w" 
-										type="image/webp">
-									<img loading="lazy" decoding="async" src="images/nosotros/JPG/imagen-agente-cambio1200px.jpg" lazyalt="imagen" width="600" height="800">
-								</picture>
-							</div>	
-						</a>
-					</div>
+					<div class="contenido-nosotros-img imagen-2"></div>
 					</div>
 					<div class="contenido-nosotros-descripcion">
 								
