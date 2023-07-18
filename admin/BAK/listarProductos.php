@@ -58,60 +58,63 @@ if(empty($_SESSION['user']))
                 <div class="card">
                   <div class="card-header">
                     <h5>Productos
-					&nbsp;<a href="nuevoProducto.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a>
-					&nbsp;<a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
-					&nbsp;<a href="importProductos.php"><img src="img/import.png" width="24" height="25" border="0" alt="Importar Productos" title="Importar Productos"></a>
-					&nbsp;<a href="exportProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
-          &nbsp;<a href="cargaMasivaProductos.php" title="Carga masiva"><img src="img/table_plus_icon.png" width="24" height="25" border="0" alt="Carga masiva"></a>
-					</h5>
+                      &nbsp;
+                      <a href="nuevoProducto.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a>
+                      &nbsp;
+                      <a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
+                      &nbsp;
+                      <a href="importProductos.php"><img src="img/import.png" width="24" height="25" border="0" alt="Importar Productos" title="Importar Productos"></a>
+                      &nbsp;
+                      <a href="exportProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
+                      &nbsp;
+                      <a href="cargaMasivaProductos.php" title="Carga masiva"><img src="img/table_plus_icon.png" width="24" height="25" border="0" alt="Carga masiva"></a>
+                    </h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th></th>
-						  <th>ID</th>
-						  <th>Código</th>
-						  <th>Categoría</th>
-						  <th>Descripción</th>
-						  <th>Proveedor</th>
-						  <th>Precio</th>
-						  <th>Activo</th>
-						  <th>Opciones</th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Proveedor</th>
+                            <th>Precio</th>
+                            <th>Activo</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							/*$pdo = Database::connect();
-							$sql = " SELECT p.`id`, p.`codigo`, c.`categoria`, p.`descripcion`, pr.`nombre`, pr.`apellido`, p.`precio`, p.`activo`,p.cb FROM `productos` p inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor WHERE 1 ";
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[8] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] .' '.$row[5]. '</td>';
-								echo '<td>$'. number_format($row[6],2) . '</td>';
-								if ($row[7] == 1) {
-									echo '<td>Si</td>';
-								} else {
-									echo '<td>No</td>';
-								}
-								echo '<td>';
-									echo '<a href="modificarProducto.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="etiquetarProducto.php?cb='.$row[8].'"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar" title="Etiquetar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();*/
-						  ?>
+                        <tbody><?php 
+                          include 'database.php';
+                          /*$pdo = Database::connect();
+                          $sql = " SELECT p.`id`, p.`codigo`, c.`categoria`, p.`descripcion`, pr.`nombre`, pr.`apellido`, p.`precio`, p.`activo`,p.cb FROM `productos` p inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor WHERE 1 ";
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row[8] . '</td>';
+                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row[2] . '</td>';
+                            echo '<td>'. $row[3] . '</td>';
+                            echo '<td>'. $row[4] .' '.$row[5]. '</td>';
+                            echo '<td>$'. number_format($row[6],2) . '</td>';
+                            if ($row[7] == 1) {
+                              echo '<td>Si</td>';
+                            } else {
+                              echo '<td>No</td>';
+                            }
+                            echo '<td>';
+                              echo '<a href="modificarProducto.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                              echo '&nbsp;&nbsp;';
+                              echo '<a href="etiquetarProducto.php?cb='.$row[8].'"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar" title="Etiquetar"></a>';
+                              echo '&nbsp;&nbsp;';
+                              echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
+                              echo '&nbsp;&nbsp;';
+                            echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();*/?>
                         </tbody>
                       </table>
                     </div>
@@ -183,75 +186,76 @@ if(empty($_SESSION['user']))
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
-	<script>
-		$(document).ready(function() {
-			$('#dataTables-example666').DataTable({
-        'ajax': 'ajaxListarProductos.php',
-				stateSave: true,
-				responsive: true,
-        serverSide: true,
-        processing: true,
-        scrollY: false,
-				language: {
-          "decimal": "",
-          "emptyTable": "No hay información",
-          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-          "infoFiltered": "(Filtrado de _MAX_ total registros)",
-          "infoPostFix": "",
-          "thousands": ",",
-          "lengthMenu": "Mostrar _MENU_ Registros",
-          "loadingRecords": "Cargando...",
-          "processing": "Procesando...",
-          "search": "Buscar:",
-          "zeroRecords": "No hay resultados",
-          "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
+    <script>
+      $(document).ready(function() {
+        $('#dataTables-example666').DataTable({
+          'ajax': 'ajaxListarProductos.php',
+          stateSave: true,
+          responsive: true,
+          serverSide: true,
+          processing: true,
+          scrollY: false,
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+            }
+          },
+          "columnDefs": [
+            {
+              "targets": [0],
+              "searchable": false,
+              "orderable": false,
+            }
+          ],
+          order: [[1, 'desc']],
+          initComplete: function(){
+            $('[title]').tooltip();
           }
-        },
-        "columnDefs": [
-          {
-            "targets": [0],
-            "searchable": false,
-            "orderable": false,
-          }
-        ],
-        order: [[1, 'desc']],
-        initComplete: function(){
-          $('[title]').tooltip();
-        }
-			});
-		});
+        });
+      });
 
-    function openModalEliminarContacto(idProducto){
-      $('#eliminarModal').modal("show");
-      document.getElementById("btnEliminarProducto").href="eliminarProducto.php?id="+idProducto;
-    }
-
-		$('.customer-selector').on('click', function () {
-      $('.toggle-checkboxes').prop('checked', false);
-		});
-
-		$('#etiquetado-masivo').on('click', function (e) {
-	    e.preventDefault();
-	    if ($('.customer-selector:checked').length < 1) {
-	      alert("Debe seleccionar un producto como mínimo");
-      } else {
-        var arr = [];
-        $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
-        window.location.href= window.location.href.replace("listarProductos.php", "etiquetarMasivo.php?id=" + arr.join(",") );
+      function openModalEliminarContacto(idProducto){
+        $('#eliminarModal').modal("show");
+        document.getElementById("btnEliminarProducto").href="eliminarProducto.php?id="+idProducto;
       }
-    });
 
-	  var toggle = true;
-    $('.toggle-checkboxes').on('click', function (e) {
-      e.preventDefault();
-      $('.customer-selector').prop('checked', toggle);
-      toggle = !toggle;
-    })
+      $('.customer-selector').on('click', function () {
+        $('.toggle-checkboxes').prop('checked', false);
+      });
+
+      $('#etiquetado-masivo').on('click', function (e) {
+        e.preventDefault();
+        if ($('.customer-selector:checked').length < 1) {
+          alert("Debe seleccionar un producto como mínimo");
+        } else {
+          var arr = [];
+          $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
+          //window.location.href=window.location.href.replace("listarProductos.php", "etiquetarMasivo.php?id=" + arr.join(",") );
+          window.open("etiquetarMasivo.php?id=" + arr.join(","), '_blank');
+        }
+      });
+
+      var toggle = true;
+      $('.toggle-checkboxes').on('click', function (e) {
+        e.preventDefault();
+        $('.customer-selector').prop('checked', toggle);
+        toggle = !toggle;
+      })
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>

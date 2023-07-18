@@ -64,15 +64,17 @@ if(empty($_SESSION['user'])){
                 <div class="card">
                   <div class="card-header">
                     <h5>Stock
-                      &nbsp;
-                      <a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a>
+                      <!-- &nbsp;
+                      <a href="nuevaCompra.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Ingresar Stock" title="Ingresar Stock"></a> -->
                       &nbsp;
                       <a href="nuevoMovimientoStock.php"><img src="img/import.png" width="24" height="25" border="0" alt="Movimientos Entre Almacenes" title="Movimientos Entre Almacenes"></a>
                       &nbsp;
                       <a href="exportStock.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Stock" title="Exportar Stock"></a>
-                      &nbsp;
-                      <a href="actualizarPrecioMasivo.php"><img src="img/update_price.png" height="25" border="0" alt="Exportar Stock" title="Actualizar precio masivo"></a>
-                      &nbsp;
+                      &nbsp;<?php
+                      if($_SESSION['user']['id_perfil']==1){?>
+                        <a href="actualizarPrecioMasivo.php"><img src="img/update_price.png" height="25" border="0" alt="Exportar Stock" title="Actualizar precio masivo"></a>
+                        &nbsp;<?php
+                      }?>
                       <a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
                     </h5>
                   </div>
@@ -82,7 +84,7 @@ if(empty($_SESSION['user'])){
                         <tr>
                           <td class="text-right border-0 p-1">Proveedor:</td>
                           <td class="border-0 p-1">
-                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
                               include 'database.php';
                               $pdo = Database::connect();
                               $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS proveedor FROM proveedores";
@@ -105,7 +107,7 @@ if(empty($_SESSION['user'])){
                           </td>
                           <td class="text-right border-0 p-1">Categoria:</td>
                           <td class="border-0 p-1">
-                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $sql = " SELECT id, categoria FROM categorias";
                               foreach ($pdo->query($sql) as $row) {?>
@@ -147,7 +149,7 @@ if(empty($_SESSION['user'])){
                         <thead>
                           <tr>
                             <th><input type="checkbox" class="no-sort customer-selector" id="selectAll" title="Seleccionar todo"/></th>
-                            <th>ID</th>
+                            <th class="d-none">ID</th>
                             <th>Código</th>
                             <th class="d-none">Categoría</th>
                             <th>Descripción</th>
@@ -155,6 +157,7 @@ if(empty($_SESSION['user'])){
                             <th>Precio</th>
                             <th>Proveedor</th>
                             <th>Almacen</th>
+                            <th>Inventariado</th>
                             <th class="d-none">Modalidad</th>
                             <th class="d-none">Activo</th>
                             <th>Opciones</th>
@@ -163,9 +166,10 @@ if(empty($_SESSION['user'])){
                         <tfoot>
                           <tr>
                             <th style="text-align: right;">Total</th>
-                            <th></th>
+                            <th class="d-none"></th>
                             <th></th>
                             <th class="d-none"></th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -304,7 +308,7 @@ if(empty($_SESSION['user'])){
               "searchable": false,
               "orderable": false,
             },{
-              "targets": [3,9,10],
+              "targets": [1,3,10,11],
               "className": 'd-none'
             }
           ],

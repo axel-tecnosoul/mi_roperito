@@ -11,17 +11,33 @@ if ( !empty($_POST)) {
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $cb = microtime(true)*10000;
-  
-  $sql = "INSERT INTO productos(codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,1,?)";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
-  $idProducto = $pdo->lastInsertId();
 
-  $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
-  $q3 = $pdo->prepare($sql3);
-  $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
+  $sql2 = " SELECT id FROM productos WHERE codigo = ? ";
+  $q2 = $pdo->prepare($sql2);
+  $q2->execute(array($_POST['codigo']));
+  $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+
+  if ($modoDebug==1) {
+    $q2->debugDumpParams();
+    echo "<br><br>Afe: ".$q2->rowCount();
+    echo "<br><br>";
+    var_dump($data2);
+  }
+
+  if (empty($data2)) {
+  
+    $cb = microtime(true)*10000;
+    
+    $sql = "INSERT INTO productos(codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,1,?)";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
+    $idProducto = $pdo->lastInsertId();
+
+    $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
+    $q3 = $pdo->prepare($sql3);
+    $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
+  
+  }
   
   Database::disconnect();
   
