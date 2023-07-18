@@ -174,7 +174,7 @@
                 <label class="col-sm-3 col-form-label">Crédito</label>
                 <div class="col-sm-9"><?php
                   if($_SESSION["user"]["id_perfil"]==1){?>
-                    <input name="credito" type="text" class="form-control" value="<?php echo $data['credito']; ?>"><?php
+                    <input name="credito" type="text" class="form-control" required value="<?php echo $data['credito']; ?>"><?php
                   }else{?>
                     <input name="credito" type="hidden" value="<?php echo $data['credito']; ?>"><?php
                     echo $data['credito'];

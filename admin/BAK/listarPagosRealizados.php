@@ -6,13 +6,22 @@ if(empty($_SESSION['user'])){
 }
 
 //$desde=date("Y-m-d");
-$desde="";
-$filtroDesde="";
+//$desde="";
+/*$filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
   //$filtroDesde=" AND DATE(vd.fecha_hora_pago)>='".$desde."'";
   $filtroDesde=" AND DATE(fecha_hora_pago)>='".$desde."'";
+}*/
+$desde=date("Y-m-d",strtotime(date("Y-m-d")." -1 month"));
+
+//$filtroHasta="";
+if(isset($_GET["d"]) and $_GET["d"]!=""){
+  $desde=$_GET["d"];
 }
+//$filtroHasta=" AND DATE(vd.fecha_hora_pago)<='".$desde."'";
+$filtroDesde=" AND DATE(fecha_hora_pago)>='".$desde."'";
+
 $hasta=date("Y-m-d");
 //$hasta=date("Y-m-t",strtotime(date("Y-m-d")." -1 month"));
 //$filtroHasta="";
@@ -194,7 +203,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             $deuda = $row["deuda_proveedor"];
                             $total_deuda+=$deuda;?>
                             <tr>
-                              <td><?="VD#".$row["id_detalle_venta"]?></td>
+                              <td><?="V#".$row["id_venta"]?></td>
                               <td><?=$row["fecha_hora_pago"]?>hs</td>
                               <td><?=$row["descripcion"]?></td>
                               <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
@@ -216,7 +225,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               <td class="d-none"><?=$row["categoria"]?></td>
                             </tr><?php
                           }
-                          $sql2 ="SELECT cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql2 ="SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql2 .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
@@ -224,7 +233,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             $deuda = $row["deuda_proveedor"];
                             $total_deuda+=$deuda;?>
                             <tr>
-                              <td><?="CD#".$row["id_detalle_canje"]?></td>
+                              <td><?="C#".$row["id_canje"]?></td>
                               <td><?=$row["fecha_hora_pago"]?>hs</td>
                               <td><?=$row["descripcion"]?></td>
                               <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>

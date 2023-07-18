@@ -192,7 +192,7 @@ Database::disconnect();?>
                       <tbody><?php
                       
                         $pdo = Database::connect();
-                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,vd.id_modalidad,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id WHERE v.anulada=0 AND v.id_venta_cbte_relacionado IS NULL AND pr.id = ".$id;
+                        $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,vd.id_modalidad,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada=0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL AND pr.id = ".$id;
                         //echo $sql;
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
@@ -258,7 +258,7 @@ Database::disconnect();?>
                       </thead>
                       <tbody><?php
                         $pdo = Database::connect();
-                        $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen WHERE anulado = 0 AND p.id_proveedor = ".$id;
+                        $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$id;
                         if ($_SESSION['user']['id_perfil'] == 2) {
                           $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                         }
@@ -292,6 +292,7 @@ Database::disconnect();?>
                       <thead>
                         <tr>
                           <th>ID</th>
+                          <th>Fecha</th>
                           <th>Código</th>
                           <th>Categoría</th>
                           <th>Descripción</th>
@@ -305,13 +306,14 @@ Database::disconnect();?>
                       <tbody><?php
                         $pdo = Database::connect();
                         //$sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,c.categoria,p.codigo,p.descripcion,vd.precio,vd.cantidad,vd.pagado FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id WHERE pr.id = ".$id;
-                        $sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 AND p.id_proveedor = ".$id;
+                        $sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo,date_format(p.fecha_hora_alta,'%d/%m/%Y %H:%i') AS fecha_hora FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 AND p.id_proveedor = ".$id;
                         if ($_SESSION['user']['id_perfil'] == 2) {
                           $sql .= " and a.id = ".$_SESSION['user']['id_almacen'];
                         }
                         foreach ($pdo->query($sql) as $row) {
                           echo '<tr>';
                           echo '<td>'.$row["id"].'</td>';
+                          echo '<td>'.$row["fecha_hora"] .'</td>';
                           echo '<td>'.$row["codigo"] .'</td>';
                           echo '<td>'.$row["categoria"] .'</td>';
                           echo '<td>'.$row["descripcion"] .'</td>';

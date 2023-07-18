@@ -50,6 +50,18 @@ if ( !empty($_POST)) {
       echo "<br><br>Afe: ".$q->rowCount();
       echo "<br><br>";
     }
+
+    if ($cantidadAnterior == $cantidad) {
+      $sql3 = "DELETE from stock where id = ?";
+      $q3 = $pdo->prepare($sql3);
+      $q3->execute(array($id_stock));
+
+      if ($modoDebug==1) {
+        $q3->debugDumpParams();
+        echo "<br><br>Afe: ".$q3->rowCount();
+        echo "<br><br>";
+      }
+    }
     
     //$cantidad = $cantidad*(-1);
     

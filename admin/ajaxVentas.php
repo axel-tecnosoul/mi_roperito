@@ -30,7 +30,7 @@ if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
 
   $orderBy = substr($orderBy, 0, -2);
 
-  $where = " s.id_almacen = $id_almacen AND p.activo=1 AND ";
+  $where = " s.cantidad > 0 AND s.id_almacen = $id_almacen AND p.activo=1 AND ";
   foreach ($columns as $k => $column) {
     if ($search = $column['search']['value']) {
       $search=trim($search,"$");

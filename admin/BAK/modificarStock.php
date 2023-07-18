@@ -1,70 +1,66 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
-    }
-	
-	require 'database.php';
+require("config.php");
+if(empty($_SESSION['user'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
+require 'database.php';
 
-	$id = null;
-	if ( !empty($_GET['id'])) {
-		$id = $_REQUEST['id'];
-	}
-	
-	if ( null==$id ) {
-		header("Location: listarStock.php");
-	}
-	
-	if ( !empty($_POST)) {
-	
-		// insert data
-		$pdo = Database::connect();
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
 
-    if($_POST["nueva_cantidad"]>0){
-      $sql = "UPDATE stock set cantidad = ? where id = ?";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($_POST['nueva_cantidad'],$_GET['id']));
-    }
-		
-		$sql = "UPDATE stock set id_modalidad = ? where id = ?";
-		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['id_modalidad'],$_GET['id']));
-		
-		Database::disconnect();
-		
-		header("Location: listarStock.php");
-	
-	} else {
-		
-		$pdo = Database::connect();
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT id, id_producto, id_almacen, cantidad, id_modalidad FROM stock WHERE id = ? ";
-		$q = $pdo->prepare($sql);
-		$q->execute(array($id));
-		$data = $q->fetch(PDO::FETCH_ASSOC);
-		
-		Database::disconnect();
-	}
-	
-?>
+if ( null==$id ) {
+  header("Location: listarStock.php");
+}
+
+if ( !empty($_POST)) {
+
+  // insert data
+  $pdo = Database::connect();
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  if($_POST["nueva_cantidad"]>0){
+    $sql = "UPDATE stock set cantidad = ? where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['nueva_cantidad'],$_GET['id']));
+  }
+  
+  $sql = "UPDATE stock set id_modalidad = ?, inventario_ok = ? where id = ?";
+  $q = $pdo->prepare($sql);
+  $q->execute(array($_POST['id_modalidad'],$_POST["inventario_ok"],$_GET['id']));
+  
+  Database::disconnect();
+  
+  header("Location: listarStock.php");
+
+} else {
+  
+  $pdo = Database::connect();
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $sql = "SELECT s.id, s.id_producto, s.id_almacen, s.cantidad, s.id_modalidad, s.inventario_ok, p.descripcion FROM stock s INNER JOIN productos p ON s.id_producto=p.id WHERE s.id = ? ";
+  $q = $pdo->prepare($sql);
+  $q->execute(array($id));
+  $data = $q->fetch(PDO::FETCH_ASSOC);
+  
+  Database::disconnect();
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+	  <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
   </head>
   <body class="light-only">
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
-	  <?php include('header.php');?>
+	    <?php include('header.php');?>
 	  
       <!-- Page Header Start-->
       <div class="page-body-wrapper">
-		<?php include('menu.php');?>
+		    <?php include('menu.php');?>
         <!-- Page Sidebar Start-->
         <!-- Right sidebar Ends-->
         <div class="page-body">
@@ -104,7 +100,11 @@
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-							            <div class="form-group row">
+                          <div class="form-group row">
+								            <label class="col-sm-3 col-form-label">Producto</label>
+								            <div class="col-sm-9"><label><?php echo $data['descripcion'];?></label></div>
+							            </div>
+                          <div class="form-group row">
 								            <label class="col-sm-3 col-form-label">Cantidad Anterior</label>
 								            <div class="col-sm-9"><input name="cantidad_anterior" type="number" class="form-control" value="<?php echo $data['cantidad']; ?>" readonly="readonly"></div>
 							            </div>
@@ -131,6 +131,17 @@
                                 }
                                 Database::disconnect();?>
                               </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Inventario OK</label>
+                            <div class="col-sm-9">
+                              <label class="d-block" for="inventario_ok_si">
+                                <input class="radio_animated" value="1" <?php if($data["inventario_ok"]==1) echo "checked"?> required id="inventario_ok_si" type="radio" name="inventario_ok"><label for="inventario_ok_si">Si</label>
+                              </label>
+                              <label class="d-block" for="inventario_ok_no">
+                                <input class="radio_animated" value="0" <?php if($data["inventario_ok"]==0) echo "checked"?> required id="inventario_ok_no" type="radio" name="inventario_ok"><label for="inventario_ok_no">No</label>
+                              </label>
                             </div>
                           </div>
                         </div>

@@ -197,13 +197,12 @@ if ( !empty($_POST)) {
     $deuda_proveedor=calcularDeudaProveedor($_POST['id_forma_pago'],$modalidad,$subtotal);
 
     $pagado = 0;
-    if($modalidad==1 or $modalidad==50){
+    if($modalidad==1){
       $pagado = 1;
-      if($modalidad==50){
-        $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($deuda_proveedor,$idProveedor));
-      }
+    }elseif($modalidad==50){
+      /*$sql = "UPDATE proveedores set credito = credito + ? where id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($deuda_proveedor,$idProveedor));*/
     }
     
     $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
@@ -595,7 +594,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total Productos a Vender</label>
+                            <label class="col-sm-3 col-form-label">Total productos a vender</label>
                             <div class="col-sm-9"><label id="subtotal_compra">$ 0</label></div>
                           </div>
                           <div class="form-group row">
@@ -636,7 +635,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total</label>
+                            <label class="col-sm-3 col-form-label">Total con descuento</label>
                             <div class="col-sm-9"><label id="total_venta"><?= "$".number_format(0, 2, ',', '.');?></label></div>
                           </div>
                           <div class="form-group row">
@@ -683,7 +682,7 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Total Devolucion</label>
+                            <label class="col-sm-3 col-form-label">Total productos devueltos</label>
                             <div class="col-sm-9"><label id="precio_total"><?= "$".number_format($precio_total, 2, ',', '.');?></label></div>
                           </div>
                           <input type="hidden" name="precio_total" value="<?php echo $precio_total; ?>">

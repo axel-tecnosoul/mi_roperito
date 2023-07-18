@@ -12,6 +12,9 @@
 		  <li><a class="sidebar-header" href="listarProductos.php"><i data-feather="clipboard"></i><span>Productos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
+			<li><a class="sidebar-header" href="listarProductosVendidos.php"><i data-feather="dollar-sign"></i><span>Productos Vendidos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php
+		}
+		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarStock.php"><i data-feather="layout"></i><span>Stock</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
@@ -35,6 +38,10 @@
 		  <li><a class="sidebar-header" href="listarCanjes.php"><i data-feather="alert-circle"></i><span>Canjes Crédito</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil != 3) {?>
+			<li><a class="sidebar-header" href="listarDevoluciones.php"><i data-feather="repeat"></i><span>Devoluciones</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
+		  }
+		  
+		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProveedores.php"><i data-feather="file"></i><span>Proveedores</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil == 1) {?>
@@ -57,6 +64,7 @@
       <li><a class="sidebar-header" href="#"><i data-feather="bar-chart"></i><span>Reportes</span><i class="fa fa-angle-right pull-right"></i></a>
         <ul class="sidebar-submenu">
           <li><a href="balanceAlmacenes.php"><i class="fa fa-circle"></i>Balance de Almacenes</a></li>
+          <li><a href="rankingProveedores.php"><i class="fa fa-circle"></i>Ranking Proveedores</a></li>
           <li><a href="rankingProductos.php"><i class="fa fa-circle"></i>Ranking Productos</a></li>
           <li><a href="rankingCategorias.php"><i class="fa fa-circle"></i>Ranking Categorías</a></li>
           <li><a href="evolutivoVentas.php"><i class="fa fa-circle"></i>Evolutivo Ventas</a></li>
