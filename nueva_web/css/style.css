@@ -330,7 +330,15 @@ img {
 .owl-item {
     width: 100%;
 }
-
+.testimonial {
+    margin: 0;
+    padding: 0;
+    border-style: none;
+    height: 500px;
+    width: 400px;
+    margin: 20px auto;
+    margin-bottom: 20px;
+}
 /* NOSOTROS */
 .contenedor-nosotros {
     width: 90%;
