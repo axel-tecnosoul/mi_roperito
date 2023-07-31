@@ -7,43 +7,65 @@
     }
 	
 	require 'database.php';
-	
-	if ( !empty($_POST)) {
-    
-    $subidajpg = 0;
-    $subidawebp = 0;
 
-    if($_POST['seccion'] == "1"){
+  $id = null;
+	if ( !empty($_GET['id'])) {
+		$id = $_REQUEST['id'];
+	}
+	
+	if ( null==$id ) {
+		header("Location: listarBanners.php");
+	}
+
+  if (!empty($_POST)) {
+    
+    $idRegistro = $_GET['id'];
+
+    $subidajpg = 0;
+
+    if ($_POST['seccion'] == "1") {
       $seccion = "Home";
     }
 
-    //Subir el archivo JPG
-		if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-      $carpetaDestino = '../nueva_web/images/' . $seccion . '/JPG/';
-      $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
+    // Verificamos si se ha enviado una nueva imagen
+    if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
+        $carpetaDestino = '../nueva_web/images/' . $seccion . '/JPG/';
+        $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
 
-      if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
-        // El archivo se movió correctamente a la ubicación deseada
-        $subidajpg = 1;
-      }
+        if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
+            // El archivo se movió correctamente a la ubicación deseada
+            $subidajpg = 1;
+        }
+    } else {
+        // No se envió una nueva imagen, mantenemos la imagen actual
+        $subidajpg = 0;
+        $nombreArchivoJPG = $_POST['imagenActual'];
     }
 
-    if($subidajpg == 1){
-      // insert data
+    // update data
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $sql = "UPDATE banners SET nombre=?, seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));
+
+    Database::disconnect();
+
+    header("Location: listarBanners.php");
+  } else {
       $pdo = Database::connect();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "INSERT INTO banners(`nombre`, `seccion`, `url-jpg`) VALUES (?,?,?)";
+      $sql = "SELECT `id`, `nombre`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
       $q = $pdo->prepare($sql);
-      $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG));
-        
+      $q->execute(array($id));
+
+      $data = $q->fetch(PDO::FETCH_ASSOC);
+
       Database::disconnect();
-    }
-      
-    header("Location: listarBanners.php");
-    
-	}
-	
+  }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -70,7 +92,7 @@
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item"><a href="#"><i data-feather="home"></i></a></li>
-                      <li class="breadcrumb-item">Nuevo Banner</li>
+                      <li class="breadcrumb-item">Modificar Banner</li>
                     </ol>
                   </div>
                 </div>
@@ -92,24 +114,25 @@
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Nuevo Banner</h5>
+                    <h5>Modificar Banner</h5>
                   </div>
-				          <form class="form theme-form" role="form" method="post" enctype="multipart/form-data" action="nuevoBanner.php">
+				          <form class="form theme-form" role="form" method="post" enctype="multipart/form-data" action="modificarBanner.php?id=<?php echo $id?>">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Nombre</label>
                             <div class="col-sm-9">
-                              <input name="nombre" type="text" maxlength="99" class="form-control" value="" required="required">
+                              <input name="nombre" type="text" maxlength="99" class="form-control" value="<?php echo $data['nombre']; ?>" required="required">
                             </div>
                           </div>
 
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
-                            
                             <div class="col-sm-9">
-                              <input type="file" name="imagen-banner-jpg" required="required">
+                                <input type="file" name="imagen-banner-jpg">
+                                <input type="checkbox" name="mantenerImagenActual" value="1"> Mantener imagen actual
+                                <input type="hidden" name="imagenActual" value="<?php echo $data['url-jpg']; ?>">
                             </div>
                           </div>
 
@@ -118,8 +141,19 @@
                             <div class="col-sm-9">
                               <select name="seccion" id="seccion" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
-                                <option value="1">Home</option>
-                                <option value="2">Proveedores</option>
+                                <option value="1" <?php if ($data['seccion']==1) echo " selected ";?>>Home</option>
+                                <option value="2" <?php if ($data['seccion']==2) echo " selected ";?>>Proveedores</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Activo</label>
+                            <div class="col-sm-9">
+                              <select name="activo" id="activo" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option>
+                                <option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
+                                <option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
                               </select>
                             </div>
                           </div>
@@ -129,7 +163,7 @@
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
-                        <button class="btn btn-primary" type="submit">Crear</button>
+                        <button class="btn btn-primary" type="submit">Modificar</button>
 						            <a href="listarBanners.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
