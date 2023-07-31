@@ -86,7 +86,7 @@ if(empty($_SESSION['user'])) {
                                 echo '<td>NO</td>';
                               }
                               echo '<td>';
-                              echo '<a href="modificarBanner.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                              echo '<a href="modificarBanner.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
                               echo '&nbsp;&nbsp;';
                               echo '</td>';
                               echo '</tr>';
