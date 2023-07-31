@@ -265,7 +265,7 @@ Database::disconnect();
                       <th>Fecha</th>
                       <th>ID</th>
                       <th>Producto</th>
-                      <th>Precio</th>
+                      <!-- <th>Precio</th> -->
                       <th>Subtotal</th>
                       <th>Cantidad</th>
                       <th>Forma de Pago</th>
@@ -401,7 +401,7 @@ Database::disconnect();
         </div>
         <div class="modal-body">¿Está seguro que desea generar un Nota de Crédito para esta factura?</div>
         <div class="modal-footer">
-          <a href="generarNC.php?id=<?=$id?>" class="btn btn-primary">Generar</a>
+          <a href="generarNC.php?id=<?=$id?>" class="btn btn-primary" id="btnConfirmGenerarNC">Generar</a>
           <button data-dismiss="modal" class="btn btn-light">Volver</button>
         </div>
       </div>

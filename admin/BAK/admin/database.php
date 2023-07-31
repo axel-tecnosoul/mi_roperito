@@ -2,9 +2,9 @@
 class Database 
 {
 	private static $dbHost = 'localhost' ;
-	private static $dbName = 'c1971287_db' ; 
-	private static $dbUsername = 'c1971287_db';
-	private static $dbUserPassword = '23zeduDAza';
+	private static $dbName = 'miroperito';//c1971287_db
+	private static $dbUsername = 'miroperito';//c1971287_db
+	private static $dbUserPassword = 'C9EpKlN8MTILc4Y';//23zeduDAza
 
 	private static $cont  = null;
 	

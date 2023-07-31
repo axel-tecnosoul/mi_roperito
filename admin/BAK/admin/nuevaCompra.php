@@ -138,7 +138,7 @@ if ( !empty($_POST)) {
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -148,7 +148,7 @@ if ( !empty($_POST)) {
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -242,12 +242,12 @@ if ( !empty($_POST)) {
                             <table class="display" id="dataTables-example666">
                               <thead>
                                 <tr>
-                                <th>ID</th>
-                                <th>Código</th>
-                                <th>Categoría</th>
-                                <th>Descripción</th>
-                                <th>Precio</th>
-                                <th>Cantidad</th>
+                                  <th>ID</th>
+                                  <th>Código</th>
+                                  <th>Categoría</th>
+                                  <th>Descripción</th>
+                                  <th>Precio</th>
+                                  <th>Accion</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -366,7 +366,6 @@ if ( !empty($_POST)) {
       function jsListarProductos(val) {
         $("#dataTables-example666").dataTable().fnDestroy();
         $('#dataTables-example666').DataTable({
-          //'ajax': 'ajaxListarProductos.php',
           "ajax" : "ajaxCompras.php?proveedor="+val,//&id_vehiculo="+id_vehiculo+"
           stateSave: true,
           responsive: true,
@@ -385,7 +384,7 @@ if ( !empty($_POST)) {
                   <input type="hidden" disabled name="precio[]" class="enviar_form precio" value="${row.precio}">`+
                   new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.precio);
               },
-              className: 'dt-body-right',
+              className: 'dt-body-right text-right',
               orderDataType: "num-fmt"
             },{
               render: function(data, type, row, meta) {
@@ -440,7 +439,7 @@ if ( !empty($_POST)) {
           let btn=clon.find("button");
           //console.log(btn);
           btn.parent().html(`
-            <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad' min='1' style="width: 70px;" value="1" required></input>
+            <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' min='1' style="width: 70px;" value="1" required></input>
           `);
           clon.append(`
             <td class='text-center'>

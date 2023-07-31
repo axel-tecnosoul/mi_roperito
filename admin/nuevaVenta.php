@@ -39,7 +39,8 @@ if ( !empty($_POST)) {
   }
 
   // Verificar si ya existe un registro similar
-  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE DATE_FORMAT(fecha_hora, '%Y-%m-%d %H:%i') = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i') AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
+  //$sqlCheck = "SELECT COUNT(*) FROM ventas WHERE DATE_FORMAT(fecha_hora, '%Y-%m-%d %H:%i') = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i') AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
+  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
   $qCheck = $pdo->prepare($sqlCheck);
   $qCheck->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
   $count = $qCheck->fetchColumn();

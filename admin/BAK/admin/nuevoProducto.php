@@ -11,17 +11,33 @@ if ( !empty($_POST)) {
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $cb = microtime(true)*10000;
-  
-  $sql = "INSERT INTO `productos`(`codigo`, `id_categoria`, `descripcion`, `id_proveedor`, `precio`, `activo`, `cb`) VALUES (?,?,?,?,?,1,?)";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$cb));
-  $idProducto = $pdo->lastInsertId();
 
-  $sql3 = "INSERT INTO `stock`(`id_producto`, `id_almacen`, `cantidad`, `id_modalidad`) VALUES (?,?,?,?)";
-  $q3 = $pdo->prepare($sql3);
-  $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
+  $sql2 = " SELECT id FROM productos WHERE codigo = ? ";
+  $q2 = $pdo->prepare($sql2);
+  $q2->execute(array($_POST['codigo']));
+  $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+
+  if ($modoDebug==1) {
+    $q2->debugDumpParams();
+    echo "<br><br>Afe: ".$q2->rowCount();
+    echo "<br><br>";
+    var_dump($data2);
+  }
+
+  if (empty($data2)) {
+  
+    $cb = microtime(true)*10000;
+    
+    $sql = "INSERT INTO productos(codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,1,?)";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
+    $idProducto = $pdo->lastInsertId();
+
+    $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
+    $q3 = $pdo->prepare($sql3);
+    $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
+  
+  }
   
   Database::disconnect();
   
@@ -48,7 +64,7 @@ if ( !empty($_POST)) {
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -58,7 +74,7 @@ if ( !empty($_POST)) {
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -129,6 +145,10 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Precio</label>
                             <div class="col-sm-9"><input name="precio" type="number" step="0.01" min="0" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Precio de costo</label>
+                            <div class="col-sm-9"><input name="precio_costo" type="number" step="0.01" min="0" class="form-control" value="0" required="required"></div>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Almacen</label>
@@ -205,18 +225,32 @@ if ( !empty($_POST)) {
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-	<script src="assets/js/select2/select2.full.min.js"></script>
+	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#id_proveedor").on("change",function(){
+          let id_proveedor=this.value;
+          console.log(id_proveedor);
+          $.ajax({
+            type: "POST",
+            url: "getDataProveedor.php",
+            data: "id_proveedor="+id_proveedor,
+            dataType: "json",
+            success: function (response) {
+              console.log(response);
+              $("#id_modalidad").val(response.id_modalidad).trigger('change');
+              $("#id_almacen").val(response.id_almacen).trigger('change');
+            }
+          });
+        })
+      });
+    </script>
   </body>
 </html>

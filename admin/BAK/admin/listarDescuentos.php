@@ -29,7 +29,7 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -39,7 +39,7 @@ if(empty($_SESSION['user']))
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -64,47 +64,47 @@ if(empty($_SESSION['user']))
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Descuento</th>
-						  <th>Vigencia Desde</th>
-						  <th>Vigencia Hasta</th>
-						  <th>Compra Mínimo</th>
-						  <th>Cantidad Mínima</th>
-						  <th>Monto Descuento</th>
-						  <th>Porcentaje Descuento</th>
-						  <th>Activo</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>Descuento</th>
+                            <th>Vigencia Desde</th>
+                            <th>Vigencia Hasta</th>
+                            <th>Compra Mínimo</th>
+                            <th>Cantidad Mínima</th>
+                            <!-- <th>Monto Descuento</th> -->
+                            <th>Porcentaje Descuento</th>
+                            <th>Activo</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT `id`, `descripcion`, date_format(`vigencia_desde`,'%d/%m/%Y'), date_format(`vigencia_hasta`,'%d/%m/%Y'), `minimo_compra`, `minimo_cantidad_prendas`, `monto_fijo`, `porcentaje`, `activo` FROM `descuentos` WHERE 1 ";
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>$'. number_format($row[4],2) . '</td>';
-								echo '<td>'. $row[5] . '</td>';
-								echo '<td>$'. number_format($row[6],2) . '</td>';
-								echo '<td>'. number_format($row[7],1) . '%</td>';
-								if ($row[8] == 1) {
-									echo '<td>Si</td>';
-								} else {
-									echo '<td>No</td>';
-								}
-								echo '<td>';
-									echo '<a href="modificarDescuento.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT `id`, `descripcion`, date_format(`vigencia_desde`,'%d/%m/%Y'), date_format(`vigencia_hasta`,'%d/%m/%Y'), `minimo_compra`, `minimo_cantidad_prendas`, `monto_fijo`, `porcentaje`, `activo` FROM `descuentos` WHERE 1 ";
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row[0] . '</td>';
+                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row[2] . '</td>';
+                            echo '<td>'. $row[3] . '</td>';
+                            echo '<td>$'. number_format($row[4],2) . '</td>';
+                            echo '<td>'. $row[5] . '</td>';
+                            //echo '<td>$'. number_format($row[6],2) . '</td>';
+                            echo '<td>'. number_format($row[7],1) . '%</td>';
+                            if ($row[8] == 1) {
+                              echo '<td>Si</td>';
+                            } else {
+                              echo '<td>No</td>';
+                            }
+                            echo '<td>';
+                            if($row[0]!=1){
+                              echo '<a href="modificarDescuento.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                              echo '&nbsp;&nbsp;';
+                            }
+                            echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
                         </tbody>
                       </table>
                     </div>

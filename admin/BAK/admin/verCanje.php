@@ -19,7 +19,7 @@
 	
 	$pdo = Database::connect();
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i') fecha_hora, pr.`nombre`, pr.`apellido`, a.`almacen`, c.`total` FROM `canjes` c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor WHERE c.id = ? ";
+	$sql = "SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') fecha_hora, pr.nombre, pr.apellido, a.almacen, c.total, c.total_con_descuento, d.descripcion as descuento, credito_usado FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor left join descuentos d on d.id = c.id_descuento_aplicado WHERE c.id = ? ";
 	$q = $pdo->prepare($sql);
 	$q->execute(array($id));
 	$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -49,7 +49,7 @@
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -59,7 +59,7 @@
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -78,60 +78,82 @@
                   <div class="card-header">
                     <h5>Ver Canje</h5>
                   </div>
-				  <form class="form theme-form" role="form" method="post" action="#">
+				          <form class="form theme-form" role="form" method="post" action="#">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Fecha Hora Canje</label>
-								<div class="col-sm-9"><?php echo $data['fecha_hora']; ?>hs</div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Proveedor</label>
-								<div class="col-sm-9"><?php echo $data['nombre'].' '.$data['apellido']; ?></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Almacen</label>
-								<div class="col-sm-9"><?php echo $data['almacen']; ?></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Productos</label>
-								<div class="col-sm-9">
-								<table class="display" id="dataTables-example666">
-									<thead>
-									  <tr>
-									  <th>Código</th>
-									  <th>Categoría</th>
-									  <th>Descripción</th>
-									  <th>Precio</th>
-									  <th>Cantidad</th>
-									  <th>Subtotal</th>
-									  </tr>
-									</thead>
-									<tbody>
-									  <?php 
-										$pdo = Database::connect();
-										$sql = " SELECT p.codigo, cat.categoria, p.descripcion, cd.`precio`, cd.`cantidad`, cd.`subtotal` FROM `canjes_detalle` cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria WHERE cd.id_canje = ".$data['id'];
-										foreach ($pdo->query($sql) as $row) {
-											echo '<tr>';
-											echo '<td>'. $row[0] . '</td>';
-											echo '<td>'. $row[1] . '</td>';
-											echo '<td>'. $row[2] . '</td>';
-											echo '<td>$'. number_format($row[3],2) . '</td>';
-											echo '<td>'. $row[4] . '</td>';
-											echo '<td>$'. number_format($row[5],2) . '</td>';
-											echo '</tr>';
-										}
-									   Database::disconnect();
-									  ?>
-									</tbody>
-								  </table>
-								</div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Total</label>
-								<div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
-							</div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Fecha Hora Canje</label>
+                            <div class="col-sm-9"><?php echo $data['fecha_hora']; ?>hs</div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Proveedor</label>
+                            <div class="col-sm-9"><?php echo $data['nombre'].' '.$data['apellido']; ?></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Almacen</label>
+                            <div class="col-sm-9"><?php echo $data['almacen']; ?></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Productos</label>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-sm-12">
+                              <table class="display" id="dataTables-example666">
+                                <thead>
+                                  <tr>
+                                    <th>Código</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                    <th>ID Devolucion</th>
+                                  </tr>
+                                </thead>
+                                <tbody><?php
+                                  $pdo = Database::connect();
+                                  $sql2 = " SELECT p.codigo, cat.categoria, p.descripcion, cd.precio, cd.cantidad, cd.subtotal, dd.id_devolucion FROM canjes_detalle cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias cat on cat.id = p.id_categoria LEFT JOIN devoluciones_detalle dd ON dd.id_canje_detalle = cd.id WHERE cd.id_canje = ".$data['id'];
+                                  foreach ($pdo->query($sql2) as $row) {
+                                    $id_devolucion="";
+                                    if ($row['id_devolucion'] != NULL) {
+                                      $id_devolucion=$row['id_devolucion'];
+                                    }
+                                    echo '<tr>';
+                                    echo '<td>'. $row['codigo'] . '</td>';
+                                    echo '<td>'. $row['categoria'] . '</td>';
+                                    echo '<td>'. $row['descripcion'] . '</td>';
+                                    echo '<td>$'. number_format($row['precio'],2) . '</td>';
+                                    echo '<td>'. $row['cantidad'] . '</td>';
+                                    echo '<td>$'. number_format($row['subtotal'],2) . '</td>';
+                                    echo '<td>'. $id_devolucion . '</td>';
+                                    echo '</tr>';
+                                  }
+                                  Database::disconnect();?>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Total productos</label>
+                            <div class="col-sm-9">$<?php echo number_format($data['total'],2); ?></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Descuento</label><?php
+                            if($data['descuento'] !== null){?>
+                              <div class="col-sm-9">$<?php echo $data['descuento']; ?></div><?php
+                            }else{?>
+                              <div class="col-sm-9">Sin descuentos aplicados</div><?php
+                            }?>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Total con descuento</label>
+                            <div class="col-sm-9">$<?php echo number_format($data['total_con_descuento'],2); ?></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Credito usado</label>
+                            <div class="col-sm-9">$<?php echo number_format($data['credito_usado'],2); ?></div>
+                          </div>
                         </div>
                       </div>
                     </div>

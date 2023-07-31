@@ -4,45 +4,33 @@ $aProductos=[];
 $total=0;
 $recordsFiltered=0;
 $debug="";
+$queryInfo="";
+
 if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
 
   $id_almacen=$_GET["almacen"];
 
   $pdo = Database::connect();
-  /*$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, p.precio, s.cantidad, p.cb FROM stock s inner join productos p on p.id = s.id_producto inner join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 and p.activo = 1 and s.id_almacen = ".$_GET["almacen"];
-  //echo $sql;
-  foreach ($pdo->query($sql) as $row) {
-    $aProductos[]=[
-      "cb"=>$row[6],
-      "codigo"=>$row[1],
-      "categoria"=>$row[2],
-      "descripcion"=>$row[3],
-      "precio"=>'$'. number_format($row[4],2),
-      "cantidad"=>$row[5],
-      "id_producto"=>$row[0],
-      "input"=>'<input type="number" name="cantidad_'.$row[0].'" id="cantidad_'.$row[0].'" min="0" max="'.$row[5].'" value="" placeholder="0" />',
-    ];
-  }
-  Database::disconnect();*/
-
   $columns = $_GET['columns'];
   //var_dump($columns);
 
-  //$fields = ['cb','codigo','categoria','descripcion','nombre','apellido','precio','p.activo','p.id'];
-  //$fields = ["s.id","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","p.cb"];
-  $fields = ["p.cb","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","s.id","s.id_modalidad", "p.id_proveedor", "s.id_producto"];
-  $from="FROM stock s INNER JOIN productos p ON p.id = s.id_producto INNER JOIN categorias c ON c.id = p.id_categoria";
+  $data_columns = ["CONCAT(pr.nombre,' ',pr.apellido)","p.codigo","c.categoria","p.descripcion","s.cantidad","p.precio"];
+
+  $fields = ["s.id","p.cb","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","s.id_modalidad", "p.id_proveedor", "s.id_producto","pr.nombre","pr.apellido"];
+
+  $from="FROM stock s INNER JOIN productos p ON p.id = s.id_producto INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN proveedores pr ON p.id_proveedor = pr.id";
 
   $orderBy = " ORDER BY ";
   foreach ($_GET['order'] as $order) {
     //var_dump($order);
     //$orderBy .= $order['column'] + 1 . " {$order['dir']}, ";
-    $orderBy .= $fields[$order['column']] . " {$order['dir']}, ";
+    $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
+    //var_dump($orderBy);
   }
 
   $orderBy = substr($orderBy, 0, -2);
 
-  $where = " s.id_almacen = $id_almacen AND activo=1 AND ";
+  $where = " s.cantidad > 0 AND s.id_almacen = $id_almacen AND p.activo=1 AND ";
   foreach ($columns as $k => $column) {
     if ($search = $column['search']['value']) {
       $search=trim($search,"$");
@@ -80,7 +68,6 @@ if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
   $campos=implode(",", $fields);
 
   $sql = "SELECT $campos $from ".($where ? "WHERE $where " : '')."$orderBy LIMIT $length OFFSET $start";
-
   error_log($sql);
   //var_dump($sql);
   $debug.=$sql;
@@ -91,7 +78,7 @@ if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
     foreach ($pdo->query($sql) as $row) {
       //var_dump($row);
       
-      $fields = ["p.cb","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","s.id"];
+      //$fields = ["p.cb","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","s.id"];
       $aProductos[]=[
         "id_stock"=>$row["id"],
         "codigo"=>$row["codigo"],
@@ -102,9 +89,20 @@ if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
         "cb"=>$row["cb"],
         "id_modalidad"=>$row["id_modalidad"],
         "id_proveedor"=>$row["id_proveedor"],
+        "proveedor"=>$row["nombre"]." ".$row["apellido"],
         "id_producto"=>$row["id_producto"],
       ];
     }
+
+    $queryInfo=[
+      'campos' => $campos,
+      'from' => $from,
+      'where' => $where,
+      'orderBy' => $orderBy,
+      'length' => $length,
+      'start' => $start,
+      'query' => $sql,
+    ];
 
   } else {
     var_dump($pdo->errorInfo());
@@ -112,10 +110,12 @@ if(!empty($_GET["almacen"]) and $_GET["almacen"]>0) {
   }
   Database::disconnect();
 }
+
+
 echo json_encode([
   'data' => $aProductos,
   'recordsTotal' => $total,
   'recordsFiltered' => $recordsFiltered,//count($aProductos),
-  'debug'=>$debug
+  'debug'=>$debug,
+  'queryInfo'=>$queryInfo,
 ]);
-

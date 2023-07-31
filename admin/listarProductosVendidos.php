@@ -6,7 +6,8 @@ if(empty($_SESSION['user'])){
 }
 
 //$desde=date("Y-m-d");
-$desde = date("Y-m-d", strtotime("last month"));
+//$desde = date("Y-m-d", strtotime("last month"));
+$desde = "2023-01-01";
 $filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];

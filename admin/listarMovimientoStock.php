@@ -90,8 +90,8 @@ if(empty($_SESSION['user']))
                             echo '<td>'. $row["id"] . '</td>';
                             echo '<td>'. $row["usuario"].'</td>';
                             echo '<td>'. date("d M Y H:i",strtotime($row["fecha_hora"])) . '</td>';
-                            echo '<td>'. $row["almacen_origen"].'</td>';
-                            echo '<td>'. $row["almacen_destino"].'</td>';
+                            echo '<td>'. $row["almacen_destino"].'</td>';//está almacenando el origen
+                            echo '<td>'. $row["almacen_origen"].'</td>';//está almacenando el destino
                             echo '<td>';
                             echo '<a href="verMovimientoStockDetalle.php?id='.$row["id"].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Detalle"></a>';
                             echo '&nbsp;&nbsp;';

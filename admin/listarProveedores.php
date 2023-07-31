@@ -10,18 +10,6 @@ include("database.php");
 <html lang="en">
   <head>
 	  <?php include('head_tables.php');?>
-    <style>
-      #overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* Color semitransparente de fondo */
-        z-index: 9999; /* Asegura que el overlay esté en el frente */
-        display: none; /* Inicialmente oculto */
-      }
-    </style>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -113,7 +101,7 @@ include("database.php");
                       </table>
                     </div>
                     <div class="dt-ext table-responsive">
-                      <div id="overlay"></div>
+                      <p id="aclaracion" class="font-italic small">Para buscar por ID introduzca "id:" Ej: id:1144</p>
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
@@ -240,39 +228,78 @@ include("database.php");
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
 	  <script>
+      var table=$('#dataTables-example666')
+
       $(document).ready(function() {
-        $(".btnEliminar").on("click",function(){
+
+        $(document).on("click",".btnEliminar",function(){
+          console.log(this);
           $("#btnEliminarProveedor").attr("href","eliminarProveedor.php?id="+this.dataset.id);
+          console.log($("#btnEliminarProveedor"));
           $("#eliminarModal").modal("show")
         })
 
-        $(document).ready(function() {
-        getProveedores();
-        $(".filtraTabla").on("change",getProveedores);
-      });
-
-      function getProveedores(){
-        let id_almacen=$("#id_almacen").val();
-        let id_modalidad=$("#id_modalidad").val();
-        let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
-        
-        // Obtener el valor de todos los checkboxes seleccionados
-        var activo = [];
-        $("input[name='activa[]']:checked").each(function() {
-          activo.push($(this).val());
+        //getProveedores();
+        $(".filtraTabla").on("change",function(){
+          table.DataTable().ajax.reload(); // Se vuelve a cargar los datos del servidor sin recargar la página
         });
-        activo=activo.join(',');
-        console.log(activo);//.val()
 
-        //document.getElementById("overlay").style.display = "block";
-        let table=$('#dataTables-example666')
-        table.DataTable().destroy();
-        table.DataTable({ 
-          ajax:{url:'ajaxProveedores.php?id_almacen='+id_almacen+'&id_modalidad='+id_modalidad+'&activo='+activo},
-				  //stateSave: true,
+        /*$('#dataTables-example666').DataTable({
+          stateSave: true,
+          responsive: true,
+          language: {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+          }}
+        });*/
+
+        table.on('preXhr.dt', function ( e, settings, data ) {
+          $("#dataTables-example666_filter label").append($("#aclaracion"));
+        } ).DataTable({
+          "ajax": {
+            "url": 'ajaxProveedores.php',
+            "data": function ( d ) {
+              let id_almacen=$("#id_almacen").val();
+              let id_modalidad=$("#id_modalidad").val();
+              let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+              
+              // Obtener el valor de todos los checkboxes seleccionados
+              var activo = [];
+              $("input[name='activa[]']:checked").each(function() {
+                activo.push($(this).val());
+              });
+
+              activo=activo.join(',');
+              console.log(activo);//.val()
+
+              return $.extend( {}, d, {
+                //"extra_search": $('#extra').val(),
+                'id_almacen':id_almacen,
+                'id_modalidad':id_modalidad,
+                'activo':activo
+              } );
+            },
+          },
+          //url:'ajaxProveedores.php?id_almacen='+id_almacen+'&id_modalidad='+id_modalidad+'&activo='+activo},
+          //stateSave: true,
           serverSide: true,
           processing: true,
-				  responsive: true,
+          responsive: true,
           language: {
             "decimal": "",
             "emptyTable": "No hay información",
@@ -366,35 +393,17 @@ include("database.php");
           ],
           drawCallback: function(settings, json){
             $('[title]').tooltip();
-            //document.getElementById("overlay").style.display = "none";
           }
         })
-      };
 
-        $('#dataTables-example666').DataTable({
-          stateSave: true,
-          responsive: true,
-          language: {
-          "decimal": "",
-          "emptyTable": "No hay información",
-          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-          "infoFiltered": "(Filtrado de _MAX_ total registros)",
-          "infoPostFix": "",
-          "thousands": ",",
-          "lengthMenu": "Mostrar _MENU_ Registros",
-          "loadingRecords": "Cargando...",
-          "processing": "Procesando...",
-          "search": "Buscar:",
-          "zeroRecords": "No hay resultados",
-          "paginate": {
-              "first": "Primero",
-              "last": "Ultimo",
-              "next": "Siguiente",
-              "previous": "Anterior"
-          }}
-        });
       });
+
+      function getProveedores(){
+
+        
+        //table.DataTable().destroy();
+        
+      };
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

@@ -116,13 +116,29 @@ $globalSearch = $_GET['search'];
 	$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
 }*/
 if ( $globalSearchValue = $globalSearch['value'] ) {
+  $ex=explode(":",$globalSearchValue);
+  $columna="";
+  $globalSearchValue=$ex[0];
+  $busqueda_personalizada=0;
+  if(isset($ex[1]) and strcasecmp($ex[0],"id")==0){
+    $columna="id";
+    $busqueda_personalizada=1;
+    $globalSearchValue=$ex[1];
+  }
   $aWhere=[];
   foreach ($fields as $k => $field) {
     //$campo=$field;
     $ex=explode(" AS ",$field);
     $field=$ex[0];
 
-    $aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
+    if($busqueda_personalizada==0){
+      $aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
+    }else{
+      if($columna=="id" and $field=="p.id"){
+        //$aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
+        $aWhere[]=$field.'="'.$globalSearchValue.'"';
+      }
+    }
     //$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
   }
   $where .= ' AND ('.implode(' OR ', $aWhere).')';

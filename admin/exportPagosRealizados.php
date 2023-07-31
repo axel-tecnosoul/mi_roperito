@@ -2,6 +2,7 @@
 session_start(); 
 header('Content-Disposition: attachment; filename="pagos_realizados.xls"');
 include 'database.php';
+include 'funciones.php';
 ?>
 <!doctype html>
 <html lang="en">
@@ -18,13 +19,14 @@ include 'database.php';
 			<div class="row">
 				<div class="table-responsive">
 				<a href="#" id="aExportar" onclick="$('#example2').tableExport({type:'excel',escape:'false'});"></a>
-				<table id="example2" name="formularios" style="visibility:hidden;">
+				<table border="1" id="example2" name="formularios" style="visibility:hidden;">
 					<thead>
 		                <tr>
 							<th>Operacion</th>
 							<th>ID</th>
 							<th>ID Detalle</th>
 							<th>Fecha/Hora</th>
+              <th>Tipo Cbte.</th>
 							<th>Descripción</th>
 							<th>Pagado</th>
 							<th>Caja</th>
@@ -36,18 +38,39 @@ include 'database.php';
 		             <tbody>
 		              <?php     
 						$pdo = Database::connect();
-						$sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL";
+						$sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago, v.tipo_comprobante, v.estado FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1";// AND v.id_venta_cbte_relacionado IS NULL
 						if ($_SESSION['user']['id_perfil'] == 2) {
 							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 						}
 							foreach ($pdo->query($sql) as $row) {
+                $subtotal=$row["subtotal"];
+                $deuda = $row["deuda_proveedor"];
+                $tipo_comprobante=$row["tipo_comprobante"];
+                $clase_montos_negativos="";
+                if($tipo_comprobante=="NCB"){
+                  $subtotal*=-1;
+                  $deuda*=-1;
+                  $clase_montos_negativos="text-danger";
+                }
+                //$total_deuda+=$deuda;
+                $tipo_cbte=get_nombre_comprobante($tipo_comprobante);
+                $estado = $row["estado"];
+                $clase_tipo_cbte="";
+                if($estado=="A"){
+                  $clase_tipo_cbte="badge badge-success";
+                }
+                if($estado=="R" || $estado=="E"){
+                  $clase_tipo_cbte="badge badge-danger";
+                }
+                $cbte='<span class="'.$clase_tipo_cbte.'">'.$tipo_cbte.'</span>';
 								echo '<tr>';
 								echo '<td>Venta</td>';
 								echo '<td>'. $row['id_venta'] . '</td>';
 								echo '<td>'. $row['id_detalle_venta'] . '</td>';
 								echo '<td>'. $row['fecha_hora_pago'] . '</td>';
+                echo '<td>'. $cbte . '</td>';
 								echo '<td>'. $row['descripcion'] . '</td>';
-								echo '<td>'. $row['deuda_proveedor'] . '</td>';
+								echo '<td>'. number_format($deuda,2,",",".") . '</td>';
 								echo '<td>'. $row['caja_egreso'] . '</td>';
 								echo '<td>'. $row['categoria'] . '</td>';
 								echo '<td>'. $row['forma_pago'] . '</td>';
@@ -64,6 +87,7 @@ include 'database.php';
 								echo '<td>'. $row['id_canje'] . '</td>';
 								echo '<td>'. $row['id_canje_detalle'] . '</td>';
 								echo '<td>'. $row['fecha_hora_pago'] . '</td>';
+                echo '<td>Canje</td>';
 								echo '<td>'. $row['descripcion'] . '</td>';
 								echo '<td>'. $row['deuda_proveedor'] . '</td>';
 								echo '<td>'. $row['caja_egreso'] . '</td>';

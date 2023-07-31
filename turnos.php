@@ -6,6 +6,13 @@ require 'admin/database.php';
 <html lang="en">
 <head>
 	<?php include("head.php"); ?>
+  <style>
+    #modalNoRecibimosPrendas .btn:hover {
+      background: #191919;
+      text-decoration: underline;
+      color: #ffffff;
+    }
+  </style>
 </head>
 <body>
 <div id="loader-wrapper">
@@ -52,7 +59,7 @@ require 'admin/database.php';
                 <option value="">Seleccione...</option><?php
                 $pdo = Database::connect();
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1";
+                $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1 and id!=5";
                 $q = $pdo->prepare($sqlZon);
                 $q->execute();
                 while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
@@ -116,6 +123,26 @@ require 'admin/database.php';
   </div>
   <!-- Grid row -->
 
+  <div class="modal" id="modalNoRecibimosPrendas" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div> -->
+        <div class="modal-body">
+          <!-- <p>A partir del día lunes 31 de Julio ya no se reciben prendas de invierno. Gracias</p> -->
+          <p>No estamos tomando mas prendas en esta sucural. Por favor sepa disculparnos. Gracias</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </section>
 <!-- Section: Contact v.1 -->
 			<br>
@@ -152,6 +179,16 @@ require 'admin/database.php';
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $("#id_almacen").on("change",function(){
+      if(this.value==4 || this.value==6){
+        $("#modalNoRecibimosPrendas").modal("show");
+        $("#id_almacen").val("")
+      }
+    })
+  });
+</script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
 </body>
 </html>

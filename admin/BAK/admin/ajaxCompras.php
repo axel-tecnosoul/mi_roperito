@@ -4,40 +4,26 @@ $aProductos=[];
 $total=0;
 $recordsFiltered=0;
 $debug="";
+$queryInfo="";
 if(!empty($_GET["proveedor"]) and $_GET["proveedor"]>0) {
 
   $id_proveedor=$_GET["proveedor"];
 
   $pdo = Database::connect();
-  /*$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, p.precio, s.cantidad, p.cb FROM stock s inner join productos p on p.id = s.id_producto inner join categorias c on c.id = p.id_categoria WHERE s.cantidad > 0 and p.activo = 1 and s.id_almacen = ".$_GET["almacen"];
-  //echo $sql;
-  foreach ($pdo->query($sql) as $row) {
-    $aProductos[]=[
-      "cb"=>$row[6],
-      "codigo"=>$row[1],
-      "categoria"=>$row[2],
-      "descripcion"=>$row[3],
-      "precio"=>'$'. number_format($row[4],2),
-      "cantidad"=>$row[5],
-      "id_producto"=>$row[0],
-      "input"=>'<input type="number" name="cantidad_'.$row[0].'" id="cantidad_'.$row[0].'" min="0" max="'.$row[5].'" value="" placeholder="0" />',
-    ];
-  }
-  Database::disconnect();*/
-
   $columns = $_GET['columns'];
   //var_dump($columns);
 
-  //$fields = ['cb','codigo','categoria','descripcion','nombre','apellido','precio','p.activo','p.id'];
-  //$fields = ["s.id","p.codigo","c.categoria","p.descripcion","p.precio","s.cantidad","p.cb"];
+  $data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","p.precio"];
+  
   $fields = ["p.id","p.codigo","c.categoria","p.descripcion","p.precio","p.cb"];
+
   $from="FROM productos p inner join categorias c on c.id = p.id_categoria";
 
   $orderBy = " ORDER BY ";
   foreach ($_GET['order'] as $order) {
     //var_dump($order);
     //$orderBy .= $order['column'] + 1 . " {$order['dir']}, ";
-    $orderBy .= $fields[$order['column']] . " {$order['dir']}, ";
+    $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
   }
 
   $orderBy = substr($orderBy, 0, -2);
@@ -102,6 +88,16 @@ if(!empty($_GET["proveedor"]) and $_GET["proveedor"]>0) {
       ];
     }
 
+    $queryInfo=[
+      'campos' => $campos,
+      'from' => $from,
+      'where' => $where,
+      'orderBy' => $orderBy,
+      'length' => $length,
+      'start' => $start,
+      'query' => $sql,
+    ];
+
   } else {
     var_dump($pdo->errorInfo());
     die;
@@ -112,6 +108,7 @@ echo json_encode([
   'data' => $aProductos,
   'recordsTotal' => $total,
   'recordsFiltered' => $recordsFiltered,//count($aProductos),
-  'debug'=>$debug
+  'debug'=>$debug,
+  'queryInfo'=>$queryInfo,
 ]);
 
