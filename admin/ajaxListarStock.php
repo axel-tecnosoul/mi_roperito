@@ -7,10 +7,10 @@ $columns = $_GET['columns'];
 
 //$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 
-$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo','s.inventario_ok'];
+$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo','s.inventario_ok','p.id_proveedor'];
 //$data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 
-$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto','s.inventario_ok'];
+$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto','s.inventario_ok','p.id_proveedor'];
 
 
 $from="FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor";
@@ -49,6 +49,11 @@ $filtroAlmacen="";
 if($id_almacen!=0){
   $filtroAlmacen=" AND s.id_almacen IN ($id_almacen)";
 }
+$inventariado=$_GET["inventariado"];
+$filtroInventariado="";
+if($inventariado!=""){
+  $filtroInventariado=" AND s.inventario_ok IN ($inventariado)";
+}
 
 //var_dump($orderBy);
 $orderBy = substr($orderBy, 0, -2);
@@ -77,7 +82,7 @@ if ( $globalSearchValue = $globalSearch['value'] ) {
   $where .= ' AND ('.implode(' OR ', $aWhere).')';
 }
 
-$whereFiltered=$where.$filtroProveedor.$filtroModalidad.$filtroCategoria.$filtroAlmacen;
+$whereFiltered=$where.$filtroProveedor.$filtroModalidad.$filtroCategoria.$filtroAlmacen.$filtroInventariado;
 
 $length = $_GET['length'];
 $start = $_GET['start'];
@@ -142,7 +147,7 @@ if ($st) {
         $row['descripcion'],
         $row['cantidad'],
         '$'. number_format($row['precio'],2),
-        $row['nombre']." ".$row['apellido'],
+        "(".$row['id_proveedor'].") ".$row['nombre']." ".$row['apellido'],
         $row['almacen'],
         $inventario_ok,
         $row['modalidad'],

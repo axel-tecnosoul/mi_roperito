@@ -37,9 +37,9 @@ if ( !empty($_POST)) {
     $descripcion=$_POST["descripcion"][$key];
     
     if (empty($data2)) {
-      $sql = "INSERT INTO productos (codigo, id_categoria, descripcion, id_proveedor, precio, activo, cb) VALUES (?,?,?,?,?,?,?) ";
+      $sql = "INSERT INTO productos (codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,?,?) ";
       $q = $pdo->prepare($sql);
-      $q->execute(array($codigo,$_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$activo,$cb));
+      $q->execute(array($codigo,$_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$_POST["precio_costo"][$key],$activo,$cb));
 
       if ($modoDebug==1) {
         $q->debugDumpParams();
@@ -58,9 +58,9 @@ if ( !empty($_POST)) {
         echo "<br><br>";
       }
     } else {
-      $sql = "UPDATE productos SET id_categoria=?, descripcion=?, id_proveedor=?, precio=?, activo=? WHERE codigo=? ";
+      $sql = "UPDATE productos SET id_categoria=?, descripcion=?, id_proveedor=?, precio=?, precio_costo=?, activo=? WHERE codigo=? ";
       $q = $pdo->prepare($sql);
-      $q->execute(array($_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$activo,$codigo));
+      $q->execute(array($_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$_POST["precio_costo"][$key],$activo,$codigo));
 
       if ($modoDebug==1) {
         $q->debugDumpParams();
@@ -213,6 +213,7 @@ if ( !empty($_POST)) {
                                     <th>Categoria</th>
                                     <th>Descripcion</th>
                                     <th>Precio</th>
+                                    <th>Precio de costo</th>
                                     <th>Cantidad</th>
                                     <th>Eliminar</th>
                                   </tr>
@@ -242,6 +243,9 @@ if ( !empty($_POST)) {
                                     </td>
                                     <td data-name="precio">
                                       <input type="number" class="form-control" placeholder="Precio" name="precio[]" id="precio-0"/>
+                                    </td>
+                                    <td data-name="precio_costo">
+                                      <input type="number" class="form-control" placeholder="Precio de costo" name="precio_costo[]" id="precio_costo-0"/>
                                     </td>
                                     <td data-name="cantidad">
                                       <input type="number" class="form-control" placeholder="Cantidad" name="cantidad[]" id="cantidad-0"/>
@@ -304,8 +308,26 @@ if ( !empty($_POST)) {
     <!-- Plugin used-->
 	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
-    
     <script type="text/javascript">
+      
+      $(document).ready(function () {
+        $("#id_proveedor").on("change",function(){
+          let id_proveedor=this.value;
+          console.log(id_proveedor);
+          $.ajax({
+            type: "POST",
+            url: "getDataProveedor.php",
+            data: "id_proveedor="+id_proveedor,
+            dataType: "json",
+            success: function (response) {
+              console.log(response);
+              $("#id_modalidad").val(response.id_modalidad).trigger('change');
+              $("#id_almacen").val(response.id_almacen).trigger('change');
+            }
+          });
+        })
+      });
+
       $(document).ready(function(){
           $("#addRowEmail").on('click', function(event) {
             event.preventDefault();

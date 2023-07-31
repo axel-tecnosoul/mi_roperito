@@ -134,16 +134,16 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                                 FROM ventas_detalle vd 
                                 INNER JOIN ventas v ON vd.id_venta = v.id 
                                 INNER JOIN productos p ON vd.id_producto = p.id 
-                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 0 $whereAlmacen
+                                WHERE p.id_proveedor = pr.id AND v.anulada = 0 AND vd.pagado = 1 $whereAlmacen
                               )
                               OR EXISTS (
                                 SELECT 1
                                 FROM canjes_detalle cd 
                                 INNER JOIN canjes c ON cd.id_canje = c.id 
                                 INNER JOIN productos p ON cd.id_producto = p.id 
-                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 0 $whereAlmacen
+                                WHERE p.id_proveedor = pr.id AND c.anulado = 0 AND cd.pagado = 1 $whereAlmacen
                               )";
-                              //echo $sql;
+                              echo $sql;
                               foreach ($pdo->query($sql) as $row) {
                                 $selected="";
                                 if($row["id"]==$id_proveedor){
@@ -209,20 +209,40 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         </thead>
                         <tbody><?php
                           $pdo = Database::connect();
-                          $sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql = " SELECT v.id as id_venta,vd.id AS id_detalle_venta, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,vd.fecha_hora_pago,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago_formatted,caja_egreso,forma_pago, v.tipo_comprobante, v.estado FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = vd.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";// AND v.id_venta_cbte_relacionado IS NULL
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
                           //echo $sql;
                           $total_deuda=0;
                           foreach ($pdo->query($sql) as $row) {
+                            $subtotal=$row["subtotal"];
                             $deuda = $row["deuda_proveedor"];
-                            $total_deuda+=$deuda;?>
+                            $tipo_comprobante=$row["tipo_comprobante"];
+                            $clase_montos_negativos="";
+                            if($tipo_comprobante=="NCB"){
+                              $subtotal*=-1;
+                              $deuda*=-1;
+                              $clase_montos_negativos="text-danger";
+                            }
+                            $total_deuda+=$deuda;
+                            //$tipo_cbte=get_nombre_comprobante($tipo_comprobante);
+                            $estado = $row["estado"];
+                            $clase_tipo_cbte="";
+                            if($estado=="A"){
+                              $clase_tipo_cbte="badge badge-success";
+                            }
+                            if($estado=="R" || $estado=="E"){
+                              $clase_tipo_cbte="badge badge-danger";
+                            }
+                            //$cbte='<span class="'.$clase_tipo_cbte.'">'.$tipo_cbte.'</span>';?>
                             <tr>
                               <td><?="V#".$row["id_venta"]?></td>
-                              <td><?=$row["fecha_hora_pago"]?>hs</td>
+                              <!-- <td><?=$row["fecha_hora_pago"]?>hs</td> -->
+                              <td><?=json_encode([$row["fecha_hora_pago"],$row["fecha_hora_pago_formatted"]])?></td>
+                              <!-- <td><?php //echo $cbte?></td> -->
                               <td><?=$row["descripcion"]?></td>
-                              <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
+                              <td class="<?=$clase_montos_negativos?>"> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
                               <td><?=$row["caja_egreso"]?></td>
                               <td><?=$row["forma_pago"]?></td>
                               <td><?=$row["almacen"]?></td>
@@ -241,7 +261,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                               <td class="d-none"><?=$row["categoria"]?></td>
                             </tr><?php
                           }
-                          $sql2 ="SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql2 ="SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,cd.fecha_hora_pago,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago_formatted,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cd.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql2 .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
@@ -250,7 +270,8 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             $total_deuda+=$deuda;?>
                             <tr>
                               <td><?="C#".$row["id_canje"]?></td>
-                              <td><?=$row["fecha_hora_pago"]?>hs</td>
+                              <!-- <td><?=$row["fecha_hora_pago"]?>hs</td> -->
+                              <td><?=json_encode([$row["fecha_hora_pago"],$row["fecha_hora_pago_formatted"]])?></td>
                               <td><?=$row["descripcion"]?></td>
                               <td> $<?=number_format($deuda,2)?><label class="d-none deuda"><?=$deuda?></label></td>
                               <td><?=$row["caja_egreso"]?></td>
@@ -398,6 +419,20 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                 "previous": "Anterior"
             }
           },
+          columnDefs: [
+            //{ targets: [0], visible: false},
+            { targets: [1], type: 'datetime',
+              render: function(data, type, full, meta) {
+                let fecha_hora=JSON.parse(data);
+                //console.log(fecha_hora);
+                if (type === 'display') {
+                  //return moment(data).format('YYYY-MM-DD HH:mm:ss');
+                  return fecha_hora[1]+"hs";
+                }
+                return fecha_hora[0];
+              }
+            },
+          ],
           initComplete: function(){
             //$("#dataTables-example666_wrapper").find(".dataTables_scrollHead table thead th:first-child").removeClass("sorting_asc");
             //$("#total_pagos_seleccionados").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(0));

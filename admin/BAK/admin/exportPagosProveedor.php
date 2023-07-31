@@ -32,7 +32,7 @@ include 'database.php';
 		              <?php 
 							
 							$pdo = Database::connect();
-							$sql = " SELECT v.id, a.almacen, v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado` FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 2 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+							$sql = " SELECT v.id, a.almacen, v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado` FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 40 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
 							
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';

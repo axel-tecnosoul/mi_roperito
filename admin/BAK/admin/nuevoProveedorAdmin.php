@@ -9,14 +9,15 @@
 	require 'database.php';
 	
 	if ( !empty($_POST)) {
-		
 		// insert data
+    /*var_dump($_POST);
+    die;*/
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		$sql = "INSERT INTO `proveedores`(`email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `fecha_alta`, `telefono`) VALUES (?,?,?,?,?,1,now(),?)";
+		$sql = "INSERT INTO `proveedores`(`email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `fecha_alta`, `telefono`, `id_almacen`, `id_modalidad`) VALUES (?,?,?,?,?,1,now(),?,?,?)";
 		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['email'],$_POST['clave'],$_POST['dni'],$_POST['nombre'],$_POST['apellido'],$_POST['telefono']));
+		$q->execute(array($_POST['email'],$_POST['clave'],$_POST['dni'],$_POST['nombre'],$_POST['apellido'],$_POST['telefono'],$_POST['id_almacen'],$_POST['id_modalidad']));
 		
 		Database::disconnect();
 		
@@ -45,7 +46,7 @@
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -55,7 +56,7 @@
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -74,41 +75,77 @@
                   <div class="card-header">
                     <h5>Nuevo Proveedor</h5>
                   </div>
-				  <form class="form theme-form" role="form" method="post" action="nuevoProveedorAdmin.php">
+				          <form class="form theme-form" role="form" method="post" action="nuevoProveedorAdmin.php">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">E-Mail</label>
-								<div class="col-sm-9"><input name="email" type="email" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Teléfono</label>
-								<div class="col-sm-9"><input name="telefono" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">DNI</label>
-								<div class="col-sm-9"><input name="dni" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Nombre</label>
-								<div class="col-sm-9"><input name="nombre" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Apellido</label>
-								<div class="col-sm-9"><input name="apellido" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label">Contraseña</label>
-								<div class="col-sm-9"><input name="clave" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-							</div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">E-Mail</label>
+                            <div class="col-sm-9"><input name="email" type="email" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Teléfono</label>
+                            <div class="col-sm-9"><input name="telefono" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">DNI</label>
+                            <div class="col-sm-9"><input name="dni" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Nombre</label>
+                            <div class="col-sm-9"><input name="nombre" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Apellido</label>
+                            <div class="col-sm-9"><input name="apellido" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Almacen</label>
+                            <div class="col-sm-9">
+                              <select name="id_almacen" id="id_almacen" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT `id`, `almacen` FROM `almacenes`";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  echo "<option value='".$fila['id']."'";
+                                  echo ">".$fila['almacen']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Modalidad</label>
+                            <div class="col-sm-9">
+                              <select name="id_modalidad" id="id_modalidad" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                  $pdo = Database::connect();
+                                  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                  $sqlZon = "SELECT `id`, `modalidad` FROM `modalidades`";
+                                  $q = $pdo->prepare($sqlZon);
+                                  $q->execute();
+                                  while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                    echo "<option value='".$fila['id']."'";
+                                    echo ">".$fila['modalidad']."</option>";
+                                  }
+                                  Database::disconnect();?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Contraseña</label>
+                            <div class="col-sm-9"><input name="clave" type="text" maxlength="99" class="form-control" value="" required="required"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
                         <button class="btn btn-primary" type="submit">Registrar</button>
-						<a href="listarProveedores.php" class="btn btn-light">Volver</a>
+						              <a href="listarProveedores.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
@@ -134,13 +171,8 @@
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>

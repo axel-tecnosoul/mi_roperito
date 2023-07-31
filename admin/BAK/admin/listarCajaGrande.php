@@ -20,6 +20,16 @@ if(empty($_SESSION['user'])){
       background-color:#fff;
       border-color:#ccc;
     }
+    .ver{
+      cursor: pointer;
+    }
+    .modal-dialog{
+      overflow-y: initial !important
+    }
+    .modal-body{
+      max-height: 80vh;
+      overflow-y: auto;
+    }
   </style>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -85,7 +95,18 @@ if(empty($_SESSION['user'])){
                               $pdo = Database::connect();
                               $sql = " SELECT id, forma_pago FROM forma_pago";
                               foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>" selected><?=$row["forma_pago"]?></option><?php
+                                <option value="<?=$row["id"]?>"><?=$row["forma_pago"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Motivo:</td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <select name="motivo" id="motivo" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, motivo FROM motivos_salidas_caja";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["motivo"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
@@ -150,12 +171,30 @@ if(empty($_SESSION['user'])){
                     </div>
                   </div>
 
+                  <!-- MODAL VER -->
+                  <div class="modal fade" id="modalVer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable" role="document" style="max-width: 800px;">
+                      <div class="modal-content">
+                        <!-- <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel"></h5>
+                          <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        </div> -->
+                        <div class="modal-body">Ya no podrá anular ventas ni modificar los egresos</div>
+                        <!-- <div class="modal-footer">
+                          <a href="#" id="btnConfirmCerrarCaja" class="btn btn-primary">Cerrar Caja</a>
+                          <button data-dismiss="modal" class="btn btn-light">Volver</button>
+                        </div> -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- FIN MODAL VER -->
+
                   <!-- MODAL CERRAR CAJA -->
-                  <div class="modal fade" id="modalCerrarCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal fade" id="modalCerrarCaja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">¿Está seguro que desea cerrar la caja?</h5>
+                          <h5 class="modal-title" id="exampleModalLabel2">¿Está seguro que desea cerrar la caja?</h5>
                           <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">Ya no podrá modificar los movimientos registrados de esta caja</div>
@@ -169,11 +208,11 @@ if(empty($_SESSION['user'])){
                   <!-- FIN MODAL CERRAR CAJA -->
 
                   <!-- MODAL CERRAR CAJA -->
-                  <div class="modal fade" id="modalElijaAlmacen" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal fade" id="modalElijaAlmacen" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Atención</h5>
+                          <h5 class="modal-title" id="exampleModalLabel3">Atención</h5>
                           <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">Por favor seleccione un almacen para cerrar la caja</div>
@@ -256,12 +295,31 @@ if(empty($_SESSION['user'])){
         }
       })
 
+      $(document).on("click",".ver",function(){
+          let id=this.dataset.id;
+          //let tipo=this.dataset.tipo;
+          $.ajax({
+            type: "POST",
+            url: "cardVerMovimientoCajaGrande.php?id="+id,
+            data: "modal=1",
+            //dataType: "json",
+            success: function (response) {
+              console.log(response);
+              let modal=$("#modalVer")
+              modal.find(".modal-body").html(response)
+              modal.modal("show")
+
+            }
+          });
+        })
+
 		});
 
     function getCaja(){
       let desde=$("#desde").val();
       let hasta=$("#hasta").val();
       let forma_pago=$("#forma_pago").val();
+      let motivo=$("#motivo").val();
       //let tipo_comprobante=$("#tipo_comprobante").val();
       let id_almacen=$("#id_almacen").val();
       let bandera_saldo=saldo=credito=debito=0;
@@ -272,7 +330,7 @@ if(empty($_SESSION['user'])){
 				responsive: true,
         ordering: false,
         //ajax: "listarCajaGetData.php",
-        ajax:{url:"listarCajaGrandeGetData.php?desde="+desde+"&hasta="+hasta+"&forma_pago="+forma_pago+"&id_almacen="+id_almacen,dataSrc:""},
+        ajax:{url:"listarCajaGrandeGetData.php?desde="+desde+"&hasta="+hasta+"&forma_pago="+forma_pago+"&id_almacen="+id_almacen+"&motivo="+motivo,dataSrc:""},
         paginate: false,
         scrollY: '100vh',
         scrollCollapse: true,
@@ -283,10 +341,10 @@ if(empty($_SESSION['user'])){
           {
             render: function(data, type, row, meta) {
               if(type=="display"){
-                credito+=parseInt(row.credito);
+                credito+=parseFloat(row.credito);
                 console.log(credito);
               }
-              if(parseInt(row.credito)>0){
+              if(parseFloat(row.credito)>0){
                 return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.credito);
               }else{
                 return "";
@@ -296,9 +354,9 @@ if(empty($_SESSION['user'])){
           },{
             render: function(data, type, row, meta) {
               if(type=="display"){
-                debito+=parseInt(row.debito);
+                debito+=parseFloat(row.debito);
               }
-              if(parseInt(row.debito)>0){
+              if(parseFloat(row.debito)>0){
                 return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.debito);
               }else{
                 return "";
@@ -310,9 +368,9 @@ if(empty($_SESSION['user'])){
               if(type=="display"){
                 if(bandera_saldo==0){
                   bandera_saldo=1;
-                  saldo=parseInt(row.saldo)
+                  saldo=parseFloat(row.saldo)
                 }else{
-                  saldo+=parseInt(row.credito)-parseInt(row.debito);
+                  saldo+=parseFloat(row.credito)-parseFloat(row.debito);
                 }
               }
               return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldo);

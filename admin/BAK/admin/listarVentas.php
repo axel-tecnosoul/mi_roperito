@@ -4,13 +4,23 @@ if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
-include_once("funciones.php");
-?>
+include_once("funciones.php");?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css">
   </head>
+  <style>
+    td.child {
+      background-color: beige;
+    }
+    .multiselect{
+      color:#212529 !important;
+      background-color:#fff;
+      border-color:#ccc;
+    }
+  </style>
   <body class="light-only">
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
@@ -64,6 +74,61 @@ include_once("funciones.php");
                     </h5>
                   </div>
                   <div class="card-body">
+                    <div class="row">
+                      <table class="table">
+                        <tr>
+                          <td class="text-right border-0 p-1">Desde: </td>
+                          <td class="border-0 p-1"><input type="date" id="desde" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Forma de pago:</td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <select id="forma_pago" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                              include 'database.php';
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, forma_pago FROM forma_pago";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["forma_pago"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Tipo Cbte:</td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                            <select id="tipo_comprobante" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple>
+                              <option value="R">Recibo</option>
+                              <!-- <option value="A">Factura A</option> -->
+                              <option value="B">Factura B</option>
+                              <!-- <option value="NCA">Nota de Credito A</option> -->
+                              <option value="NCB">Nota de Credito B</option>
+                            </select>
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {
+                              echo "Almacen: ";
+                            }?>
+                            <!-- Tipo comprobante: -->
+                          </td>
+                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
+                            if ($_SESSION['user']['id_perfil'] == 1) {?>
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                                <option value="0">- Todos -</option><?php
+                                $pdo = Database::connect();
+                                $sql = " SELECT id, almacen FROM almacenes";
+                                foreach ($pdo->query($sql) as $row) {?>
+                                  <option value="<?=$row["id"]?>"><?=$row["almacen"]?></option><?php
+                                }
+                                Database::disconnect();?>
+                              </select><?php
+                            }else{?>
+                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                            }?>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right border-0 p-1">Hasta: </td>
+                          <td class="border-0 p-1"><input type="date" id="hasta" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                        </tr>
+                      </table>
+                    </div>
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
@@ -77,6 +142,7 @@ include_once("funciones.php");
                             <th>Opciones</th>
                             <th class="none">Subtotal</th>
                             <th class="none">Descuento</th>
+                            <th class="none">Modalidad venta</th>
                             <th class="none">Cliente</th>
                             <th class="none">DNI</th>
                             <th class="none">Dirección</th>
@@ -86,25 +152,14 @@ include_once("funciones.php");
                         </thead>
                         <tfoot>
                           <tr>
-                            <th>ID</th>
-                            <th>Fecha/Hora</th>
-                            <th>Tipo Cbte.</th>
-                            <th>Almacen</th>
-                            <th>Forma de pago</th>
+                            <th colspan="5">Total</th>
                             <th>Total</th>
-                            <th>Opciones</th>
-                            <th class="none">Subtotal</th>
-                            <th class="none">Descuento</th>
-                            <th class="none">Cliente</th>
-                            <th class="none">DNI</th>
-                            <th class="none">Dirección</th>
-                            <th class="none">E-Mail</th>
-                            <th class="none">Teléfono</th>
+                            <th colspan="9">Opciones</th>
                           </tr>
                         </tfoot>
                         <tbody><?php
-                          include 'database.php';
-                          $pdo = Database::connect();
+                          //include 'database.php';
+                          /*$pdo = Database::connect();
                           $sql = " SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, v.total, d.descripcion, v.total_con_descuento, v.id_cierre_caja,v.tipo_comprobante,fp.forma_pago,v.estado FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE v.anulada = 0 ";
                           if ($_SESSION['user']['id_perfil'] != 1) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
@@ -144,7 +199,7 @@ include_once("funciones.php");
                             echo '<td>'. $row["telefono"] . '</td>';
                             echo '</tr>';
                           }
-                          Database::disconnect();?>
+                          Database::disconnect();*/?>
                         </tbody>
                       </table>
                     </div>
@@ -161,31 +216,23 @@ include_once("funciones.php");
         <?php include("footer.php"); ?>
       </div>
     </div>
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT v.`id`, date_format(v.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, v.`nombre_cliente`, v.`dni`, v.`direccion`, v.`email`, v.`telefono`, v.`total`, d.descripcion, v.total_con_descuento FROM `ventas` v inner join almacenes a on a.id = v.`id_almacen` left join descuentos d on d.id = v.id_descuento_aplicado WHERE v.anulada = 0 ";
-	if ($_SESSION['user']['id_perfil'] != 1) {
-		$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
-	}
-	foreach ($pdo->query($sql) as $row) {?>
-    <div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div class="modal fade" id="eliminarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
           </div>
-          <div class="modal-body">¿Está seguro que desea anular la venta?</div>
+          <div class="modal-body">¿Está seguro que desea eliminar la venta?</div>
           <div class="modal-footer">
-            <a href="anularVenta.php?id=<?php echo $row[0];?>" class="btn btn-primary">Anular</a>
-            <button data-dismiss="modal" class="btn btn-light">Volver</button>
+            <a id="btnEliminarVenta" class="btn btn-primary">Eliminar</a>
+            <button class="btn btn-light" type="button" data-dismiss="modal" aria-label="Close">Volver</button>
           </div>
         </div>
       </div>
-    </div><?php 
-	}
-	Database::disconnect();
-	?>
+    </div>
+
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
@@ -197,6 +244,9 @@ include_once("funciones.php");
     <!-- Sidebar jquery-->
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
+
+    <script src="vendor/bootstrap-select-1.13.14/dist/js/bootstrap-select.js"></script>
+    <script src="vendor/bootstrap-select-1.13.14/js/i18n/defaults-es_ES.js"></script>
     <!-- Plugins JS start-->
     <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
@@ -225,9 +275,35 @@ include_once("funciones.php");
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
 	<script>
+
+    function openModalEliminarVenta(idVenta){
+      $('#eliminarModal').modal("show");
+      document.getElementById("btnEliminarVenta").href="anularVenta.php?id="+idVenta;
+    }
+
 		$(document).ready(function() {
+
+      getVentas();
+      $(".filtraTabla").on("change",getVentas);
+
+		});
+
+    function getVentas(){
+      let desde=$("#desde").val();
+      let hasta=$("#hasta").val();
+      let forma_pago=$("#forma_pago").val();
+      let tipo_comprobante=$("#tipo_comprobante").val();
+      let id_almacen=$("#id_almacen").val();
+
+      let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+
       let table=$('#dataTables-example666')
+      table.DataTable().destroy();
       table.DataTable({
+        //dom: 'rtip',
+        serverSide: true,
+        processing: true,
+        ajax:{url:'ajaxListarVentas.php?desde='+desde+'&hasta='+hasta+'&forma_pago='+forma_pago+'&tipo_comprobante='+tipo_comprobante+'&id_almacen='+id_almacen},
 				stateSave: true,
 				responsive: true,
 				language: {
@@ -250,57 +326,76 @@ include_once("funciones.php");
               "previous": "Anterior"
           }
         },
-        initComplete: function(){
-          this.api().columns.adjust().draw();//Columns sin parentesis
-          this.api().columns().every(function(){//Columns() con parentesis
-            var column=this;
-            if(column.footer().innerHTML!="Total"){
-              var select=$("<select class=' form-control form-control-sm'><option value=''>Todos</option></select>")
-                .appendTo($(column.footer()).empty())
-                .on("change",function(){
-                  var val=$.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                  );
-                  column.search(val ? '^'+val+'$':'',true,false).draw();
-                });
-              column.data().unique().sort().each(function(d,j){
-                var val=$("<div/>").html(d).text();
-                if(column.search()==='^'+val+'$'){
-                  select.append("<option value='"+val+"' selected='selected'>"+val+"</option>");
-                }else{
-                  select.append("<option value='"+val+"'>"+val+"</option>");
-                }
-              })
-            }else{
-              getTotalVentas(table)
+        "columns":[
+          {"data": "id_venta"},
+          {render: function(data, type, row, meta) {
+            return row.fecha_hora+"hs";
+          }},
+          {render: function(data, type, row, meta) {
+            let estado=row.estado;
+            let clase="";
+            if(estado=="A"){
+              clase="badge badge-success";
             }
-          })
-        }
-			}).on( 'search.dt', function () {
-        getTotalVentas(table)
-      } );;
-		});
+            if(estado=="R" || estado=="E"){
+              clase="badge badge-danger";
+            }
+            return '<span class="'+clase+'">'+row.tipo_comprobante+'</span>';
+          }},
+          {"data": "almacen"},
+          {"data": "forma_pago"},
+          {
+            render: function(data, type, row, meta) {
+              return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.total_con_descuento);
+            },
+            className: 'dt-body-right text-right',
+          },
+          {render: function(data, type, row, meta) {
+            let btnVer='<a href="verVenta.php?id='+row.id_venta+'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta"></a>&nbsp;&nbsp;'
+            let btnAnular="";
+            console.log(id_perfil);
+            console.log(row.id_cierre_caja);
+            console.log(row.tipo_comprobante);
+            if((id_perfil=="1" || row.id_cierre_caja==0) && row.tipo_comprobante=="Recibo"){
+              //btnAnular='<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'+row["id"]+'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Anular" title="Anular"></a>&nbsp;&nbsp;'
+              btnAnular='<a href="#" title="Eliminar" onclick="openModalEliminarVenta('+row.id_venta+')"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>&nbsp;&nbsp;'
+            }
+            return btnVer+btnAnular;
+          }},
+          { render: function(data, type, row, meta) {
+              return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.total);
+            },
+            className: 'dt-body-right text-right',
+          },
+          {"data": "descuento"},
+          {"data": "modalidad_venta"},
+          {"data": "nombre_cliente"},
+          {"data": "dni"},
+          {"data": "direccion"},
+          {"data": "email"},
+          {"data": "telefono"},
+        ],
+        /*initComplete: function(settings, json){
+          let total_facturas_recibos=json.queryInfo.total_facturas_recibos
 
-    function getTotalVentas(table){
-      let total=0;
-      table=table.DataTable()
-      table.rows( {order:'index', search:'applied'} ).nodes().each(function(d){
-        
-        let col_tipo_cbte=$(d).find(":nth-child(3)").html();
-        //console.log(col_tipo_cbte);
-        let tipo_cbte=$("<div/>").html(col_tipo_cbte).text();
-        //console.log(tipo_cbte);
-        var val=$(d).find(":nth-child(6)").html();
-        let number=Number(val.replace(/[^0-9.-]+/g,""));
-        console.log(number);
-        if(tipo_cbte=="Nota de Crédito A" || tipo_cbte=="Nota de Crédito B"){
-          number=number*-1;
-          //console.log(number);
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+
+          $('[title]').tooltip();
+        }*/
+        drawCallback: function(settings, json){
+          console.log(settings);
+          console.log(settings.json.queryInfo.total_facturas_recibos);
+          let total_facturas_recibos=settings.json.queryInfo.total_facturas_recibos
+
+          var api = this.api();
+          // Update footer
+          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+
+          $('[title]').tooltip();
         }
-        total+=number;
-      })
-      let column_a_cobrar=table.columns(5).footer()
-      $(column_a_cobrar).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total));
+			})
     }
 		
 		</script>

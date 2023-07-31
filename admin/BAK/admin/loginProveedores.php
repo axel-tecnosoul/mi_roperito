@@ -1,39 +1,36 @@
 <?php 
-    require("config.php"); 
-	require 'database.php';
-    $submitted_username = ''; 
-    if(!empty($_POST)){ 
-        $query = "SELECT `id`, `email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `telefono` FROM `proveedores` WHERE activo = 1 and email = :user"; 
-        $query_params = array(':user' => $_POST['user']); 
-        
-        try{ 
-            $stmt = $db->prepare($query); 
-            $result = $stmt->execute($query_params); 
-        } 
-        catch(PDOException $ex){ die("Failed to run query: " . $ex->getMessage()); } 
-        $login_ok = false; 
-        $row = $stmt->fetch(); 
-        if($row){ 
-            $check_pass = $_POST['pass']; 
-            if($check_pass === $row['clave']){
-                $login_ok = true;
-            } 
-        } 
+require("config.php"); 
+require 'database.php';
+$submitted_username = ''; 
+if(!empty($_POST)){ 
+  $query = "SELECT `id`, `email`, `clave`, `dni`, `nombre`, `apellido`, `activo`, `telefono` FROM `proveedores` WHERE activo = 1 and email = :user";
+  $query_params = array(':user' => $_POST['user']); 
+  try{
+    $stmt = $db->prepare($query); 
+    $result = $stmt->execute($query_params); 
+  } 
+  catch(PDOException $ex){ die("Failed to run query: " . $ex->getMessage()); } 
+  $login_ok = false; 
+  $row = $stmt->fetch(); 
 
-        if($login_ok){ 
-            unset($row['clave']); 
-            $_SESSION['proveedor'] = $row;  
-			
-			header("Location: dashboardProveedor.php"); 
-            die("Redirecting to: dashboardProveedor.php"); 
-			
-        } 
-        else{ 
-            print("Usuario o Contraseña incorrecto!"); 
-            $submitted_username = htmlentities($_POST['user'], ENT_QUOTES, 'UTF-8'); 
-        } 
+  if($row){
+    $check_pass = $_POST['pass'];
+    if($check_pass === $row['clave']){
+      $login_ok = true;
     } 
-?>
+  }
+
+  if($login_ok){ 
+    unset($row['clave']); 
+    $_SESSION['proveedor'] = $row;  
+
+    header("Location: dashboardProveedor.php"); 
+    die("Redirecting to: dashboardProveedor.php"); 
+  }else{ 
+    print("Usuario o Contraseña incorrecto!"); 
+    $submitted_username = htmlentities($_POST['user'], ENT_QUOTES, 'UTF-8'); 
+  } 
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -87,11 +84,11 @@
             <div class="col-md-12">
               <div class="auth-innerright">
                 <div class="authentication-box">
-                  <div class="text-center"><img src="assets/images/logoLogin.png" width="250px" alt=""></div>
+                  <div class="text-center"><img src="../nueva_web/images/logo/logo-nuevom.png" width="350px" alt=""></div>
                   <div class="card mt-4">
                     <div class="card-body">
                       <div class="text-center">
-                        <h4>INGRESAR</h4>
+                        <h4>INGRESO PROVEEDORAS</h4>
                         <h6>Ingrese su e-mail y contraseña </h6>
                       </div>
 					  <form class="theme-form" role="form" name="flogin" action="loginProveedores.php" method="post">

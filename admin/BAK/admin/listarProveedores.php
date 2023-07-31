@@ -1,22 +1,21 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
+include("database.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
       <!-- Page Header Start-->
-      <?php include('header.php');?>
-     
+      <?php include('header.php');?> 
       <!-- Page Header Ends                              -->
       <!-- Page Body Start-->
       <div class="page-body-wrapper">
@@ -29,7 +28,7 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -39,7 +38,7 @@ if(empty($_SESSION['user']))
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -60,55 +59,105 @@ if(empty($_SESSION['user']))
                     <h5>Proveedores&nbsp;<a href="nuevoProveedorAdmin.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a>&nbsp;<a href="exportProveedores.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a></h5><span>
                   </div>
                   <div class="card-body">
+                    <div class="row">
+                      <table class="table">
+                        <tr>
+                          <td class="border-0 p-1" style="text-align: right;vertical-align: middle;"><label for="id_almacen">Almacen:</label></td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                              <option value="0">- Todos -</option><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, almacen FROM almacenes";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["almacen"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td class="border-0 p-1" style="text-align: right;vertical-align: middle;"><label for="id_modalidad">Modalidad:</label></td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <select id="id_modalidad" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                              <option value="0">- Todos -</option><?php
+                              $pdo = Database::connect();
+                              $sql = " SELECT id, modalidad FROM modalidades";
+                              foreach ($pdo->query($sql) as $row) {?>
+                                <option value="<?=$row["id"]?>"><?=$row["modalidad"]?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td style="vertical-align: middle;" class="border-0 p-1">
+                            <label class="d-block" for="checkbox-activas">
+                              <input class="checkbox_animated filtraTabla" value="1" checked required id="checkbox-activas" type="checkbox" name="activa[]">
+                              <label for="checkbox-activas">Activas</label>
+                            </label>
+
+                            <label class="d-block" for="checkbox-inactivas">
+                              <input class="checkbox_animated filtraTabla" value="0" required id="checkbox-inactivas" type="checkbox" name="activa[]">
+                              <label for="checkbox-inactivas">Inactivas</label>
+                            </label>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
                     <div class="dt-ext table-responsive">
+                      <p id="aclaracion" class="font-italic small">Para buscar por ID introduzca "id:" Ej: id:1144</p>
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>DNI</th>
-						  <th>Nombre</th>
-						  <th>Apellido</th>
-						  <th>E-Mail</th>
-						  <th>Teléfono</th>
-						  <th>Crédito</th>
-						  <th>Fecha Alta</th>
-						  <th>Activo</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>DNI</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <!-- <th>Apellido</th> -->
+                            <!-- <th>Ventas por pesos</th>
+                            <th>Ventas por canje</th>
+                            <th>En stock</th> -->
+                            <th>Almacén</th>
+                            <th>Modalidad</th>
+                            <th>E-Mail</th>
+                            <th>Opciones</th>
+                            <th class="none">Activo</th>
+                            <th class="none">Teléfono</th>
+                            <th class="none">Crédito</th>
+                            <th class="none">Fecha Alta</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT `id`, `dni`, `nombre`, `apellido`, `email`, `activo`, date_format(`fecha_alta`,'%d/%m/%Y'), `telefono`, `credito` FROM `proveedores` WHERE 1 ";
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[7] . '</td>';
-								echo '<td>$'. number_format($row[8],2) . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								if ($row[5] == 1) {
-									echo '<td>Si</td>';
-								} else {
-									echo '<td>No</td>';
-								}
-								echo '<td>';
-									echo '<a href="modificarProveedor.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="verProveedor.php?id='.$row[0].'"><img src="img/eye.png" width="30" border="0" alt="Ver Operaciones" title="Ver Operaciones"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          /*$pdo = Database::connect();
+                          $sql = " SELECT p.id, p.dni, CONCAT(p.nombre,' ',p.apellido) AS proveedor, p.email, p.activo, date_format(fecha_alta,'%d/%m/%Y') AS fecha_alta, p.telefono, p.credito, a.almacen, m.modalidad FROM proveedores p left join almacenes a on a.id = id_almacen left join modalidades m on m.id = id_modalidad WHERE 1 ";
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row["id"] . '</td>';
+                            echo '<td>'. $row["dni"] . '</td>';
+                            echo '<td>'. $row["proveedor"] . '</td>';
+                            //echo '<td>'. $row["apellido"] . '</td>';
+                            echo '<td>'. 0 . '</td>';
+                            echo '<td>'. 0 . '</td>';
+                            echo '<td>'. 0 . '</td>';
+                            if ($row["activo"] == 1) {
+                              echo '<td>Si</td>';
+                            } else {
+                              echo '<td>No</td>';
+                            }
+                            echo '<td>';
+                            echo '<a href="modificarProveedor.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '<a href="#" class="btnEliminar" data-id="'.$row["id"].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '<a href="verProveedor.php?id='.$row["id"].'"><img src="img/eye.png" width="30" border="0" alt="Ver Proveedor" title="Ver Operaciones"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '</td>';
+                            echo '<td class="none">'. $row["almacen"] . '</td>';
+                            echo '<td class="none">'. $row["modalidad"] . '</td>';
+                            echo '<td class="none">'. $row["email"] . '</td>';
+                            echo '<td class="none">'. $row["telefono"] . '</td>';
+                            echo '<td class="none">$'. number_format($row["credito"],2) . '</td>';
+                            echo '<td class="none">'. $row["fecha_alta"] . '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();*/?>
                         </tbody>
                       </table>
                     </div>
@@ -125,30 +174,21 @@ if(empty($_SESSION['user']))
         <?php include("footer.php"); ?>
       </div>
     </div>
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT `id`, `dni`, `nombre`, `apellido`, `email`, `activo`, date_format(`fecha_alta`,'%d/%m/%Y'), `telefono` FROM `proveedores` WHERE 1 ";
-	foreach ($pdo->query($sql) as $row) {
-	?>
-	<div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
-			<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-		  </div>
-		  <div class="modal-body">¿Está seguro que desea eliminar el proveedor?</div>
-		  <div class="modal-footer">
-			<a href="eliminarProveedor.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
-			<a onclick="document.location.href='listarProveedores.php'" class="btn btn-light">Volver</a>
-		  </div>
-		</div>
-	  </div>
-	</div>
-	<?php 
-	}
-	Database::disconnect();
-	?>
+    <div class="modal fade" id="eliminarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">¿Está seguro que desea eliminar el proveedor?</div>
+          <div class="modal-footer">
+            <a id="btnEliminarProveedor" class="btn btn-primary">Eliminar</a>
+            <button class="btn btn-light" type="button" data-dismiss="modal" aria-label="Close">Volver</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
@@ -187,33 +227,183 @@ if(empty($_SESSION['user']))
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
-	<script>
-		$(document).ready(function() {
-			$('#dataTables-example666').DataTable({
-				stateSave: true,
-				responsive: true,
-				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-				}}
-			});
-		});
-		
+	  <script>
+      var table=$('#dataTables-example666')
+
+      $(document).ready(function() {
+
+        $(document).on("click",".btnEliminar",function(){
+          console.log(this);
+          $("#btnEliminarProveedor").attr("href","eliminarProveedor.php?id="+this.dataset.id);
+          console.log($("#btnEliminarProveedor"));
+          $("#eliminarModal").modal("show")
+        })
+
+        //getProveedores();
+        $(".filtraTabla").on("change",function(){
+          table.DataTable().ajax.reload(); // Se vuelve a cargar los datos del servidor sin recargar la página
+        });
+
+        /*$('#dataTables-example666').DataTable({
+          stateSave: true,
+          responsive: true,
+          language: {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
+          }}
+        });*/
+
+        table.on('preXhr.dt', function ( e, settings, data ) {
+          $("#dataTables-example666_filter label").append($("#aclaracion"));
+        } ).DataTable({
+          "ajax": {
+            "url": 'ajaxProveedores.php',
+            "data": function ( d ) {
+              let id_almacen=$("#id_almacen").val();
+              let id_modalidad=$("#id_modalidad").val();
+              let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+              
+              // Obtener el valor de todos los checkboxes seleccionados
+              var activo = [];
+              $("input[name='activa[]']:checked").each(function() {
+                activo.push($(this).val());
+              });
+
+              activo=activo.join(',');
+              console.log(activo);//.val()
+
+              return $.extend( {}, d, {
+                //"extra_search": $('#extra').val(),
+                'id_almacen':id_almacen,
+                'id_modalidad':id_modalidad,
+                'activo':activo
+              } );
+            },
+          },
+          //url:'ajaxProveedores.php?id_almacen='+id_almacen+'&id_modalidad='+id_modalidad+'&activo='+activo},
+          //stateSave: true,
+          serverSide: true,
+          processing: true,
+          responsive: true,
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+            "infoFiltered": "(Filtrado de _MAX_ total registros)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No hay resultados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+          },
+          "columns":[
+            {"data": "id"},
+            {"data": "dni"},
+            //{"data": "proveedor"},
+            {"data": "nombre"},
+            {"data": "apellido"},
+            /*{
+              render: function(data, type, row, meta) {
+                if(type=="display"){
+                  return new Intl.NumberFormat('es-AR', {useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0}).format(row.ventasPesos);
+                }else{
+                  return row.ventasPesos;
+                  //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+                }
+              },
+              className: 'dt-body-right text-right',
+            },
+            {
+              render: function(data, type, row, meta) {
+                if(type=="display"){
+                  return new Intl.NumberFormat('es-AR', {useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0}).format(row.ventasCanjes);
+                }else{
+                  return row.ventasCanjes;
+                  //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+                }
+              },
+              className: 'dt-body-right text-right',
+            },
+            {
+              render: function(data, type, row, meta) {
+                if(type=="display"){
+                  //return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.enStock);
+                  return new Intl.NumberFormat('es-AR', {useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0}).format(row.enStock);
+
+                }else{
+                  return row.enStock;
+                  //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+                }
+              },
+              className: 'dt-body-right text-right',
+            },*/
+            {"data": "almacen"},
+            {"data": "modalidad"},
+            {"data": "email"},
+            {"data": "acciones"},
+            {"data": "activo"},
+            {"data": "telefono"},
+            {
+              render: function(data, type, row, meta) {
+                if(type=="display"){
+                  return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.credito);
+                }else{
+                  return row.credito;
+                  //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+                }
+              },
+              className: 'dt-body-right text-right',
+            },
+            {render: function(data, type, row, meta) {
+              if(type=="display"){
+                return row.fecha_alta_formatted;
+              }else{
+                return row.fecha_alta;
+                //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+              }
+            }}
+          ],
+          columnDefs: [
+            //{ targets: [0], visible: false},
+            { targets: [1], type: 'datetime'},
+          ],
+          drawCallback: function(settings, json){
+            $('[title]').tooltip();
+          }
+        })
+
+      });
+
+      function getProveedores(){
+
+        
+        //table.DataTable().destroy();
+        
+      };
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

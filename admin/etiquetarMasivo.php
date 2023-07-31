@@ -45,7 +45,9 @@ $array = explode(',', $id);?>
     margin:10 auto; max-width:100%; max-height:100%; display: block; height: 66px; align-items: center;
   }
   .container_img{
-    max-height: 55px; max-width: 160px; margin: 0 auto;
+    max-height: 55px;
+    /*max-width: 160px;*/
+    margin: 0 auto;
   }
   .lbl_etiqueta{
     text-align: center; margin: 0; font-size: 14px; margin-bottom: 0px;
@@ -100,7 +102,7 @@ $array = explode(',', $id);?>
       <div>
         <div>
           <div class="container_img">
-            <img class="img_etiqueta" alt='testing' src='barcode.php?codetype=Code39&size=50&text=<?="      ".$cb?>&print=true'/>
+            <img class="img_etiqueta" alt='testing' src='barcode.php?codetype=Code128&size=50&text=<?=$cb?>&print=true'/>
           </div>
         </div>
         <p class="lbl_etiqueta"><?=$proveedor." "?><?=$codigo?> $<?=number_format($precio,2)?></p>

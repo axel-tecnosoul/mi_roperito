@@ -6,7 +6,12 @@ include 'database.php';
 <!doctype html>
 <html lang="en">
 <head>
-	<?php include('head_tables.php');?>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- Google font-->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 </head>
 <body>
 
@@ -15,8 +20,10 @@ include 'database.php';
 				<a href="#" id="aExportar" onclick="$('#example2').tableExport({type:'excel',escape:'false'});"></a>
 				<table id="example2" name="formularios" style="visibility:hidden;">
 					<thead>
-		                <tr>
+		                <tr>		  
+						  <th>Operacion</th>
 						  <th>ID</th>
+						  <th>ID Detalle</th>
 						  <th>Proveedor</th>
 						  <th>Almacen</th>
 						  <th>Fecha/Hora</th>
@@ -32,23 +39,46 @@ include 'database.php';
 		             <tbody>
 		              <?php     
 						$pdo = Database::connect();
-						$sql = " SELECT vd.id, a.almacen, v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado`, pr.nombre, pr.apellido FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE v.anulada = 0 and m.id = 2 and vd.`pagado` = 0";
+						$sql = " SELECT v.id as id_venta, vd.id as id_venta_detalle, a.almacen, v.fecha_hora, p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado`, vd.`deuda_proveedor`,  pr.nombre, pr.apellido FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE v.anulada = 0 and m.id = 40 and vd.`pagado` = 0";
 						if ($_SESSION['user']['id_perfil'] == 2) {
 							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 						}
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[11] . ' ' . $row[12] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[5] . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								echo '<td>'. $row[7] . '</td>';
-								echo '<td>'. $row[8] . '</td>';
-								echo '<td>'. $row[8]*0.4 . '</td>';
+								echo '<td>Venta</td>';
+								echo '<td>'. $row['id_venta'] . '</td>';
+								echo '<td>'. $row['id_venta_detalle'] . '</td>';
+								echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
+								echo '<td>'. $row['almacen'] . '</td>';
+								echo '<td>'. $row['fecha_hora'] . '</td>';
+								echo '<td>'. $row['codigo'] . '</td>';
+								echo '<td>'. $row['categoria'] . '</td>';
+								echo '<td>'. $row['descripcion'] . '</td>';
+								echo '<td>'. $row['cantidad'] . '</td>';
+								echo '<td>'. $row['precio'] . '</td>';
+								echo '<td>'. $row['subtotal'] . '</td>';
+								echo '<td>'. $row['deuda_proveedor'] . '</td>';
+								echo '</tr>';
+							}
+						$sql2 = " SELECT cj.id as id_canje, cd.id as id_canje_detalle, a.almacen, cj.fecha_hora, p.codigo, c.categoria, p.descripcion, cd.`cantidad`, cd.`precio`, cd.`subtotal`, m.`modalidad`, cd.`pagado`, cd.`deuda_proveedor`, pr.nombre, pr.apellido FROM `canjes_detalle` cd inner join canjes cj on cj.id = cd.id_canje inner join almacenes a on a.id = cj.id_almacen inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor WHERE cj.anulado = 0 and m.id = 40 and cd.`pagado` = 0";
+						if ($_SESSION['user']['id_perfil'] == 2) {
+							$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
+						}
+							foreach ($pdo->query($sql2) as $row) {
+								echo '<tr>';
+								echo '<td>Canje</td>';
+								echo '<td>'. $row['id_canje'] . '</td>';
+								echo '<td>'. $row['id_canje_detalle'] . '</td>';
+								echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
+								echo '<td>'. $row['almacen'] . '</td>';
+								echo '<td>'. $row['fecha_hora'] . '</td>';
+								echo '<td>'. $row['codigo'] . '</td>';
+								echo '<td>'. $row['categoria'] . '</td>';
+								echo '<td>'. $row['descripcion'] . '</td>';
+								echo '<td>'. $row['cantidad'] . '</td>';
+								echo '<td>'. $row['precio'] . '</td>';
+								echo '<td>'. $row['subtotal'] . '</td>';
+								echo '<td>'. $row['deuda_proveedor'] . '</td>';
 								echo '</tr>';
 							}
 					   Database::disconnect();

@@ -7,7 +7,7 @@ if(empty($_SESSION['user'])){
 require 'database.php';
 	
 if ( !empty($_POST)) {
-  
+  $idStockMovimiento = 0;
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -20,6 +20,13 @@ if ( !empty($_POST)) {
   }
 
   $id_usuario=$_SESSION["user"]["id"];
+  $id_almacen_destino=$_POST['id_almacen_destino'];
+  $id_almacen_origen=$_POST['id_almacen_origen'];
+
+  $sql4 = "INSERT INTO stock_movimientos (id_usuario, fecha_hora, id_almacen_origen, id_almacen_destino) VALUES (?,NOW(),?,?)";
+  $q4 = $pdo->prepare($sql4);
+  $q4->execute(array($id_usuario,$id_almacen_destino,$id_almacen_origen));
+  $idStockMovimiento = $pdo->lastInsertId();
   
   //egresar stock
   //$sql = " SELECT `id`, `id_producto`, `cantidad`, `id_modalidad` FROM `stock` WHERE `id_almacen` = ".$_POST['id_almacen_origen'];
@@ -33,6 +40,19 @@ if ( !empty($_POST)) {
     $modalidad = $_POST["id_modalidad"][$key];
     $idProveedor = $_POST["id_proveedor"][$key];
     $id_producto = $_POST["id_producto"][$key];
+
+    //ingresar stock
+    $sql = "SELECT inventario_ok from stock where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id_stock));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+    $inventario_ok=$data["inventario_ok"];
+
+    if ($modoDebug==1) {
+      echo $sql;
+      echo "<br><br>";
+      var_dump($data);
+    }
       
     $sql = "UPDATE stock set cantidad = cantidad - ? where id = ?";
     $q = $pdo->prepare($sql);
@@ -43,13 +63,25 @@ if ( !empty($_POST)) {
       echo "<br><br>Afe: ".$q->rowCount();
       echo "<br><br>";
     }
+
+    if ($cantidadAnterior == $cantidad) {
+      $sql3 = "DELETE from stock where id = ?";
+      $q3 = $pdo->prepare($sql3);
+      $q3->execute(array($id_stock));
+
+      if ($modoDebug==1) {
+        $q3->debugDumpParams();
+        echo "<br><br>Afe: ".$q3->rowCount();
+        echo "<br><br>";
+      }
+    }
     
     //$cantidad = $cantidad*(-1);
     
     //ingresar stock
-    $sql2 = "SELECT id from stock where id_producto = ? and id_almacen = ? and id_modalidad = ?";
+    $sql2 = "SELECT id,inventario_ok from stock where id_producto = ? and id_almacen = ? and id_modalidad = ?";
     $q2 = $pdo->prepare($sql2);
-    $q2->execute(array($id_producto,$_POST['id_almacen_destino'],$modalidad));
+    $q2->execute(array($id_producto,$id_almacen_destino,$modalidad));
     $data = $q2->fetch(PDO::FETCH_ASSOC);
 
     if ($modoDebug==1) {
@@ -59,7 +91,7 @@ if ( !empty($_POST)) {
     }
 
     if (!empty($data)) {
-      $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
+      $sql3 = "UPDATE stock set cantidad = cantidad + ?, inventario_ok = $inventario_ok where id = ?";
       $q3 = $pdo->prepare($sql3);
       $q3->execute(array($cantidad,$data['id']));
 
@@ -70,9 +102,9 @@ if ( !empty($_POST)) {
       }
 
     } else {
-      $sql3 = "INSERT INTO stock (id_producto, id_almacen, cantidad,id_modalidad) VALUES (?,?,?,?)";
+      $sql3 = "INSERT INTO stock (id_producto, id_almacen, cantidad, id_modalidad, inventario_ok) VALUES (?,?,?,?,?)";
       $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($id_producto,$_POST['id_almacen_destino'],$cantidad,$modalidad));
+      $q3->execute(array($id_producto,$id_almacen_destino,$cantidad,$modalidad,$inventario_ok));
 
       if ($modoDebug==1) {
         $q3->debugDumpParams();
@@ -82,9 +114,10 @@ if ( !empty($_POST)) {
 
     }
 
-    $sql4 = "INSERT INTO stock_movimientos (id_producto, id_almacen_origen, id_almacen_destino, cantidad, id_usuario, fecha_hora) VALUES (?,?,?,?,?,NOW())";
-    $q4 = $pdo->prepare($sql4);
-    $q4->execute(array($id_producto,$_POST['id_almacen_origen'],$_POST['id_almacen_destino'],$cantidad,$id_usuario));
+    $sql5 = "INSERT INTO stock_movimientos_detalle (id_producto, id_almacen_origen, id_almacen_destino, cantidad, id_stock_movimiento, id_usuario, fecha_hora) VALUES (?,?,?,?,?,?,NOW())";
+    $q5 = $pdo->prepare($sql5);
+    $q5->execute(array($id_producto,$id_almacen_origen,$id_almacen_destino,$cantidad,$idStockMovimiento,$id_usuario));
+    $id_movimiento_stock=$pdo->lastInsertId();
 
     if ($modoDebug==1) {
       $q4->debugDumpParams();
@@ -92,7 +125,6 @@ if ( !empty($_POST)) {
       echo "<br><br>";
     }
 
-    $id_movimiento_stock=$pdo->lastInsertId();
     $aMovimientoStock[]=$id_movimiento_stock;
     //}
   }
@@ -139,7 +171,7 @@ if ( !empty($_POST)) {
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -149,7 +181,7 @@ if ( !empty($_POST)) {
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -370,7 +402,6 @@ if ( !empty($_POST)) {
         })*/
       $("#dataTables-example666").dataTable().fnDestroy();
       $('#dataTables-example666').DataTable({
-        //'ajax': 'ajaxListarProductos.php',
         "ajax" : "ajaxVentas.php?almacen="+val,//&id_vehiculo="+id_vehiculo+"
         stateSave: true,
         responsive: true,
@@ -393,7 +424,8 @@ if ( !empty($_POST)) {
                 ${row.cantidad}
               `;
             },
-            orderDataType: "num-fmt"
+            orderDataType: "num-fmt",
+            className: 'dt-body-center text-center',
           },{
             render: function(data, type, row, meta) {
               let disabled=""
@@ -449,7 +481,7 @@ if ( !empty($_POST)) {
           //console.log(btn);
           btn.parent().html(`
             <input type='hidden' name='id_stock[]' value='${this.dataset.id_stock}'></input>
-            <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad' min='1' max='${this.dataset.cantidad}' value="1" required></input>
+            <input type='number' name='cantidad[]' class='form-control form-control-sm cantidad mx-auto' style='width: 60px;' min='1' max='${this.dataset.cantidad}' value="1" required></input>
           `);
           clon.append(`
             <td class='text-center'>

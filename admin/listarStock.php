@@ -16,6 +16,9 @@ if(empty($_SESSION['user'])){
       background-color:#fff;
       border-color:#ccc;
     }
+    .bootstrap-select{
+      /*width: 100% !important;*/
+    }
   </style>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -82,21 +85,21 @@ if(empty($_SESSION['user'])){
                     <div class="row mb-2">
                       <table class="table">
                         <tr>
-                          <td class="text-right border-0 p-1">Proveedor:</td>
                           <td class="border-0 p-1">
-                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
+                            <label for="proveedor">Proveedor:</label><br>
+                            <select id="proveedor" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-width="auto" data-selected-text-format="count > 1" data-live-search="true" multiple><?php
                               include 'database.php';
                               $pdo = Database::connect();
                               $sql = " SELECT id, CONCAT(nombre,' ',apellido) AS proveedor FROM proveedores";
                               foreach ($pdo->query($sql) as $row) {?>
-                                <option value="<?=$row["id"]?>"><?=$row["proveedor"]?></option><?php
+                                <option value="<?=$row["id"]?>"><?="(".$row["id"].") ".$row["proveedor"]?></option><?php
                               }
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td class="text-right border-0 p-1">Modalidad:</td>
                           <td class="border-0 p-1">
-                            <select id="modalidad" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
+                            <label for="modalidad">Modalidad:</label><br>
+                            <select id="modalidad" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-selected-text-format="count > 1" multiple><?php
                               $pdo = Database::connect();
                               $sql = " SELECT id, modalidad FROM modalidades";
                               foreach ($pdo->query($sql) as $row) {?>
@@ -105,9 +108,9 @@ if(empty($_SESSION['user'])){
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td class="text-right border-0 p-1">Categoria:</td>
                           <td class="border-0 p-1">
-                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
+                            <label for="categoria">Categoria:</label><br>
+                            <select id="categoria" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-selected-text-format="count > 1" data-live-search="true" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $sql = " SELECT id, categoria FROM categorias";
                               foreach ($pdo->query($sql) as $row) {?>
@@ -116,15 +119,10 @@ if(empty($_SESSION['user'])){
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td class="text-right border-0 p-1"><?php
-                            if ($_SESSION['user']['id_perfil'] == 1) {
-                              echo "Almacen: ";
-                            }?>
-                            <!-- Tipo comprobante: -->
-                          </td>
                           <td class="border-0 p-1"><?php
                             if ($_SESSION['user']['id_perfil'] == 1) {?>
-                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                              <label for="id_almacen">Almacen:</label><br>
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect">
                                 <option value="0">- Todos -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
@@ -136,6 +134,17 @@ if(empty($_SESSION['user'])){
                             }else{?>
                               <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
                             }?>
+                          </td>
+                          <td class="border-0 p-1">
+                            <label class="d-block" for="checkbox-inventariado">
+                              <input class="checkbox_animated filtraTabla" value="1" checked required id="checkbox-inventariado" type="checkbox" name="inventariado[]">
+                              <label for="checkbox-inventariado">Inventariado</label>
+                            </label>
+
+                            <label class="d-block" for="checkbox-sin-inventariar">
+                              <input class="checkbox_animated filtraTabla" value="0" checked required id="checkbox-sin-inventariar" type="checkbox" name="inventariado[]">
+                              <label for="checkbox-sin-inventariar">Sin inventariar</label>
+                            </label>
                           </td>
                         </tr>
                       </table>
@@ -290,6 +299,10 @@ if(empty($_SESSION['user'])){
         let modalidad=$("#modalidad").val();
         let categoria=$("#categoria").val();
         let id_almacen=$("#id_almacen").val();
+        var inventariado = [];
+        $("input[name='inventariado[]']:checked").each(function() {
+          inventariado.push($(this).val());
+        });
 
         let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
 
@@ -299,7 +312,7 @@ if(empty($_SESSION['user'])){
           //dom: 'rtip',
           serverSide: true,
           processing: true,
-          ajax:{url:'ajaxListarStock.php?proveedor='+proveedor+'&modalidad='+modalidad+'&categoria='+categoria+'&id_almacen='+id_almacen},
+          ajax:{url:'ajaxListarStock.php?proveedor='+proveedor+'&modalidad='+modalidad+'&categoria='+categoria+'&id_almacen='+id_almacen+'&inventariado='+inventariado},
           stateSave: true,
           //responsive: true,
           "columnDefs": [

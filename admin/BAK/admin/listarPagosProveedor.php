@@ -29,7 +29,7 @@ if(empty($_SESSION['proveedor']))
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -39,7 +39,7 @@ if(empty($_SESSION['proveedor']))
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -73,8 +73,9 @@ if(empty($_SESSION['proveedor']))
 						  <th>Categoría</th>
 						  <th>Descripción</th>
 						  <th>Cantidad</th>
-						  <th>Precio</th>
-						  <th>Subtotal</th>
+						  <!-- <th>Precio</th> -->
+              <th>Modalidad</th>
+						  <!-- <th>Subtotal</th> -->
 						  <th>Cobrado</th>
                           </tr>
                         </thead>
@@ -82,8 +83,8 @@ if(empty($_SESSION['proveedor']))
                           <?php 
 							include 'database.php';
 							$pdo = Database::connect();
-							$sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i'), p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado` FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 2 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
-							
+							$sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i'), p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado`, vd.deuda_proveedor FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 40 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+							//echo $sql;
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
 								echo '<td>'. $row[0] . '</td>';
@@ -93,9 +94,11 @@ if(empty($_SESSION['proveedor']))
 								echo '<td>'. $row[4] . '</td>';
 								echo '<td>'. $row[5] . '</td>';
 								echo '<td>'. $row[6] . '</td>';
-								echo '<td>$'. number_format($row[7],2) . '</td>';
-								echo '<td>$'. number_format($row[8],2) . '</td>';
-								echo '<td>$'. number_format($row[8]*0.4,2) . '</td>';
+								//echo '<td>$'. number_format($row[7],2) . '</td>';
+                echo '<td>'. $row[9] . '</td>';
+								//echo '<td>$'. number_format($row[8],2) . '</td>';
+								//echo '<td>$'. number_format($row[8]*0.4,2) . '</td>';
+                echo '<td>$'. number_format($row[11],2) . '</td>';
 								echo '</tr>';
 							}
 						   Database::disconnect();

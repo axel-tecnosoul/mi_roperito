@@ -40,6 +40,19 @@ if ( !empty($_POST)) {
     $modalidad = $_POST["id_modalidad"][$key];
     $idProveedor = $_POST["id_proveedor"][$key];
     $id_producto = $_POST["id_producto"][$key];
+
+    //ingresar stock
+    $sql = "SELECT inventario_ok from stock where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id_stock));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+    $inventario_ok=$data["inventario_ok"];
+
+    if ($modoDebug==1) {
+      echo $sql;
+      echo "<br><br>";
+      var_dump($data);
+    }
       
     $sql = "UPDATE stock set cantidad = cantidad - ? where id = ?";
     $q = $pdo->prepare($sql);
@@ -66,7 +79,7 @@ if ( !empty($_POST)) {
     //$cantidad = $cantidad*(-1);
     
     //ingresar stock
-    $sql2 = "SELECT id from stock where id_producto = ? and id_almacen = ? and id_modalidad = ?";
+    $sql2 = "SELECT id,inventario_ok from stock where id_producto = ? and id_almacen = ? and id_modalidad = ?";
     $q2 = $pdo->prepare($sql2);
     $q2->execute(array($id_producto,$id_almacen_destino,$modalidad));
     $data = $q2->fetch(PDO::FETCH_ASSOC);
@@ -78,7 +91,7 @@ if ( !empty($_POST)) {
     }
 
     if (!empty($data)) {
-      $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
+      $sql3 = "UPDATE stock set cantidad = cantidad + ?, inventario_ok = $inventario_ok where id = ?";
       $q3 = $pdo->prepare($sql3);
       $q3->execute(array($cantidad,$data['id']));
 
@@ -89,9 +102,9 @@ if ( !empty($_POST)) {
       }
 
     } else {
-      $sql3 = "INSERT INTO stock (id_producto, id_almacen, cantidad,id_modalidad) VALUES (?,?,?,?)";
+      $sql3 = "INSERT INTO stock (id_producto, id_almacen, cantidad, id_modalidad, inventario_ok) VALUES (?,?,?,?,?)";
       $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($id_producto,$id_almacen_destino,$cantidad,$modalidad));
+      $q3->execute(array($id_producto,$id_almacen_destino,$cantidad,$modalidad,$inventario_ok));
 
       if ($modoDebug==1) {
         $q3->debugDumpParams();

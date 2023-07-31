@@ -29,7 +29,7 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -39,7 +39,7 @@ if(empty($_SESSION['user']))
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -58,46 +58,46 @@ if(empty($_SESSION['user']))
                 <div class="card">
                   <div class="card-header">
                     <h5>Canjes x Crédito
-					&nbsp;<a href="nuevoCanje.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo Canje" title="Nuevo Canje"></a>
-					&nbsp;<a href="exportCanjes.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Canjes" title="Exportar Canjes"></a>
-					</h5>
+                      &nbsp;<a href="nuevoCanje.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo Canje" title="Nuevo Canje"></a>
+                      &nbsp;<a href="exportCanjes.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Canjes" title="Exportar Canjes"></a>
+                    </h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Fecha/Hora</th>
-						  <th>Almacen</th>
-						  <th>Proveedor</th>
-						  <th>Total</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>Fecha/Hora</th>
+                            <th>Almacen</th>
+                            <th>Proveedor</th>
+                            <th>Total</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE 1 ";
-							if ($_SESSION['user']['id_perfil'] == 2) {
-								$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
-							}
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . 'hs</td>';
-								echo '<td>'. $row[2] . '</td>';
-								echo '<td>'. $row[3] . ' ' . $row[4] . '</td>';
-								echo '<td>$'. number_format($row[5],2) . '</td>';
-								echo '<td>';
-									echo '<a href="verCanje.php?id='.$row[0].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total_con_descuento` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE anulado = 0 ";
+                          if ($_SESSION['user']['id_perfil'] == 2) {
+                            $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
+                          }
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row['id'] . '</td>';
+                            echo '<td>'. $row[1] . 'hs</td>';
+                            echo '<td>'. $row['almacen'] . '</td>';
+                            echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
+                            echo '<td>$'. number_format($row['total_con_descuento'],2) . '</td>';
+                            echo '<td>';
+                            echo '<a href="verCanje.php?id='.$row['id'].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '<a href="#" title="Eliminar" onclick="openModalEliminarCanje('.$row["id"].')"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
                         </tbody>
                       </table>
                     </div>
@@ -114,6 +114,23 @@ if(empty($_SESSION['user']))
         <?php include("footer.php"); ?>
       </div>
     </div>
+
+    <div class="modal fade" id="eliminarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">¿Está seguro que desea eliminar el canje?</div>
+          <div class="modal-footer">
+            <a id="btnEliminarCanje" class="btn btn-primary">Eliminar</a>
+            <button class="btn btn-light" type="button" data-dismiss="modal" aria-label="Close">Volver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
@@ -158,26 +175,32 @@ if(empty($_SESSION['user']))
 				stateSave: true,
 				responsive: true,
 				language: {
-         "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
-        "infoFiltered": "(Filtrado de _MAX_ total registros)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Registros",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "No hay resultados",
-        "paginate": {
+          "decimal": "",
+          "emptyTable": "No hay información",
+          "info": "Mostrando _START_ a _END_ de _TOTAL_ Registros",
+          "infoEmpty": "Mostrando 0 to 0 of 0 Registros",
+          "infoFiltered": "(Filtrado de _MAX_ total registros)",
+          "infoPostFix": "",
+          "thousands": ",",
+          "lengthMenu": "Mostrar _MENU_ Registros",
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "search": "Buscar:",
+          "zeroRecords": "No hay resultados",
+          "paginate": {
             "first": "Primero",
             "last": "Ultimo",
             "next": "Siguiente",
             "previous": "Anterior"
-				}}
+          }
+        }
 			});
 		});
+
+    function openModalEliminarCanje(idVenta){
+      $('#eliminarModal').modal("show");
+      document.getElementById("btnEliminarCanje").href="anularCanje.php?id="+idVenta;
+    }
 		
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>

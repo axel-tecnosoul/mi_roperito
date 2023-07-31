@@ -1,7 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -9,7 +8,7 @@ if(empty($_SESSION['user']))
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -29,7 +28,7 @@ if(empty($_SESSION['user']))
           <div class="container-fluid">
             <div class="page-header">
               <div class="row">
-                <div class="col">
+                <div class="col-10">
                   <div class="page-header-left">
                     <h3><?php include("title.php"); ?></h3>
                     <ol class="breadcrumb">
@@ -39,7 +38,7 @@ if(empty($_SESSION['user']))
                   </div>
                 </div>
                 <!-- Bookmark Start-->
-                <div class="col">
+                <div class="col-2">
                   <div class="bookmark pull-right">
                     <ul>
                       <li><a  target="_blank" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="<?php echo date('d-m-Y');?>"><i data-feather="calendar"></i></a></li>
@@ -64,37 +63,42 @@ if(empty($_SESSION['user']))
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Almacen</th>
-						  <th>Activo</th>
-						  <th>Opciones</th>
+                            <th>ID</th>
+                            <th>Almacen</th>
+                            <th>Direccion</th>
+                            <th>Tipo</th>
+                            <th>Pto. de Vta. Fact. Elec.</th>
+                            <th>Activo</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT `id`, `almacen`, `activo` FROM `almacenes` WHERE 1 ";
-							
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								if ($row[2] == 1) {
-									echo '<td>Si</td>';
-								} else {
-									echo '<td>No</td>';
-								}
-								echo '<td>';
-									echo '<a href="modificarAlmacen.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-									echo '&nbsp;&nbsp;';
-									echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-									echo '&nbsp;&nbsp;';
-								echo '</td>';
-								echo '</tr>';
-						   }
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT id, almacen, direccion, IF(id_tipo=1,'Venta','Deposito') AS tipo, punto_venta, activo FROM almacenes WHERE 1 ";
+                          
+                          foreach ($pdo->query($sql) as $row) {
+                            echo '<tr>';
+                            echo '<td>'. $row[0] . '</td>';
+                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row[2] . '</td>';
+                            echo '<td>'. $row[3] . '</td>';
+                            echo '<td>'. $row[4] . '</td>';
+                            if ($row[5] == 1) {
+                              echo '<td>Si</td>';
+                            } else {
+                              echo '<td>No</td>';
+                            }
+                            echo '<td>';
+                            echo '<a href="modificarAlmacen.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'.$row[0].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
+                              echo '&nbsp;&nbsp;';
+                            echo '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();
+                          ?>
                         </tbody>
                       </table>
                     </div>
