@@ -14,7 +14,8 @@
                 
               </li>
               <li class="onhover-dropdown">
-                  <h6><b><?php echo $_SESSION['proveedor']['email']?></b></h6>
+                  <!-- Me daba un error de xdebux en esta linea asi que lo comente -->
+                  <!-- <h6><b><?php echo $_SESSION['proveedor']['email']?></b></h6> -->
               </li>
               <li class="onhover-dropdown">
                 <div class="media align-items-center"><a href="logout_proveedor.php"><img class="align-self-center pull-right rounded-circle" src="assets/images/cerrar-sesion.png" width="25px" alt="header-user"></a>

@@ -23,13 +23,15 @@
 
     $subidajpg = 0;
 
-    if ($_POST['seccion'] == "1") {
+    if($_POST['seccion'] == "1"){
       $seccion = "Home";
+    }elseif($_POST['seccion'] == "2"){
+      $seccion = "Proveedores";
     }
 
     // Verificamos si se ha enviado una nueva imagen
     if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-        $carpetaDestino = '../nueva_web/images/' . $seccion . '/JPG/';
+      $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
         $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
 
         if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
@@ -141,8 +143,8 @@
                             <div class="col-sm-9">
                               <select name="seccion" id="seccion" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
-                                <option value="1" <?php if ($data['seccion']==1) echo " selected ";?>>Home</option>
-                                <option value="2" <?php if ($data['seccion']==2) echo " selected ";?>>Proveedores</option>
+                                <option value="1" <?php if ($data['seccion']==1) echo " selected ";?>>"Sabes que se usa?" - Home web</option>
+                                <option value="2" <?php if ($data['seccion']==2) echo " selected ";?>>Home Proveedores</option>
                               </select>
                             </div>
                           </div>
