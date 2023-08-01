@@ -78,7 +78,9 @@ if(empty($_SESSION['user'])) {
                               echo '<td>'.$row['id'].'</td>';
                               echo '<td>'.$row['nombre'].'</td>';
                               if($row['seccion'] == 1){
-                                echo '<td>HOME</td>';
+                                echo '<td>"Sabes que se usa?" - Home web</td>';
+                              }elseif($row['seccion'] == 2){
+                                echo '<td>Home Proveedores</td>';
                               }
                               if($row['activo'] == 1){
                                 echo '<td>SI</td>';
