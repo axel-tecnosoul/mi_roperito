@@ -46,6 +46,27 @@ require 'database.php';
           <!-- Container-fluid starts-->
           <div class="container-fluid">
             <div class="row">
+              <div class="col-3"></div>
+              <div class="col-sm-6"> 
+                <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php
+                        $pdo = Database::connect();
+                        $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
+
+                        foreach ($pdo->query($sql) as $row) {
+                          echo '<div class="testimonial custom-styles">';	
+                          echo '<picture>';
+                          echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
+                          echo '</picture>';
+                          echo '</div>';
+                        }
+
+                        Database::disconnect();?>
+                </div>
+              </div>
+              <div class="col-3"></div>
+            </div>
+
+            <div class="row">
 			  <div class="col-lg-12">
                   <div class="header-faq">
                     <h5 class="mb-0">Ayuda / Preguntas Frecuentes</h5>
@@ -233,8 +254,8 @@ require 'database.php';
         <?php include("footer.php"); ?>
       </div>
     </div>
-    <!-- latest jquery-->
-    <script src="assets/js/jquery-3.2.1.min.js"></script>
+      <!-- latest jquery-->
+      <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
     <script src="assets/js/bootstrap/popper.min.js"></script>
     <script src="assets/js/bootstrap/bootstrap.js"></script>
@@ -245,7 +266,7 @@ require 'database.php';
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-	<script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+	  <script src="assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/dataTables.buttons.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/jszip.min.js"></script>
     <script src="assets/js/datatable/datatable-extension/buttons.colVis.min.js"></script>
@@ -267,12 +288,13 @@ require 'database.php';
     <script src="assets/js/datatable/datatable-extension/custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-	<script src="assets/js/bootstrap/tableExport.js"></script>
-	<script src="assets/js/bootstrap/jquery.base64.js"></script>
-    <script src="assets/js/chart/chartist/chartist.js"></script>
-    <script src="assets/js/chart/morris-chart/raphael.js"></script>
+    <script src="assets/js/bootstrap/tableExport.js"></script>
+    <script src="assets/js/bootstrap/jquery.base64.js"></script>
+    <!-- <script src="assets/js/chart/chartist/chartist.js"></script> -->
+    <!-- <script src="assets/js/chart/morris-chart/raphael.js"></script>
     <script src="assets/js/chart/morris-chart/morris.js"></script>
     <script src="assets/js/chart/morris-chart/prettify.min.js"></script>
+    <script src="assets/js/chart/morris-chart/morris-script.js"></script>
     <script src="assets/js/chart/chartjs/chart.min.js"></script>
     <script src="assets/js/chart/flot-chart/excanvas.js"></script>
     <script src="assets/js/chart/flot-chart/jquery.flot.js"></script>
@@ -281,28 +303,23 @@ require 'database.php';
     <script src="assets/js/chart/flot-chart/jquery.flot.stack.js"></script>
     <script src="assets/js/chart/flot-chart/jquery.flot.pie.js"></script>
     <script src="assets/js/chart/flot-chart/jquery.flot.symbol.js"></script>
-    <script src="assets/js/chart/google/google-chart-loader.js"></script>
+    <script src="assets/js/chart/google/google-chart-loader.js"></script> -->
     <script src="assets/js/chart/peity-chart/peity.jquery.js"></script>
     <script src="assets/js/prism/prism.min.js"></script>
     <script src="assets/js/clipboard/clipboard.min.js"></script>
-    <script src="assets/js/counter/jquery.waypoints.min.js"></script>
+    <!-- <script src="assets/js/counter/jquery.waypoints.min.js"></script>
     <script src="assets/js/counter/jquery.counterup.min.js"></script>
-    <script src="assets/js/counter/counter-custom.js"></script>
+    <script src="assets/js/counter/counter-custom.js"></script> -->
     <script src="assets/js/custom-card/custom-card.js"></script>
-    <script src="assets/js/dashboard/project-custom.js"></script>
+    <!-- <script src="assets/js/dashboard/project-custom.js"></script> -->
     <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
-	<script src="assets/js/chart/morris-chart/raphael.js"></script>
-    <script src="assets/js/chart/morris-chart/morris.js"></script>
-    <script src="assets/js/chart/morris-chart/prettify.min.js"></script>
-    <script src="assets/js/chart/morris-chart/morris-script.js"></script>
+
+    <script defer src="../js/bundle.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     
