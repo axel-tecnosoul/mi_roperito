@@ -149,6 +149,10 @@ if ( null==$id ) {
         }
 			});
 
+      $("#btnConfirmGenerarNC").on("click",function(){
+        $(this).attr("disabled",true).addClass("disabled")
+      })
+
       $('#devolver-masivo').on('click', function (e) {
         e.preventDefault();
         if ($('.customer-selector:checked').length < 1) {

@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -114,11 +114,11 @@ Database::disconnect();?>
 							<div class="form-group row">
 								<label class="col-sm-3 col-form-label">Activo</label>
 								<div class="col-sm-9">
-								<select name="activo" id="activo" class="js-example-basic-single col-sm-12" disabled="disabled">
-								<option value="">Seleccione...</option>
-								<option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
-								<option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
-								</select>
+                  <select name="activo" id="activo" class="js-example-basic-single col-sm-12" disabled="disabled">
+                    <option value="">Seleccione...</option>
+                    <option value="1" <?php if ($data['activo']==1) echo " selected ";?>>Si</option>
+                    <option value="0" <?php if ($data['activo']==0) echo " selected ";?>>No</option>
+                  </select>
 								</div>
 							</div>
 							<div class="form-group row">
@@ -190,7 +190,6 @@ Database::disconnect();?>
                         </tr>
                       </thead>
                       <tbody><?php
-                      
                         $pdo = Database::connect();
                         $sql = " SELECT v.id,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora,(SELECT forma_pago FROM forma_pago fp WHERE v.id_forma_pago=fp.id) AS forma_pago_venta,c.categoria,p.codigo,p.descripcion,vd.subtotal,vd.cantidad,vd.pagado,a.almacen,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE vd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE vd.id_forma_pago=fp.id) AS forma_pago_proveedor,vd.id_modalidad,m.modalidad,vd.id AS id_detalle_venta FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c ON p.id_categoria=c.id INNER JOIN almacenes a ON v.id_almacen=a.id INNER JOIN modalidades m ON vd.id_modalidad=m.id LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada=0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL AND pr.id = ".$id;
                         //echo $sql;
@@ -249,16 +248,24 @@ Database::disconnect();?>
                           <th>Canje</th>
                           <th>Fecha</th>
                           <th>Código</th>
-                          <th>Categoría</th>
                           <th>Descripción</th>
                           <th>Precio</th>
-                          <th>Cantidad</th>
                           <th>Almacen</th>
+                          <th>Pagado</th>
+                          <th>Deuda</th>
+                          <th>Forma de Venta</th>
+                          <th>Modalidad</th>
+                          <th>Fecha de pago</th>
+                          <th>Caja egreso de dinero</th>
+                          <th>Almacen egreso de dinero</th>
+                          <th>Forma de pago a Proveedora</th>
+                          <th>Cantidad</th>
+                          <th>Categoría</th>
                         </tr>
                       </thead>
                       <tbody><?php
                         $pdo = Database::connect();
-                        $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$id;
+                        $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, a.almacen, c.total,cd.cantidad,cd.subtotal,c2.categoria,p.codigo,p.descripcion,    cd.pagado,a.almacen,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago,caja_egreso,(SELECT almacen FROM almacenes a2 WHERE cd.id_almacen=a2.id) AS almacen_egreso_dinero,deuda_proveedor,(SELECT forma_pago FROM forma_pago fp WHERE cd.id_forma_pago=fp.id) AS forma_pago_proveedor,cd.id_modalidad,m.modalidad,cd.id AS id_detalle_venta FROM canjes c INNER JOIN canjes_detalle cd ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN categorias c2 ON p.id_categoria=c2.id INNER JOIN almacenes a on a.id = c.id_almacen INNER JOIN modalidades m ON cd.id_modalidad=m.id LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE anulado = 0 AND de.id_devolucion IS NULL AND p.id_proveedor = ".$id;
                         if ($_SESSION['user']['id_perfil'] == 2) {
                           $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                         }
@@ -269,11 +276,40 @@ Database::disconnect();?>
                           echo '</td>';
                           echo '<td>'.$row["fecha_hora"].'hs</td>';
                           echo '<td>'. $row["codigo"] . '</td>';
-                          echo '<td>'. $row["categoria"] . '</td>';
                           echo '<td>'. $row["descripcion"] . '</td>';
                           echo '<td>$'. number_format($row["subtotal"],2,',','.') . '</td>';
-                          echo '<td>'. $row["cantidad"] . '</td>';
                           echo '<td>'.$row["almacen"].'</td>';
+
+                          echo '<td>';
+                          if($row["pagado"]==1){
+                            echo "Si";
+                          }else{
+                            echo "No";
+                          }
+                          echo '</td>';
+                          echo '<td>$'.number_format($row["deuda_proveedor"],2,',','.').'</td>';
+                          //echo '<td>'.$row["forma_pago_venta"].'</td>';
+                          echo '<td>Credito</td>';
+                          echo '<td>';
+                          if(!($row["id_modalidad"]==40 and $row["pagado"]==1)){
+
+                          //}else{
+                            
+                            //AGREGAR POSIBILIDAD DE MODIFICAR MODALIDAD EN LOS CANJES
+
+                            /*if($_SESSION["user"]["id_perfil"]==1){
+                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            }*/
+                          }
+                          echo $row["modalidad"];
+                          echo '</td>';
+                          echo '<td>'.$row["fecha_hora_pago"].'hs</td>';
+                          echo '<td>'.$row["caja_egreso"].'</td>';
+                          echo '<td>'.$row["almacen_egreso_dinero"].'</td>';
+                          echo '<td>'.$row["forma_pago_proveedor"].'</td>';
+                          echo '<td>'.$row["cantidad"].'</td>';
+                          echo '<td>'.$row["categoria"].'</td>';
+
                           echo '</tr>';
                         }
                         Database::disconnect();?>

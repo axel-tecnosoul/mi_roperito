@@ -1,4 +1,5 @@
 <?php
+//sleep(2);
 include 'database.php';
 include 'funciones.php';
 session_start();
@@ -9,25 +10,36 @@ $columns = $_GET['columns'];
 
 //$data_columns = ["","p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];//PARA EL ORDENAMIENTO
 
-$data_columns = $fields = ['v.id','date_format(v.fecha_hora,"%d/%m/%Y %H:%i")','v.tipo_comprobante','a.almacen','fp.forma_pago','v.total_con_descuento','v.modalidad_venta','v.nombre_cliente','v.dni','v.direccion','v.email','v.telefono','v.total','d.descripcion','v.id_cierre_caja','v.estado'];
+$data_columns = $fields = ['v.id','date_format(v.fecha_venta,"%d/%m/%Y") AS fecha_venta','date_format(v.fecha_hora,"%d/%m/%Y %H:%i") AS fecha_hora','v.tipo_comprobante','a.almacen','fp.forma_pago','v.total_con_descuento','v.modalidad_venta','v.nombre_cliente','v.dni','v.direccion','v.email','v.telefono','v.total','d.descripcion','v.id_cierre_caja','v.estado'];
 
 $from="FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id";
 
 $orderBy = " ORDER BY ";
 foreach ($_GET['order'] as $order) {
-  $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
+  $campo=$data_columns[$order['column']];
+  $ex=explode(" AS ",$campo);
+  $campo=$ex[0];
+  $orderBy .= $campo . " {$order['dir']}, ";
+  //$orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
+}
+
+$tipo_fecha=$_GET["tipo_fecha"];
+if($tipo_fecha=="carga"){
+  $campo_fecha_buscar="fecha_hora";
+}else{
+  $campo_fecha_buscar="fecha_venta";
 }
 
 $desde=$_GET["desde"];
 $filtroDesde="";
 if($desde!=""){
-  $filtroDesde=" AND DATE(v.fecha_hora)>='$desde'";
+  $filtroDesde=" AND DATE(v.$campo_fecha_buscar)>='$desde'";
 }
 
 $hasta=$_GET["hasta"];
 $filtroHasta="";
 if($hasta!=""){
-  $filtroHasta=" AND DATE(v.fecha_hora)<='$hasta'";
+  $filtroHasta=" AND DATE(v.$campo_fecha_buscar)<='$hasta'";
 }
 
 $forma_pago=$_GET["forma_pago"];
@@ -75,8 +87,10 @@ $globalSearch = $_GET['search'];
 }*/
 if ( $globalSearchValue = $globalSearch['value'] ) {
   $aWhere=[];
-  foreach ($fields as $k => $field) {
-    $aWhere[]=$field.' LIKE "%'.$globalSearchValue.'%"';
+  foreach ($fields as $k => $campo) {
+    $ex=explode(" AS ",$campo);
+    $campo=$ex[0];
+    $aWhere[]=$campo.' LIKE "%'.$globalSearchValue.'%"';
     //$where .= ($where ? $where.' AND ' : '' )."name LIKE '%$globalSearchValue%'";
   }
   $where .= ' AND ('.implode(' OR ', $aWhere).')';
@@ -101,7 +115,6 @@ $total = $countSt->fetch()['Total'];
 //$resFilterLength = self::sql_exec( $db, $bindings,"SELECT COUNT(`id`) FROM productos ".($where ? "WHERE $where " : ''));
 $queryFiltered="SELECT COUNT(v.id) AS recordsFiltered $from ".($whereFiltered ? "WHERE $whereFiltered " : '');
 //var_dump($queryFiltered);
-
 $resFilterLength = $pdo->query($queryFiltered);
 $recordsFiltered = $resFilterLength->fetch()['recordsFiltered'];
 
@@ -126,7 +139,10 @@ if ($st) {
 
       $aProductos[]=[
         "id_venta"=>$row['id'],
-        "fecha_hora"=>$row[1],// AS fecha_hora
+        "fecha_venta_formatted"=>$row["fecha_venta"],// AS fecha_venta
+        "fecha_venta"=>date("Y-m-d",strtotime($row["fecha_venta"])),// AS fecha_venta
+        "fecha_hora_formatted"=>$row["fecha_hora"],// AS fecha_hora
+        "fecha_hora"=>date("Y-m-d",strtotime($row["fecha_hora"])),// AS fecha_hora
         "tipo_comprobante"=>$tipo_cbte=get_nombre_comprobante($row["tipo_comprobante"]),
         "almacen"=>$row['almacen'],
         "forma_pago"=>$row['forma_pago'],

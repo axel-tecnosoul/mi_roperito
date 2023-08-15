@@ -3,7 +3,7 @@ ini_set("display_errors",1);
 ini_set("display_startup_errors",1);
 error_reporting(E_ALL);
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -98,9 +98,9 @@ if ( !empty($_POST)) {
   }*/
 
   //Alta Nueva Venta
-  $sql = "INSERT INTO ventas (fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta,id_descuento_aplicado,total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+  $sql = "INSERT INTO ventas (fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta,id_descuento_aplicado,total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$_POST["modalidad_venta"],$id_descuento,$total_a_pagar));
+  $q->execute(array($_POST["fecha_venta"],$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$_POST["modalidad_venta"],$id_descuento,$total_a_pagar));
   $idVenta = $pdo->lastInsertId();
 
   if ($modoDebug==1) {
@@ -595,7 +595,8 @@ if ( !empty($_POST)) {
   //die;
 }
 
-$id_perfil=$_SESSION["user"]["id_perfil"];?>
+$id_perfil=$_SESSION["user"]["id_perfil"];
+$hoy=date("Y-m-d");?>
 <!DOCTYPE html>
 <html lang="en">
   <head><?php
@@ -653,7 +654,12 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Fecha de venta</label>
+                            <div class="col-sm-9">
+                              <input type="date" name="fecha_venta" class="form-control" value="<?=$hoy?>" required id="fecha_venta">
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Modalidad de venta</label>
                             <div class="col-sm-9">

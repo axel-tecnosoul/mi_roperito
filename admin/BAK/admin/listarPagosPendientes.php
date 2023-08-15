@@ -4,6 +4,7 @@ if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
+include 'funciones.php';
 
 //$desde=date("Y-m-d");
 $desde="";
@@ -206,8 +207,9 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                             <th>Deuda</th> -->
                             <th>ID</th>
                             <th>Fecha/Hora</th>
+                            <th>Tipo Cbte.</th>
                             <th>Descripción</th>
-                            <th>Precio</th>
+                            <!-- <th>Precio</th> -->
                             <th>Subtotal</th>
                             <th>Deuda</th>
                             <th>Cantidad</th>
@@ -221,7 +223,8 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                         <tbody><?php
                           $pdo = Database::connect();
                           //$sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
-                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          //$sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor, v.tipo_comprobante, v.estado FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           //echo $sql;
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
@@ -229,27 +232,35 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           //echo $sql;
                           $total_deuda=0;
                           foreach ($pdo->query($sql) as $row) {
-                            echo '<tr>';                          
+                            $subtotal=$row["subtotal"];
+                            $deuda = $row["deuda_proveedor"];
+                            $tipo_comprobante=$row["tipo_comprobante"];
+                            $clase_montos_negativos="";
+                            if($tipo_comprobante=="NCB"){
+                              $subtotal*=-1;
+                              $deuda*=-1;
+                              $clase_montos_negativos="text-danger";
+                            }
+                            $total_deuda+=$deuda;
+                            $tipo_cbte=get_nombre_comprobante($tipo_comprobante);
+                            $estado = $row["estado"];
+                            $clase_tipo_cbte="";
+                            if($estado=="A"){
+                              $clase_tipo_cbte="badge badge-success";
+                            }
+                            if($estado=="R" || $estado=="E"){
+                              $clase_tipo_cbte="badge badge-danger";
+                            }
+                            $cbte='<span class="'.$clase_tipo_cbte.'">'.$tipo_cbte.'</span>';
+                            echo '<tr>';
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'. 'v/' . $row["id_detalle_venta"].'" /> </td>'; 
                             echo '<td>V#'. $row["id_venta"] . '</td>';
-                            /*echo '<td>'. $row["id_detalle_venta"] . '</td>';
-                            echo '<td>'. $row["nombre"] . ' ' . $row["apellido"] . '</td>';*/
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
+                            echo '<td>'. $cbte . '</td>';
                             echo '<td>'. $row["descripcion"] . '</td>';
-                            echo '<td>$'. number_format($row["precio"],2) . '</td>';
-                            echo '<td>$'. number_format($row["subtotal"],2) . '</td>';
-                            /*$subtotal = $row["subtotal"];
-                            $modalidad = 0.4;
-                            $deuda = 0;
-                            if ($row["id_forma_pago"] == 1) {
-                              $fp = 1;
-                            } else {
-                              $fp = 0.85;
-                            }
-                            $deuda = $subtotal*$modalidad*$fp;*/
-                            $deuda = $row["deuda_proveedor"];
-                            $total_deuda+=$deuda;
-                            echo '<td> $'. number_format($deuda,2).'<label class="d-none deuda">'.$deuda.'</label></td>';
+                            //echo '<td>$'. number_format($row["precio"],2) . '</td>';
+                            echo '<td class="'.$clase_montos_negativos.'">$'. number_format($subtotal,2) . '</td>';
+                            echo '<td class="'.$clase_montos_negativos.'">$'. number_format($deuda,2).'<label class="d-none deuda">'.$deuda.'</label></td>';
                             echo '<td>'. $row["cantidad"] . '</td>';
                             echo '<td class="d-none">'. $row["forma_pago"] . '</td>';
                             echo '<td class="d-none">'. $row["almacen"] . '</td>';
@@ -261,15 +272,17 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           }
                           $sql2 = "SELECT cd.id AS id_detalle_canje, a.almacen, date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cj.id AS id_canje,cd.deuda_proveedor FROM canjes_detalle cd inner join canjes cj on cj.id = cd.id_canje inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen left join forma_pago fp on fp.id = cd.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE cj.anulado = 0 and cd.id_modalidad = 40 and cd.pagado = 0 AND de.id_devolucion IS NULL $filtroDesdeC $filtroHastaC $filtroProveedor $filtroAlmacen";
                           foreach($pdo->query($sql2) as $row2){
-                            echo '<tr>';                          
+                            $deuda = $row2["deuda_proveedor"];
+                            $total_deuda+=$deuda;
+
+                            echo '<tr>';
                             echo '<td><input type="checkbox" class="pago_pendiente no-sort customer-selector" value="'.'c/'.$row2["id_detalle_canje"].'" /> </td>';
                             echo '<td>C#'. $row2["id_canje"] . '</td>';
                             echo '<td>'. $row2["fecha_hora"] . 'hs</td>';
+                            echo '<td>Canje</td>';
                             echo '<td>'. $row2["descripcion"] . '</td>';
-                            echo '<td>$'. number_format($row2["precio"],2) . '</td>';
+                            //echo '<td>$'. number_format($row2["precio"],2) . '</td>';
                             echo '<td>$'. number_format($row2["subtotal"],2) . '</td>';
-                            $deuda = $row2["deuda_proveedor"];
-                            $total_deuda+=$deuda;
                             echo '<td> $'. number_format($deuda,2).'<label class="d-none deuda">'.$deuda.'</label></td>';
                             echo '<td>'. $row2["cantidad"] . '</td>';
                             echo '<td class="d-none">'. $row2["forma_pago"] . '</td>';

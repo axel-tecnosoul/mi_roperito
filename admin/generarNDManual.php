@@ -5,7 +5,8 @@ error_reporting(E_ALL);
 require("config.php");
 require 'database.php';
 //$id=$_GET["id"];
-$id=4041;
+//$id=4041;
+$id=1359;
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -18,7 +19,7 @@ if ($modoDebug==1) {
 }
 
 //obtenemos los datos de la factura para insertarlos en la nota de credito
-$sql = "SELECT nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_forma_pago, punto_venta, numero_comprobante, tipo_comprobante, fecha_hora, modalidad_venta FROM ventas WHERE id = $id ";
+$sql = "SELECT fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_forma_pago, punto_venta, numero_comprobante, tipo_comprobante, fecha_hora, modalidad_venta FROM ventas WHERE id = $id ";
 $q = $pdo->prepare($sql);
 $q->execute();
 $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -27,9 +28,9 @@ echo $sql;
 var_dump($data);
 
 //guardamos la nota de credito con los mismos datos de la factura y establemecemos el id_venta_cbte_relacionado
-$sql = "INSERT INTO ventas (fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_usuario,id_forma_pago,id_venta_cbte_relacionado, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+$sql = "INSERT INTO ventas (fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_usuario,id_forma_pago,id_venta_cbte_relacionado, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
 $q = $pdo->prepare($sql);
-$q->execute(array($data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
+$q->execute(array($data["fecha_venta"],$data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
 $idVentaCbteRelacionado = $pdo->lastInsertId();
 
 if ($modoDebug==1) {

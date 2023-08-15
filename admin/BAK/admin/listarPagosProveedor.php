@@ -1,15 +1,13 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['proveedor']))
-{
+if(empty($_SESSION['proveedor'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	<?php include('head_tables.php');?>
+	  <?php include('head_tables.php');?>
   </head>
   <body class="light-only">
     <!-- page-wrapper Start-->
@@ -57,52 +55,71 @@ if(empty($_SESSION['proveedor']))
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Mis Cobranzas
-					&nbsp;<a href="exportPagosProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Cobranzas" title="Exportar Mis Cobranzas"></a>
-					</h5>
+                    <h5>Mis Cobranzas&nbsp;
+                      <a href="exportPagosProveedor.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Mis Cobranzas" title="Exportar Mis Cobranzas"></a>
+					          </h5>
                   </div>
                   <div class="card-body">
                     <div class="dt-ext table-responsive">
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-						  <th>ID</th>
-						  <th>Almacen</th>
-						  <th>Fecha/Hora</th>
-						  <th>Código</th>
-						  <th>Categoría</th>
-						  <th>Descripción</th>
-						  <th>Cantidad</th>
-						  <!-- <th>Precio</th> -->
-              <th>Modalidad</th>
-						  <!-- <th>Subtotal</th> -->
-						  <th>Cobrado</th>
+                            <th>ID</th>
+                            <th>Almacen</th>
+                            <th>Fecha/Hora</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <!-- <th>Precio</th> -->
+                            <th>Modalidad</th>
+                            <!-- <th>Subtotal</th> -->
+                            <th>Cobrado</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php 
-							include 'database.php';
-							$pdo = Database::connect();
-							$sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i'), p.codigo, c.categoria, p.descripcion, vd.`cantidad`, vd.`precio`, vd.`subtotal`, m.`modalidad`, vd.`pagado`, vd.deuda_proveedor FROM `ventas_detalle` vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 40 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
-							//echo $sql;
-							foreach ($pdo->query($sql) as $row) {
-								echo '<tr>';
-								echo '<td>'. $row[0] . '</td>';
-								echo '<td>'. $row[1] . '</td>';
-								echo '<td>'. $row[2] . 'hs</td>';
-								echo '<td>'. $row[3] . '</td>';
-								echo '<td>'. $row[4] . '</td>';
-								echo '<td>'. $row[5] . '</td>';
-								echo '<td>'. $row[6] . '</td>';
-								//echo '<td>$'. number_format($row[7],2) . '</td>';
-                echo '<td>'. $row[9] . '</td>';
-								//echo '<td>$'. number_format($row[8],2) . '</td>';
-								//echo '<td>$'. number_format($row[8]*0.4,2) . '</td>';
-                echo '<td>$'. number_format($row[11],2) . '</td>';
-								echo '</tr>';
-							}
-						   Database::disconnect();
-						  ?>
+                        <tbody><?php
+                          include 'database.php';
+                          $pdo = Database::connect();
+                          $sql = " SELECT v.id, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i'), p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, vd.deuda_proveedor, v.tipo_comprobante, v.estado FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad WHERE v.anulada = 0 and m.id = 40 and vd.pagado = 1 and p.id_proveedor = ".$_SESSION['proveedor']['id'];
+                          //echo $sql;
+                          foreach ($pdo->query($sql) as $row) {
+                            $subtotal=$row["subtotal"];
+                            $deuda = $row["deuda_proveedor"];
+                            $tipo_comprobante=$row["tipo_comprobante"];
+                            $clase_montos_negativos="";
+                            if($tipo_comprobante=="NCB"){
+                              $subtotal*=-1;
+                              $deuda*=-1;
+                              $clase_montos_negativos="text-danger";
+                            }
+                            //$total_deuda+=$deuda;
+                            //$tipo_cbte=get_nombre_comprobante($tipo_comprobante);
+                            $estado = $row["estado"];
+                            $clase_tipo_cbte="";
+                            if($estado=="A"){
+                              $clase_tipo_cbte="badge badge-success";
+                            }
+                            if($estado=="R" || $estado=="E"){
+                              $clase_tipo_cbte="badge badge-danger";
+                            }
+                            //$cbte='<span class="'.$clase_tipo_cbte.'">'.$tipo_cbte.'</span>';
+                            echo '<tr>';
+                            echo '<td>'. $row[0] . '</td>';
+                            echo '<td>'. $row[1] . '</td>';
+                            echo '<td>'. $row[2] . 'hs</td>';
+                            //echo '<td>'. $cbte . '</td>';
+                            echo '<td>'. $row[3] . '</td>';
+                            echo '<td>'. $row[4] . '</td>';
+                            echo '<td>'. $row[5] . '</td>';
+                            echo '<td>'. $row[6] . '</td>';
+                            //echo '<td>$'. number_format($row[7],2) . '</td>';
+                            echo '<td>'. $row[9] . '</td>';
+                            //echo '<td>$'. number_format($row[8],2) . '</td>';
+                            //echo '<td>$'. number_format($row[8]*0.4,2) . '</td>';
+                            echo '<td class="'.$clase_montos_negativos.'">$'. number_format($deuda,2) . '</td>';
+                            echo '</tr>';
+                          }
+                          Database::disconnect();?>
                         </tbody>
                       </table>
                     </div>

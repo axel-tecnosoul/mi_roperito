@@ -1,6 +1,6 @@
 <?php 
-session_start(); 
-if(empty($_SESSION['user'])){
+session_start();
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }?>
@@ -136,6 +136,22 @@ if(empty($_SESSION['user'])){
                             }?>
                           </td>
                           <td class="border-0 p-1">
+                            <label for="id_estado">Estado:</label><br>
+                            <select name="id_estado" id="id_estado" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect">
+                              <option value="">Seleccione...</option><?php
+                              $pdo = Database::connect();
+                              $sql = "SELECT id, estado FROM estados_stock";
+                              foreach ($pdo->query($sql) as $row) {
+                                $selected="";
+                                if($row["id"]==1){
+                                  $selected="selected";
+                                }?>
+                                <option value='<?=$row['id']?>' <?=$selected?>><?=$row['estado']?></option><?php
+                              }
+                              Database::disconnect();?>
+                            </select>
+                          </td>
+                          <td class="border-0 p-1">
                             <label class="d-block" for="checkbox-inventariado">
                               <input class="checkbox_animated filtraTabla" value="1" checked required id="checkbox-inventariado" type="checkbox" name="inventariado[]">
                               <label for="checkbox-inventariado">Inventariado</label>
@@ -158,34 +174,36 @@ if(empty($_SESSION['user'])){
                         <thead>
                           <tr>
                             <th><input type="checkbox" class="no-sort customer-selector" id="selectAll" title="Seleccionar todo"/></th>
-                            <th class="d-none">ID</th>
+                            <th>ID</th>
                             <th>Código</th>
-                            <th class="d-none">Categoría</th>
+                            <th>Categoría</th>
                             <th>Descripción</th>
-                            <th>Cantidad</th>
+                            <th>Cant.</th>
                             <th>Precio</th>
                             <th>Proveedor</th>
                             <th>Almacen</th>
-                            <th>Inventariado</th>
-                            <th class="d-none">Modalidad</th>
-                            <th class="d-none">Activo</th>
+                            <th>Invent.</th>
+                            <th>Estado</th>
+                            <th>Modalidad</th>
+                            <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tfoot>
                           <tr>
                             <th style="text-align: right;">Total</th>
-                            <th class="d-none"></th>
-                            <th></th>
-                            <th class="d-none"></th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
-                            <th class="d-none"></th>
-                            <th class="d-none"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                             <th></th>
                           </tr>
                         </tfoot>
@@ -287,18 +305,19 @@ if(empty($_SESSION['user'])){
       /* Formatting function for child row details */
       function format ( d ) {
         console.log(d);
-          return `
-            <b>Modalidad: </b>${d[9]}<br>
-            <b>Activo: </b>${d[10]}<br>
-            <b>Categoría: </b>${d[3]}<br>`;
-            //<b>Código: </b>${d[10]}<br>
-        }
+        return `
+          <b>Modalidad: </b>${d[9]}<br>
+          <b>Activo: </b>${d[10]}<br>
+          <b>Categoría: </b>${d[3]}<br>`;
+          //<b>Código: </b>${d[10]}<br>
+      }
 
       function getStock(){
         let proveedor=$("#proveedor").val();
         let modalidad=$("#modalidad").val();
         let categoria=$("#categoria").val();
         let id_almacen=$("#id_almacen").val();
+        let id_estado=$("#id_estado").val();
         var inventariado = [];
         $("input[name='inventariado[]']:checked").each(function() {
           inventariado.push($(this).val());
@@ -312,7 +331,7 @@ if(empty($_SESSION['user'])){
           //dom: 'rtip',
           serverSide: true,
           processing: true,
-          ajax:{url:'ajaxListarStock.php?proveedor='+proveedor+'&modalidad='+modalidad+'&categoria='+categoria+'&id_almacen='+id_almacen+'&inventariado='+inventariado},
+          ajax:{url:'ajaxListarStock.php?proveedor='+proveedor+'&modalidad='+modalidad+'&categoria='+categoria+'&id_almacen='+id_almacen+'&id_estado='+id_estado+'&inventariado='+inventariado},
           stateSave: true,
           //responsive: true,
           "columnDefs": [
@@ -321,7 +340,7 @@ if(empty($_SESSION['user'])){
               "searchable": false,
               "orderable": false,
             },{
-              "targets": [1,3,10,11],
+              "targets": [1,3,11,12],
               "className": 'd-none'
             }
           ],
@@ -340,10 +359,10 @@ if(empty($_SESSION['user'])){
             "search": "Buscar:",
             "zeroRecords": "No hay resultados",
             "paginate": {
-                "first": "Primero",
-                "last": "Ultimo",
-                "next": "Siguiente",
-                "previous": "Anterior"
+              "first": "Primero",
+              "last": "Ultimo",
+              "next": "Siguiente",
+              "previous": "Anterior"
             }
           },
           /*"columns":[
@@ -391,15 +410,6 @@ if(empty($_SESSION['user'])){
             {"data": "email"},
             {"data": "telefono"},
           ],*/
-          /*initComplete: function(settings, json){
-            let total_facturas_recibos=json.queryInfo.total_facturas_recibos
-
-            var api = this.api();
-            // Update footer
-            $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
-
-            $('[title]').tooltip();
-          }*/
           drawCallback: function(settings, json){
             let total_stock=settings.json.queryInfo.total_stock
 

@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -30,7 +30,7 @@ if ( !empty($_POST)) {
     var_dump($_POST);
   }
 
-  $sql = "SELECT vd.id_modalidad AS id_modalidad_venta, p.id_proveedor, v.id_forma_pago, vd.subtotal FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id = ? ";
+  $sql = "SELECT vd.id_modalidad AS id_modalidad_venta, p.id_proveedor, v.id_forma_pago, vd.subtotal, vd.deuda_proveedor, v.fecha_hora, IF(DATE_SUB(NOW(), INTERVAL 1 MONTH)>=v.fecha_hora,1,0) AS aumentar_credito, pagado, fecha_hora_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -49,8 +49,8 @@ if ( !empty($_POST)) {
       $pagado=1;//seteamos la variable para que muestre como pagada (sera mas facil identifcar en caso de error)
     }
 
-    //SI LA MODALIDAD NUEVA ES A CREDITO, AUMENTAMOS EL CREDITO DE LA PROVEEDORA
-    if($_POST["id_modalidad"]==50){
+    //SI LA MODALIDAD NUEVA ES A CREDITO Y LA FECHA ES MAYOR A 30 DÍAS, AUMENTAMOS EL CREDITO DE LA PROVEEDORA
+    if($_POST["id_modalidad"]==50 and $data["aumentar_credito"]==1){
 
       $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
       $q = $pdo->prepare($sql);
@@ -64,11 +64,11 @@ if ( !empty($_POST)) {
     }
 
     //SI LA MODALIDAD VIEJA ES POR PORCENTAJE, RESTAMOS EL CREDITO DE LA PROVEEDORA
-    if($data["id_modalidad_venta"]==50){
+    if($data["id_modalidad_venta"]==50 and $data["pagado"]==1){
 
       $sql = "UPDATE proveedores set credito = credito - ? where id = ?";
       $q = $pdo->prepare($sql);
-      $q->execute(array($deuda_proveedor,$data["id_proveedor"]));
+      $q->execute(array($data["deuda_proveedor"],$data["id_proveedor"]));
 
       if ($modoDebug==1) {
         $q->debugDumpParams();

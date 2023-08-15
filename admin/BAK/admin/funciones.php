@@ -17,6 +17,12 @@ function get_nombre_comprobante($tipo_comprobante){
     case 'NCB':
       $tipo_cbte="Nota de Crédito B";
       break;
+      case 'NDA':
+        $tipo_cbte="Nota de Débito A";
+        break;
+      case 'NDB':
+        $tipo_cbte="Nota de Débito B";
+        break;
     default:
       $tipo_cbte="";
       break;
