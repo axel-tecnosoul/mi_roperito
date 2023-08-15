@@ -80,6 +80,7 @@
 					<div class="locales-nosotros">
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-1"></div>
+							<img src="images/nosotros/pin_magenta.png" alt="imagen pin magenta" class="pin pin-magenta">
 							<div class="contenido-locales">
 								<h4>Villa Ballester:</h4>
 								<p>de lunes a sábados de 10 a 20 hs.</p>
@@ -88,6 +89,7 @@
 						</div>
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-2"></div>
+							<img src="images/nosotros/pin_verde.png" alt="imagen pin verde" class="pin pin-verde">
 							<div class="contenido-locales">
 								<h4>San Isidro:</h4>
 								<p>de lunes a sábados de 11 a 19 hs.</p>
@@ -97,6 +99,7 @@
 						</div>
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-3"></div>
+							<img src="images/nosotros/pin_magenta.png" alt="imagen pin magenta" class="pin pin-magenta2">
 							<div class="contenido-locales">
 								<h4>Núñez:</h4>
 								<p>de lunes a sábados de 10 a 20 hs.</p>
@@ -112,9 +115,19 @@
 			<div class="row">
 				<div class="col-sm-1"></div>
 				<div class="col-sm-10 mt-6 contenedor-tienda-online">
-					<img src="images/nosotros/tenemos_tienda_online.png" alt="" class="centrar">
-					<div class="btn-tienda-online">
-						<a href="http://miroperito.prestotienda.com/" class="button" >ENTRAR</a>
+					<div class="tienda-online">
+						<div class="tienda-online-titulo">
+							<h1><span>¡Tenemos tienda online!</span>¿Ya la visitaste?</h1>
+						</div>	
+					</div>
+					<div class="tienda-online-imagen">
+						<div class="online-imagen centrar">
+							<img src="images/nosotros/PC.png" alt="">
+							<div class="btn-tienda-online">
+								<img src="images/nosotros/flecha.png" alt="">
+								<a href="http://miroperito.prestotienda.com/" class="button btn-tienda-boton" >ENTRAR</a>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="col-sm-1"></div>
