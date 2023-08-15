@@ -45,29 +45,30 @@ require 'database.php';
           </div>
           <!-- Container-fluid starts-->
           <div class="container-fluid">
-            <div class="row">
+            
+            <!-- <div class="row">
               <div class="col-3"></div>
               <div class="col-sm-6"> 
                 <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php
-                        $pdo = Database::connect();
-                        $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
+                  /*$pdo = Database::connect();
+                  $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
 
-                        foreach ($pdo->query($sql) as $row) {
-                          echo '<div class="testimonial custom-styles">';	
-                          echo '<picture>';
-                          echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
-                          echo '</picture>';
-                          echo '</div>';
-                        }
+                  foreach ($pdo->query($sql) as $row) {
+                    echo '<div class="testimonial custom-styles">';	
+                    echo '<picture>';
+                    echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
+                    echo '</picture>';
+                    echo '</div>';
+                  }
 
-                        Database::disconnect();?>
+                  Database::disconnect();*/?>
                 </div>
               </div>
               <div class="col-3"></div>
-            </div>
+            </div> -->
 
             <div class="row">
-			  <div class="col-lg-12">
+			        <div class="col-lg-12">
                   <div class="header-faq">
                     <h5 class="mb-0">Ayuda / Preguntas Frecuentes</h5>
                   </div>

@@ -68,27 +68,37 @@ if(empty($_SESSION['user']))
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th>Fecha/Hora</th>
+                            <th>Fecha y hora de carga</th>
+                            <th>Fecha de venta</th>
                             <th>Almacen</th>
                             <th>Proveedor</th>
                             <th>Total</th>
+                            <th>Credito usado</th>
                             <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT c.`id`, date_format(c.`fecha_hora`,'%d/%m/%Y %H:%i'), a.almacen, pr.`nombre`, pr.`apellido`, c.`total_con_descuento` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE anulado = 0 ";
+                          $sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, date_format(c.fecha_canje,'%d/%m/%Y') AS fecha_canje, a.almacen, pr.nombre, pr.apellido, c.total, c.total_con_descuento, c.credito_usado FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor WHERE anulado = 0 ";
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
                           }
+                          $sumaTotal=$sumaCreditoUsado=0;
                           foreach ($pdo->query($sql) as $row) {
+                            $total_con_descuento=$row['total_con_descuento'];
+                            $credito_usado=$row['credito_usado'];
+                            $sumaTotal+=$total_con_descuento;
+                            $sumaCreditoUsado+=$credito_usado;
                             echo '<tr>';
                             echo '<td>'. $row['id'] . '</td>';
-                            echo '<td>'. $row[1] . 'hs</td>';
+                            echo '<td>'. $row["fecha_hora"] . 'hs</td>';
+                            echo '<td>'. $row["fecha_canje"] . 'hs</td>';
                             echo '<td>'. $row['almacen'] . '</td>';
                             echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
-                            echo '<td>$'. number_format($row['total_con_descuento'],2) . '</td>';
+                            //echo '<td>$'. number_format($row['total'],2) . '</td>';
+                            echo '<td>$'. number_format($total_con_descuento,2) . '</td>';
+                            echo '<td>$'. number_format($credito_usado,2) . '</td>';
                             echo '<td>';
                             echo '<a href="verCanje.php?id='.$row['id'].'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Canje" title="Ver Canje"></a>';
                             echo '&nbsp;&nbsp;';
@@ -99,6 +109,14 @@ if(empty($_SESSION['user']))
                           }
                           Database::disconnect();?>
                         </tbody>
+                        <tfoot>
+                          <tr>
+                            <th colspan="5">Totales</th>
+                            <th>$<?=number_format($sumaTotal,2)?></th>
+                            <th>$<?=number_format($sumaCreditoUsado,2)?></th>
+                            <th></th>
+                          </tr>
+                        </tfoot>
                       </table>
                     </div>
                   </div>

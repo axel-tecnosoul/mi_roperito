@@ -1,73 +1,69 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
+require("config.php");
+if(empty($_SESSION['user']['id_perfil'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
+require 'database.php';
+
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
+
+if ( null==$id ) {
+  header("Location: listarBanners.php");
+}
+
+if (!empty($_POST)) {
+  
+  $idRegistro = $_GET['id'];
+
+  $subidajpg = 0;
+
+  if($_POST['seccion'] == "1"){
+    $seccion = "Home";
+  }elseif($_POST['seccion'] == "2"){
+    $seccion = "Proveedores";
+  }
+
+  // Verificamos si se ha enviado una nueva imagen
+  if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
+    $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
+    $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
+
+    if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
+      // El archivo se movió correctamente a la ubicación deseada
+      $subidajpg = 1;
     }
-	
-	require 'database.php';
-
-  $id = null;
-	if ( !empty($_GET['id'])) {
-		$id = $_REQUEST['id'];
-	}
-	
-	if ( null==$id ) {
-		header("Location: listarBanners.php");
-	}
-
-  if (!empty($_POST)) {
-    
-    $idRegistro = $_GET['id'];
-
+  } else {
+    // No se envió una nueva imagen, mantenemos la imagen actual
     $subidajpg = 0;
+    $nombreArchivoJPG = $_POST['imagenActual'];
+  }
 
-    if($_POST['seccion'] == "1"){
-      $seccion = "Home";
-    }elseif($_POST['seccion'] == "2"){
-      $seccion = "Proveedores";
-    }
+  // update data
+  $pdo = Database::connect();
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Verificamos si se ha enviado una nueva imagen
-    if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-      $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
-        $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
+  $sql = "UPDATE banners SET nombre=?, seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
+  $q = $pdo->prepare($sql);
+  $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));
 
-        if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
-            // El archivo se movió correctamente a la ubicación deseada
-            $subidajpg = 1;
-        }
-    } else {
-        // No se envió una nueva imagen, mantenemos la imagen actual
-        $subidajpg = 0;
-        $nombreArchivoJPG = $_POST['imagenActual'];
-    }
+  Database::disconnect();
 
-    // update data
+  header("Location: listarBanners.php");
+} else {
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $sql = "UPDATE banners SET nombre=?, seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
+    $sql = "SELECT `id`, `nombre`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
     $q = $pdo->prepare($sql);
-    $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));
+    $q->execute(array($id));
+
+    $data = $q->fetch(PDO::FETCH_ASSOC);
 
     Database::disconnect();
-
-    header("Location: listarBanners.php");
-  } else {
-      $pdo = Database::connect();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT `id`, `nombre`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($id));
-
-      $data = $q->fetch(PDO::FETCH_ASSOC);
-
-      Database::disconnect();
-  }
-?>
-
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -131,8 +127,10 @@
 
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-5">
                                 <input type="file" name="imagen-banner-jpg">
+                            </div>
+                            <div class="col-sm-4">
                                 <input type="checkbox" name="mantenerImagenActual" value="1"> Mantener imagen actual
                                 <input type="hidden" name="imagenActual" value="<?php echo $data['url-jpg']; ?>">
                             </div>

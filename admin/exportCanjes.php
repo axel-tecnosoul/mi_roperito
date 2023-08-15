@@ -18,7 +18,7 @@ include 'database.php';
 			<div class="row">
 				<div class="table-responsive">
 				<a href="#" id="aExportar" onclick="$('#example2').tableExport({type:'excel',escape:'false'});"></a>
-				<table id="example2" name="formularios" style="visibility:hidden;">
+				<table border="1" id="example2" name="formularios" style="visibility:hidden;">
 					<thead>
 		                <tr>
 						  <th>ID</th>
@@ -26,13 +26,16 @@ include 'database.php';
 						  <th>Almacen</th>
 						  <th>Proveedor</th>
 						  <th>Total</th>
+              <th>Total con descuento</th>
+              <th>Credito utilizado</th>
+              <th>Anulado</th>
 		                </tr>
 		              </thead>
 		             <tbody>
 		              <?php 
 							
 							$pdo = Database::connect();
-							$sql = " SELECT c.`id`, c.`fecha_hora`, a.almacen, pr.`nombre`, pr.`apellido`, c.`total` FROM `canjes` c inner join almacenes a on a.id = c.`id_almacen` inner join proveedores pr on pr.id = c.id_proveedor WHERE 1 ";
+							$sql = " SELECT c.id, c.fecha_hora, a.almacen, pr.nombre, pr.apellido, c.total, c.total_con_descuento, c.credito_usado, IF(c.anulado=1,'Si','No') AS anulado FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor WHERE 1 ";
 							if ($_SESSION['user']['id_perfil'] == 2) {
 								$sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
 							}
@@ -42,7 +45,13 @@ include 'database.php';
 								echo '<td>'. $row[1] . '</td>';
 								echo '<td>'. $row[2] . '</td>';
 								echo '<td>'. $row[3] . ' ' . $row[4] . '</td>';
-								echo '<td>'. $row[5] . '</td>';
+                echo '<td>'. number_format($row[5],2,",",".") . '</td>';
+                echo '<td>'. number_format($row[6],2,",",".") . '</td>';
+                echo '<td>'. number_format($row[7],2,",",".") . '</td>';
+                //echo '<td>'. $row[5] . '</td>';
+                //echo '<td>'. $row[6] . '</td>';
+                //echo '<td>'. $row[7] . '</td>';
+                echo '<td>'. $row[8] . '</td>';
 								echo '</tr>';
 						   }
 						   Database::disconnect();

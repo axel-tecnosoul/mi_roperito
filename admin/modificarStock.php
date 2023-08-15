@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -27,9 +27,9 @@ if ( !empty($_POST)) {
     $q->execute(array($_POST['nueva_cantidad'],$_GET['id']));
   }
   
-  $sql = "UPDATE stock set id_modalidad = ?, inventario_ok = ? where id = ?";
+  $sql = "UPDATE stock set id_modalidad = ?, inventario_ok = ?, id_estado = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['id_modalidad'],$_POST["inventario_ok"],$_GET['id']));
+  $q->execute(array($_POST['id_modalidad'],$_POST["inventario_ok"],$_POST["id_estado"],$_GET['id']));
   
   Database::disconnect();
   
@@ -39,7 +39,7 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT s.id, s.id_producto, s.id_almacen, s.cantidad, s.id_modalidad, s.inventario_ok, p.descripcion FROM stock s INNER JOIN productos p ON s.id_producto=p.id WHERE s.id = ? ";
+  $sql = "SELECT s.id, s.id_producto, s.id_almacen, s.cantidad, s.id_modalidad, s.inventario_ok, s.id_estado, p.descripcion FROM stock s INNER JOIN productos p ON s.id_producto=p.id WHERE s.id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -142,6 +142,27 @@ if ( !empty($_POST)) {
                               <label class="d-block" for="inventario_ok_no">
                                 <input class="radio_animated" value="0" <?php if($data["inventario_ok"]==0) echo "checked"?> required id="inventario_ok_no" type="radio" name="inventario_ok"><label for="inventario_ok_no">No</label>
                               </label>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Estado</label>
+                            <div class="col-sm-9">
+                              <select name="id_estado" id="id_estado" class="js-example-basic-single col-sm-12" required="required">
+                                <option value="">Seleccione...</option><?php
+                                $pdo = Database::connect();
+                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                $sqlZon = "SELECT id, estado FROM estados_stock";
+                                $q = $pdo->prepare($sqlZon);
+                                $q->execute();
+                                while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                                  $selected="";
+                                  if($data["id_estado"]==$fila['id']){
+                                    $selected="selected";
+                                  }
+                                  echo "<option value='".$fila['id']."' $selected>".$fila['estado']."</option>";
+                                }
+                                Database::disconnect();?>
+                              </select>
                             </div>
                           </div>
                         </div>

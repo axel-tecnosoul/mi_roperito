@@ -8,7 +8,7 @@ if (empty($id) or !empty($_GET['id'])) {
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = "SELECT v.id, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario, dev.id as devolucion_id FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id LEFT JOIN devoluciones dev ON dev.id_nueva_venta = v.id  WHERE v.id = ? ";
+$sql = "SELECT v.id, date_format(v.fecha_venta,'%d/%m/%Y') AS fecha_venta_formatted, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, v.fecha_hora, v.nombre_cliente, v.dni, v.direccion, v.email, v.telefono, a.almacen, v.total, d.descripcion, d.minimo_compra, d.minimo_cantidad_prendas, d.monto_fijo, d.porcentaje, v.total_con_descuento,v.modalidad_venta, fp.forma_pago,v.tipo_comprobante,v.estado,v.punto_venta,v.numero_comprobante,v.cae,date_format(v.fecha_vencimiento_cae,'%d/%m/%Y') AS fecha_vencimiento_cae,id_venta_cbte_relacionado,v.anulada,u.usuario, dev.id as devolucion_id FROM ventas v inner join almacenes a on a.id = v.id_almacen left join descuentos d on d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id LEFT JOIN devoluciones dev ON dev.id_nueva_venta = v.id  WHERE v.id = ? ";
 //echo $sql;
 $q = $pdo->prepare($sql);
 $q->execute(array($id));
@@ -65,8 +65,12 @@ Database::disconnect();
     <div class="row">
       <div class="col">
         <div class="form-group row">
-          <label class="col-sm-3 col-form-label">Fecha Hora</label>
+          <label class="col-sm-3 col-form-label">Fecha y hora de carga</label>
           <div class="col-sm-9"><?php echo $data['fecha_hora_formatted']; ?>hs</div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Fecha de venta</label>
+          <div class="col-sm-9"><?php echo $data['fecha_venta_formatted']; ?></div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Usuario</label>
@@ -393,19 +397,30 @@ Database::disconnect();
   </div>
 
   <div class="modal fade" id="modalGenerarNC" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-        </div>
-        <div class="modal-body">¿Está seguro que desea generar un Nota de Crédito para esta factura?</div>
-        <div class="modal-footer">
-          <a href="generarNC.php?id=<?=$id?>" class="btn btn-primary" id="btnConfirmGenerarNC">Generar</a>
-          <button data-dismiss="modal" class="btn btn-light">Volver</button>
+    <form action="generarNC.php?id=<?=$id?>" method="post">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-12">¿Está seguro que desea generar un Nota de Crédito para esta factura?</div>
+            </div>
+            <div class="row">
+              <div class="col-6 d-flex align-items-center">Fecha de cancelacion:</div>
+              <div class="col-6"><input type="date" class="form-control" name="fecha_venta" id="fecha_venta" value="<?=date("Y-m-d")?>"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <!-- <a href="generarNC.php?id=<?=$id?>" class="btn btn-primary" id="btnConfirmGenerarNC">Generar</a> -->
+            <button class="btn btn-primary" id="btnConfirmGenerarNC">Generar</button>
+            <button class="btn btn-light" data-dismiss="modal">Volver</button>
+          </div>
         </div>
       </div>
-    </div>
+    </form>
   </div>
 
   <div class="card-footer">

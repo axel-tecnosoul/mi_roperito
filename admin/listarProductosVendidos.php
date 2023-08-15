@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -118,11 +118,19 @@ include 'database.php';
                       <table class="table">
                         <tr>
                           <td class="text-right border-0 p-1">Desde: </td>
-                          <td class="border-0 p-1"><input type="date" name="desde" id="desde" value="<?=$desde?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td class="border-0 p-1">
+                            <input type="date" name="desde" id="desde" value="<?=$desde?>" class="form-control form-control-sm filtraTabla">
+                          </td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <label class="d-block mb-0" for="radio-fecha-carga">
+                              <input class="radio_animated filtraTabla" value="carga" checked required id="radio-fecha-carga" type="radio" name="tipo_fecha[]">
+                              <label class="mb-0" for="radio-fecha-carga">Fecha de carga</label>
+                            </label>
+                          </td>
                           <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Proveedores:</td> -->
                           <td rowspan="2" style="vertical-align: middle;width:18%" class="border-0 p-1">
                             <label style="margin-left: .5rem;" for="id_proveedor">Proveedores:</label><br>
-                            <select id="id_proveedor" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                            <select id="id_proveedor" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $whereAlmacen="";
                               if ($_SESSION['user']['id_perfil'] == 2) {
@@ -170,7 +178,7 @@ include 'database.php';
                               }
                               Database::disconnect();*/?>
                             </select> -->
-                            <select id="id_categoria" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                            <select id="id_categoria" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-live-search="true" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
                               $pdo = Database::connect();
                               $sql = "SELECT id,categoria FROM categorias WHERE 1";
                               foreach ($pdo->query($sql) as $row) {
@@ -186,7 +194,7 @@ include 'database.php';
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
                             if ($_SESSION['user']['id_perfil'] == 1) {?>
                               <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
-                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect">
                                 <option value="0">- Todos -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
@@ -220,7 +228,15 @@ include 'database.php';
                         </tr>
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
-                          <td class="border-0 p-1"><input type="date" name="hasta" id="hasta" value="<?=$hasta?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td class="border-0 p-1">
+                            <input type="date" name="hasta" id="hasta" value="<?=$hasta?>" class="form-control form-control-sm filtraTabla">
+                          </td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <label class="d-block mb-0" for="radio-fecha-venta">
+                              <input class="radio_animated filtraTabla" value="venta" required id="radio-fecha-venta" type="radio" name="tipo_fecha[]">
+                              <label class="mb-0" for="radio-fecha-venta">Fecha de venta</label>
+                            </label>
+                          </td>
                           <td style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
                           <td style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
                         </tr>
@@ -232,7 +248,8 @@ include 'database.php';
                           <tr>
                             <th>ID</th>
                             <!-- <th>Operacion</th> -->
-                            <th>Fecha/Hora</th>
+                            <th>Fecha y hora de carga</th>
+                            <th>Fecha de venta</th>
                             <th>Código</th>
                             <th>Descripción</th>
                             <th>Proveedor</th>
@@ -322,6 +339,7 @@ include 'database.php';
         let id_categoria=$("#id_categoria").val();
         let ventas=$("#checkbox-ventas").prop("checked")
         let canjes=$("#checkbox-canjes").prop("checked")
+        let tipo_fecha=$("input[name='tipo_fecha[]']:checked").val();
 
         //console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
         console.log(ventas);
@@ -332,7 +350,7 @@ include 'database.php';
         table.DataTable().destroy();
         table.DataTable({ 
           processing: true,
-          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria+'&ventas='+ventas+'&canjes='+canjes,
+          ajax:{url:'ajaxProductosVendidos.php?desde='+desde+'&hasta='+hasta+'&tipo_fecha='+tipo_fecha+'&id_almacen='+id_almacen+'&proveedor='+proveedor+'&id_categoria='+id_categoria+'&ventas='+ventas+'&canjes='+canjes,
           'dataSrc': ''},
 				  stateSave: true,
 				  responsive: true,
@@ -365,6 +383,14 @@ include 'database.php';
               }else{
                 return row.fecha_hora;
                 //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+              }
+            }},
+            {render: function(data, type, row, meta) {
+              if(type=="display"){
+                return row.fecha_venta_formatted;
+              }else{
+                return row.fecha_venta;
+                //return moment(full.fecha_venta_subida).format('DD MMM YYYY HH:mm');
               }
             }},
             {"data": "codigo"},

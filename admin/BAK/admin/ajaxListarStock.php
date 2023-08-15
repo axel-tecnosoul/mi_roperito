@@ -7,13 +7,13 @@ $columns = $_GET['columns'];
 
 //$sql = " SELECT s.id, p.codigo, c.categoria, p.descripcion, pr.nombre, pr.apellido, a.almacen, s.cantidad, m.modalidad, p.precio,p.activo FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor WHERE s.cantidad > 0 ";
 
-$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo','s.inventario_ok','p.id_proveedor'];
+$data_columns = ['','s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 's.cantidad', 'p.precio', "CONCAT(pr.nombre,' ',pr.apellido)", 'a.almacen','', 'm.modalidad','p.activo','s.inventario_ok','p.id_proveedor','e.estado'];
 //$data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 
-$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto','s.inventario_ok','p.id_proveedor'];
+$fields = ['s.id', 'p.codigo', 'c.categoria', 'p.descripcion', 'p.precio', 'nombre', 'apellido', 'a.almacen','p.activo', 'm.modalidad', 's.cantidad','s.id_producto','s.inventario_ok','p.id_proveedor','e.estado'];
 
 
-$from="FROM stock s inner join productos p on p.id = s.id_producto inner join almacenes a on a.id = s.id_almacen left join modalidades m on m.id = s.id_modalidad left join categorias c on c.id = p.id_categoria left join proveedores pr on pr.id = p.id_proveedor";
+$from="FROM stock s INNER JOIN productos p ON p.id = s.id_producto INNER JOIN almacenes a ON a.id = s.id_almacen INNER JOIN estados_stock e ON s.id_estado=e.id LEFT JOIN modalidades m ON m.id = s.id_modalidad LEFT JOIN categorias c ON c.id = p.id_categoria LEFT JOIN proveedores pr ON pr.id = p.id_proveedor";
 
 $orderBy = " ORDER BY ";
 foreach ($_GET['order'] as $order) {
@@ -49,6 +49,13 @@ $filtroAlmacen="";
 if($id_almacen!=0){
   $filtroAlmacen=" AND s.id_almacen IN ($id_almacen)";
 }
+
+$id_estado=$_GET["id_estado"];
+$filtroEstado="";
+if($id_estado!=0){
+  $filtroEstado=" AND s.id_estado IN ($id_estado)";
+}
+
 $inventariado=$_GET["inventariado"];
 $filtroInventariado="";
 if($inventariado!=""){
@@ -82,7 +89,7 @@ if ( $globalSearchValue = $globalSearch['value'] ) {
   $where .= ' AND ('.implode(' OR ', $aWhere).')';
 }
 
-$whereFiltered=$where.$filtroProveedor.$filtroModalidad.$filtroCategoria.$filtroAlmacen.$filtroInventariado;
+$whereFiltered=$where.$filtroProveedor.$filtroModalidad.$filtroCategoria.$filtroAlmacen.$filtroEstado.$filtroInventariado;
 
 $length = $_GET['length'];
 $start = $_GET['start'];
@@ -150,6 +157,7 @@ if ($st) {
         "(".$row['id_proveedor'].") ".$row['nombre']." ".$row['apellido'],
         $row['almacen'],
         $inventario_ok,
+        $row['estado'],
         $row['modalidad'],
         $activo,
         '<a href="modificarStock.php?id='.$row["id"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Ajustar" title="Ajustar"></a>',

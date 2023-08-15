@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -125,7 +125,7 @@ include 'database.php';
                               $pdo = Database::connect();
                               $whereAlmacen="";
                               if ($_SESSION['user']['id_perfil'] == 2) {
-                                $whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
+                                //$whereAlmacen= " AND pr.id_almacen = ".$_SESSION['user']['id_almacen']; 
                               }
                               $sql = "SELECT pr.id, CONCAT(pr.apellido, ' ', pr.nombre) AS proveedor, pr.id_almacen
                               FROM proveedores pr 
@@ -183,7 +183,7 @@ include 'database.php';
                             </select>
                           </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
-                            if ($_SESSION['user']['id_perfil'] == 1) {?>
+                            //if ($_SESSION['user']['id_perfil'] == 1) {?>
                               <label style="margin-left: .5rem;" for="id_almacen">Almacen:</label><br>
                               <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
                                 <option value="0">- Todos -</option><?php
@@ -198,9 +198,9 @@ include 'database.php';
                                 }
                                 Database::disconnect();?>
                               </select><?php
-                            }else{?>
+                            /*}else{?>
                               <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
-                            }?>
+                            }*/?>
                           </td>
                           
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">

@@ -3,7 +3,7 @@ ini_set("display_errors",1);
 ini_set("display_startup_errors",1);
 error_reporting(E_ALL);
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -31,18 +31,20 @@ if ( !empty($_GET)) {
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
 
+  $fecha_venta=$_POST["fecha_venta"];
+
   // Verificar si ya existe un registro similar
-  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND total_con_descuento = ? AND id_usuario = ? AND id_forma_pago = ? AND id_venta_cbte_relacionado = ? AND modalidad_venta = ?";
+  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND fecha_venta = ? AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND total_con_descuento = ? AND id_usuario = ? AND id_forma_pago = ? AND id_venta_cbte_relacionado = ? AND modalidad_venta = ?";
   $qCheck = $pdo->prepare($sqlCheck);
-  $qCheck->execute(array($data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
+  $qCheck->execute(array($fecha_venta,$data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
   $count = $qCheck->fetchColumn();
 
   if ($count == 0) {
 
     //guardamos la nota de credito con los mismos datos de la factura y establemecemos el id_venta_cbte_relacionado
-    $sql = "INSERT INTO ventas (fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_usuario,id_forma_pago,id_venta_cbte_relacionado, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO ventas (fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_usuario,id_forma_pago,id_venta_cbte_relacionado, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
+    $q->execute(array($fecha_venta,$data["nombre_cliente"],$data["dni"],$data["direccion"],$data["email"],$data["telefono"],$data["id_almacen"],$data["total"],$data["total_con_descuento"],$_SESSION['user']['id'],$data['id_forma_pago'],$id,$data['modalidad_venta']));
     $idVentaCbteRelacionado = $pdo->lastInsertId();
 
     if ($modoDebug==1) {

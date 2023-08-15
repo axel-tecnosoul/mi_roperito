@@ -1,6 +1,7 @@
 <?php 
-session_start(); 
-if(empty($_SESSION['user'])){
+include_once("config.php");
+//session_start(); 
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -78,10 +79,19 @@ include_once("funciones.php");?>
                       <table class="table">
                         <tr>
                           <td class="text-right border-0 p-1">Desde: </td>
-                          <td class="border-0 p-1"><input type="date" id="desde" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Forma de pago:</td>
+                          <td class="border-0 p-1">
+                            <input type="date" id="desde" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla">
+                          </td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <label class="d-block mb-0" for="radio-fecha-carga">
+                              <input class="radio_animated filtraTabla" value="carga" checked required id="radio-fecha-carga" type="radio" name="tipo_fecha[]">
+                              <label class="mb-0" for="radio-fecha-carga">Fecha de carga</label>
+                            </label>
+                          </td>
+                          <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Forma de pago:</td> -->
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <select id="forma_pago" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
+                            <label for="forma_pago">Forma de pago:</label><br>
+                            <select id="forma_pago" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" multiple><?php
                               include 'database.php';
                               $pdo = Database::connect();
                               $sql = " SELECT id, forma_pago FROM forma_pago";
@@ -91,9 +101,10 @@ include_once("funciones.php");?>
                               Database::disconnect();?>
                             </select>
                           </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Tipo Cbte:</td>
+                          <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Tipo Cbte:</td> -->
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
-                            <select id="tipo_comprobante" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect" data-selected-text-format="count > 1" multiple>
+                            <label for="tipo_comprobante">Tipo Cbte:</label><br>
+                            <select id="tipo_comprobante" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect" data-selected-text-format="count > 1" multiple>
                               <option value="R">Recibo</option>
                               <!-- <option value="A">Factura A</option> -->
                               <option value="B">Factura B</option>
@@ -101,15 +112,16 @@ include_once("funciones.php");?>
                               <option value="NCB">Nota de Credito B</option>
                             </select>
                           </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"><?php
-                            if ($_SESSION['user']['id_perfil'] == 1) {
+                          <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1"><?php
+                            /*if ($_SESSION['user']['id_perfil'] == 1) {
                               echo "Almacen: ";
-                            }?>
-                            <!-- Tipo comprobante: -->
-                          </td>
-                          <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1"><?php
-                            if ($_SESSION['user']['id_perfil'] == 1) {?>
-                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker" data-style="multiselect">
+                            }*/?>
+                          </td> -->
+                          <?php
+                          if ($_SESSION['user']['id_perfil'] == 1) {?>
+                            <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
+                              <label for="id_almacen">Almacen:</label><br>
+                              <select id="id_almacen" class="form-control form-control-sm filtraTabla selectpicker w-100" data-style="multiselect">
                                 <option value="0">- Todos -</option><?php
                                 $pdo = Database::connect();
                                 $sql = " SELECT id, almacen FROM almacenes";
@@ -117,15 +129,23 @@ include_once("funciones.php");?>
                                   <option value="<?=$row["id"]?>"><?=$row["almacen"]?></option><?php
                                 }
                                 Database::disconnect();?>
-                              </select><?php
-                            }else{?>
-                              <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
-                            }?>
-                          </td>
+                              </select>
+                            </td><?php
+                          }else{?>
+                            <input type="hidden" id="id_almacen" value="<?=$_SESSION['user']['id_almacen']?>"><?php
+                          }?>
                         </tr>
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
-                          <td class="border-0 p-1"><input type="date" id="hasta" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td class="border-0 p-1">
+                            <input type="date" id="hasta" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla">
+                          </td>
+                          <td class="border-0 p-1" style="vertical-align: middle;">
+                            <label class="d-block mb-0" for="radio-fecha-venta">
+                              <input class="radio_animated filtraTabla" value="venta" required id="radio-fecha-venta" type="radio" name="tipo_fecha[]">
+                              <label class="mb-0" for="radio-fecha-venta">Fecha de venta</label>
+                            </label>
+                          </td>
                         </tr>
                       </table>
                     </div>
@@ -133,28 +153,35 @@ include_once("funciones.php");?>
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-                            <th>ID</th>
-                            <th>Fecha/Hora</th>
-                            <th>Tipo Cbte.</th>
-                            <th>Almacen</th>
-                            <th>Forma de pago</th>
-                            <th>Total</th>
-                            <th>Opciones</th>
-                            <th class="none">Subtotal</th>
-                            <th class="none">Descuento</th>
-                            <th class="none">Modalidad venta</th>
-                            <th class="none">Cliente</th>
-                            <th class="none">DNI</th>
-                            <th class="none">Dirección</th>
-                            <th class="none">E-Mail</th>
-                            <th class="none">Teléfono</th>
+                            <th class="text-center">ID</th>
+                            <th class="text-center">Fecha y hora de carga</th>
+                            <th class="text-center">Fecha de venta</th>
+                            <th class="text-center">Tipo Cbte.</th>
+                            <th class="text-center">Almacen</th>
+                            <th class="text-center">Forma de pago</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Opciones</th>
+                            <th>Subtotal</th>
+                            <th>Descuento</th>
+                            <th>Modalidad venta</th>
+                            <th>Cliente</th>
+                            <th>DNI</th>
+                            <th>Dirección</th>
+                            <th>E-Mail</th>
+                            <th>Teléfono</th>
                           </tr>
                         </thead>
                         <tfoot>
                           <tr>
-                            <th colspan="5">Total</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                             <th>Total</th>
-                            <th colspan="9">Opciones</th>
+                            <th>Total</th>
+                            <th></th>
+                            <th colspan="8"></th>
                           </tr>
                         </tfoot>
                         <tbody><?php
@@ -294,6 +321,7 @@ include_once("funciones.php");?>
       let forma_pago=$("#forma_pago").val();
       let tipo_comprobante=$("#tipo_comprobante").val();
       let id_almacen=$("#id_almacen").val();
+      let tipo_fecha=$("input[name='tipo_fecha[]']:checked").val();
 
       let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
 
@@ -303,7 +331,9 @@ include_once("funciones.php");?>
         //dom: 'rtip',
         serverSide: true,
         processing: true,
-        ajax:{url:'ajaxListarVentas.php?desde='+desde+'&hasta='+hasta+'&forma_pago='+forma_pago+'&tipo_comprobante='+tipo_comprobante+'&id_almacen='+id_almacen},
+        ajax:{
+          url:'ajaxListarVentas.php?desde='+desde+'&hasta='+hasta+'&tipo_fecha='+tipo_fecha+'&forma_pago='+forma_pago+'&tipo_comprobante='+tipo_comprobante+'&id_almacen='+id_almacen
+        },
 				stateSave: true,
 				responsive: true,
 				language: {
@@ -328,8 +358,25 @@ include_once("funciones.php");?>
         },
         "columns":[
           {"data": "id_venta"},
-          {render: function(data, type, row, meta) {
+          /*{render: function(data, type, row, meta) {
             return row.fecha_hora+"hs";
+          }},
+          {"data": "fecha_venta"},*/
+          {render: function(data, type, row, meta) {
+            if(type=="display"){
+              return row.fecha_hora_formatted;
+            }else{
+              return row.fecha_hora;
+              //return moment(full.fecha_hora_subida).format('DD MMM YYYY HH:mm');
+            }
+          }},
+          {render: function(data, type, row, meta) {
+            if(type=="display"){
+              return row.fecha_venta_formatted;
+            }else{
+              return row.fecha_venta;
+              //return moment(full.fecha_venta_subida).format('DD MMM YYYY HH:mm');
+            }
           }},
           {render: function(data, type, row, meta) {
             let estado=row.estado;
@@ -353,9 +400,9 @@ include_once("funciones.php");?>
           {render: function(data, type, row, meta) {
             let btnVer='<a href="verVenta.php?id='+row.id_venta+'"><img src="img/eye.png" width="24" height="15" border="0" alt="Ver Venta" title="Ver Venta"></a>&nbsp;&nbsp;'
             let btnAnular="";
-            console.log(id_perfil);
+            /*console.log(id_perfil);
             console.log(row.id_cierre_caja);
-            console.log(row.tipo_comprobante);
+            console.log(row.tipo_comprobante);*/
             if((id_perfil=="1" || row.id_cierre_caja==0) && row.tipo_comprobante=="Recibo"){
               //btnAnular='<a href="#" data-toggle="modal" data-original-title="Confirmación" data-target="#eliminarModal_'+row["id"]+'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Anular" title="Anular"></a>&nbsp;&nbsp;'
               btnAnular='<a href="#" title="Eliminar" onclick="openModalEliminarVenta('+row.id_venta+')"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>&nbsp;&nbsp;'
@@ -365,7 +412,7 @@ include_once("funciones.php");?>
           { render: function(data, type, row, meta) {
               return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.total);
             },
-            className: 'dt-body-right text-right',
+            //className: 'dt-body-right text-right',
           },
           {"data": "descuento"},
           {"data": "modalidad_venta"},
@@ -375,6 +422,12 @@ include_once("funciones.php");?>
           {"data": "email"},
           {"data": "telefono"},
         ],
+        "columnDefs": [
+            {
+              "targets": [8,9,10,11,12,13,14,15],
+              "className": 'd-none'
+            }
+          ],
         /*initComplete: function(settings, json){
           let total_facturas_recibos=json.queryInfo.total_facturas_recibos
 
@@ -385,19 +438,32 @@ include_once("funciones.php");?>
           $('[title]').tooltip();
         }*/
         drawCallback: function(settings, json){
-          console.log(settings);
-          console.log(settings.json.queryInfo.total_facturas_recibos);
+          /*console.log(settings);
+          console.log(settings.json.queryInfo.total_facturas_recibos);*/
           let total_facturas_recibos=settings.json.queryInfo.total_facturas_recibos
 
           var api = this.api();
           // Update footer
-          $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+          $(api.column(6).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
 
           $('[title]').tooltip();
         }
 			})
+
+      table.on('processing.dt', function (e, settings, processing) {
+        let firstCell = table.find("td:first");
+        if (processing) {
+          // Si está en proceso, establecer colspan en 2 (o el valor deseado)
+          //firstCell.attr('colspan', 1);
+          firstCell.removeAttr('colspan');
+        } else {
+          // Si el procesamiento ha terminado, eliminar el colspan
+          //firstCell.removeAttr('colspan');
+        }
+      });
+
     }
-		
+
 		</script>
 		<script src="https://cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"></script>
     <!-- Plugin used-->

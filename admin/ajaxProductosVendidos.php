@@ -1,13 +1,21 @@
 <?php
 include 'database.php';
 $aProductos=[];
+
+$tipo_fecha=$_GET["tipo_fecha"];
+if($tipo_fecha=="carga"){
+  $campo_fecha_buscar="fecha_hora";
+}else{
+  $campo_fecha_buscar="fecha_venta";
+}
+
 $filtroDesde="";
 if(!empty($_GET["desde"])) {
-  $filtroDesde=" AND DATE(fecha_hora)>='".$_GET["desde"]."'";
+  $filtroDesde=" AND DATE($campo_fecha_buscar)>='".$_GET["desde"]."'";
 }
 $filtroHasta="";
 if(!empty($_GET["hasta"])){
-  $filtroHasta=" AND DATE(fecha_hora)<='".$_GET["hasta"]."'";
+  $filtroHasta=" AND DATE($campo_fecha_buscar)<='".$_GET["hasta"]."'";
 }
 $filtroProveedor="";
 if(!empty($_GET["proveedor"] && $_GET["proveedor"] != 0)) {
@@ -39,7 +47,7 @@ $pdo = Database::connect();
 //Ventas
 if($mostrarVentas==1 or $mostrarAmbos==1){
   
-  $sql = "SELECT v.id as id_venta,vd.id AS id_detalle_venta, v.total_con_descuento, vd.pagado, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, fecha_hora, caja_egreso, forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = v.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen $filtroCategoria";
+  $sql = "SELECT v.id as id_venta,vd.id AS id_detalle_venta, v.total_con_descuento, vd.pagado, a.almacen, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, vd.id_forma_pago, fp.forma_pago, vd.id_venta,vd.deuda_proveedor,date_format(v.fecha_venta,'%d/%m/%Y') AS fecha_venta_formatted, fecha_venta,date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, fecha_hora, caja_egreso, forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = v.id_almacen LEFT join forma_pago fp on fp.id = vd.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen $filtroCategoria";
       
   foreach ($pdo->query($sql) as $row) {
     $pagado = "";
@@ -64,6 +72,8 @@ if($mostrarVentas==1 or $mostrarAmbos==1){
         "id"=>"V#".$row["id_venta"],
         "fecha_hora"=>$row["fecha_hora"],
         "fecha_hora_formatted"=>$row["fecha_hora_formatted"]."hs",
+        "fecha_venta"=>$row["fecha_venta"],
+        "fecha_venta_formatted"=>$row["fecha_venta_formatted"],
         "descripcion"=>$row["descripcion"],
         "proveedor"=>$row["nombre"]." ".$row["apellido"],
         "caja_egreso"=>$caja_egreso,
@@ -82,7 +92,9 @@ if($mostrarVentas==1 or $mostrarAmbos==1){
 
 if($mostrarCanjes==1 or $mostrarAmbos==1){
   //Canjes
-  $sql = "SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, cj.total_con_descuento, cd.pagado, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, fecha_hora,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cj.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE cj.anulado = 0 AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen $filtroCategoria";
+  $filtroDesde=str_replace("fecha_venta","fecha_canje",$filtroDesde);
+  $filtroHasta=str_replace("fecha_venta","fecha_canje",$filtroHasta);
+  $sql = "SELECT cj.id AS id_canje, cd.id AS id_detalle_canje, cj.total_con_descuento, cd.pagado, a.almacen, p.codigo, c.categoria, p.descripcion, cd.cantidad, cd.precio, cd.subtotal, m.modalidad, cd.pagado, pr.nombre, pr.apellido, cd.id_forma_pago, fp.forma_pago, cd.id_canje,cd.deuda_proveedor,date_format(cj.fecha_canje,'%d/%m/%Y') AS fecha_canje_formatted, fecha_canje,date_format(cj.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, fecha_hora,caja_egreso,forma_pago FROM canjes_detalle cd INNER JOIN canjes cj ON cd.id_canje=cj.id inner join productos p on p.id = cd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = cd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor LEFT join almacenes a on a.id = cj.id_almacen LEFT join forma_pago fp on fp.id = cd.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle=cd.id WHERE cj.anulado = 0 AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen $filtroCategoria";
       
   foreach ($pdo->query($sql) as $row) {
     $pagado = "";
@@ -106,6 +118,8 @@ if($mostrarCanjes==1 or $mostrarAmbos==1){
         "id"=>"C#".$row["id_canje"],
         "fecha_hora"=>$row["fecha_hora"],
         "fecha_hora_formatted"=>$row["fecha_hora_formatted"]."hs",
+        "fecha_venta"=>$row["fecha_canje"],
+        "fecha_venta_formatted"=>$row["fecha_canje_formatted"],
         "descripcion"=>$row["descripcion"],
         "proveedor"=>$row["nombre"]." ".$row["apellido"],
         "caja_egreso"=>$caja_egreso,
