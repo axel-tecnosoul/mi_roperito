@@ -20,13 +20,13 @@ foreach ($canje_detalle as $data){
     "credito_actual"=>$data["credito"],
     "credito_generado_por_ventas"=>0,
     "credito_generado_por_canjes"=>0,
-    "canjes_realizados"=>0,
+    "credito_usado"=>0,
   ];
 }
 
 //var_dump($aProveedor);
 
-$sql = "SELECT SUM(vd.deuda_proveedor) AS credito,p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id_modalidad=50 AND v.anulada=0 AND id_venta_cbte_relacionado IS NULL GROUP BY p.id_proveedor";//WHERE p.id_proveedor=667;
+$sql = "SELECT SUM(vd.deuda_proveedor) AS credito,p.id_proveedor FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id_modalidad=50 AND v.anulada=0 AND pagado=1 AND id_venta_cbte_relacionado IS NULL GROUP BY p.id_proveedor";//WHERE p.id_proveedor=667;
 $q = $pdo->prepare($sql);
 $q->execute();
 $canje_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
@@ -36,7 +36,7 @@ foreach ($canje_detalle as $data){
   $aProveedor[$data['id_proveedor']]["credito_generado_por_ventas"]+=$data['credito'];
 }
 
-$sql = "SELECT SUM(cd.deuda_proveedor) AS credito,p.id_proveedor FROM canjes_detalle cd INNER JOIN canjes v ON cd.id_canje=v.id INNER JOIN productos p ON cd.id_producto=p.id WHERE cd.id_modalidad=50 AND anulado=0 GROUP BY p.id_proveedor";//WHERE p.id_proveedor=667;
+$sql = "SELECT SUM(cd.deuda_proveedor) AS credito,p.id_proveedor FROM canjes_detalle cd INNER JOIN canjes v ON cd.id_canje=v.id INNER JOIN productos p ON cd.id_producto=p.id WHERE cd.id_modalidad=50 AND anulado=0 AND pagado=1 GROUP BY p.id_proveedor";//WHERE p.id_proveedor=667;
 $q = $pdo->prepare($sql);
 $q->execute();
 $canje_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
@@ -45,13 +45,13 @@ foreach ($canje_detalle as $data){
   $aProveedor[$data['id_proveedor']]["credito_generado_por_canjes"]+=$data['credito'];
 }
 
-$sql = "SELECT SUM(c.total_con_descuento) AS credito_usado,c.id_proveedor FROM canjes c WHERE anulado=0 GROUP BY c.id_proveedor";//WHERE p.id_proveedor=667;
+$sql = "SELECT SUM(c.credito_usado) AS credito_usado,c.id_proveedor FROM canjes c WHERE anulado=0 GROUP BY c.id_proveedor";//WHERE p.id_proveedor=667;
 $q = $pdo->prepare($sql);
 $q->execute();
 $canje_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
 //echo $q->rowCount()."<br>";
 foreach ($canje_detalle as $data){
-  $aProveedor[$data['id_proveedor']]["canjes_realizados"]+=$data['credito_usado'];
+  $aProveedor[$data['id_proveedor']]["credito_usado"]+=$data['credito_usado'];
 }
 
 $count_total=$count_iguales=$count_mayores=$count_menores=0;
@@ -87,7 +87,7 @@ $pdo = Database::disconnect();
             <th style="text-align:center">Credito disponible</th>
             <th style="text-align:center">Credito generado por ventas</th>
             <th style="text-align:center">Credito generado por canjes</th>
-            <th style="text-align:center">Canjes realizados</th>
+            <th style="text-align:center">Credito usado</th>
           </tr>
         </thead>
         <tbody><?php
@@ -95,7 +95,7 @@ $pdo = Database::disconnect();
             if(array_sum($data)>0){
               $count_total++;
               $credito_generado=$data["credito_generado_por_ventas"]+$data["credito_generado_por_canjes"];
-              $credito=$data["canjes_realizados"]+$data["credito_actual"];
+              $credito=$data["credito_usado"]+$data["credito_actual"];
           
               if($credito_generado==$credito){
                 $count_iguales++;
@@ -118,7 +118,7 @@ $pdo = Database::disconnect();
               echo '<td style="text-align:right">$'.number_format($data["credito_actual"],2).'</td>';
               echo '<td style="text-align:right">$'.number_format($data["credito_generado_por_ventas"],2).'</td>';
               echo '<td style="text-align:right">$'.number_format($data["credito_generado_por_canjes"],2).'</td>';
-              echo '<td style="text-align:right">$'.number_format($data["canjes_realizados"],2).'</td>';
+              echo '<td style="text-align:right">$'.number_format($data["credito_usado"],2).'</td>';
               echo '</tr>';
             }
           }
@@ -194,7 +194,7 @@ $pdo = Database::disconnect();
     $('#dataTables-example666').DataTable({
       stateSave: true,
       //dom: '<"#total_pagos_seleccionados.mr-2 d-inline"l>frtip',
-      dom: 'lrtip',
+      //dom: 'lrtip',
       //responsive: true,
       paginate: false,
       scrollY: '100vh',

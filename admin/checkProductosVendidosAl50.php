@@ -6,7 +6,7 @@ require 'funciones.php';
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$modoDebug=0;
+$modoDebug=1;
 $pdo->beginTransaction();
 
 //3,9,51,73,74,83,84,92,94,102
@@ -16,6 +16,11 @@ $pdo->beginTransaction();
 $sql = "SELECT vd.id AS id_venta_detalle,vd.deuda_proveedor,p.id_proveedor,v.tipo_comprobante FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE vd.id_modalidad=50 AND vd.pagado=0 AND v.anulada=0 AND de.id_devolucion IS NULL and v.fecha_hora<DATE_SUB(NOW(), INTERVAL 1 MONTH)";//WHERE p.id_proveedor=667; AND v.id_venta_cbte_relacionado IS NULL
 $q = $pdo->prepare($sql);
 $q->execute();
+
+if ($modoDebug==1) {
+  echo $sql."<br><br>";
+}
+
 $ok=$ok2=0;
 foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row){
   $ok2++;
@@ -59,6 +64,11 @@ $sql = "SELECT cd.id AS id_canje_detalle,cd.deuda_proveedor,p.id_proveedor FROM 
 $q = $pdo->prepare($sql);
 $q->execute();
 //$ok=$ok2=0;
+
+if ($modoDebug==1) {
+  echo $sql."<br><br>";
+}
+
 foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row){
   $ok2++;
   $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
