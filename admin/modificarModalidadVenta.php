@@ -49,8 +49,12 @@ if ( !empty($_POST)) {
       $pagado=1;//seteamos la variable para que muestre como pagada (sera mas facil identifcar en caso de error)
     }
 
+    $fecha_hora_pago="";
     //SI LA MODALIDAD NUEVA ES A CREDITO Y LA FECHA ES MAYOR A 30 DÍAS, AUMENTAMOS EL CREDITO DE LA PROVEEDORA
     if($_POST["id_modalidad"]==50 and $data["aumentar_credito"]==1){
+
+      $pagado=1;//si ya pasó mas de 30 días la marcamos como pagada
+      $fecha_hora_pago=" , fecha_hora_pago = NOW()";
 
       $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
       $q = $pdo->prepare($sql);
@@ -77,7 +81,7 @@ if ( !empty($_POST)) {
       }
     }
 
-    $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado where id = ?";
+    $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado $fecha_hora_pago where id = ?";
     $q = $pdo->prepare($sql);
     $q->execute(array($_POST['id_modalidad'],$deuda_proveedor,$id));
 
