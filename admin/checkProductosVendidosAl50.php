@@ -6,7 +6,7 @@ require 'funciones.php';
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$modoDebug=1;
+$modoDebug=0;
 $pdo->beginTransaction();
 
 //3,9,51,73,74,83,84,92,94,102

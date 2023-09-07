@@ -26,7 +26,7 @@ if ( !empty($_GET)) {
   $id=$_GET["id"];
 
   //obtenemos los datos de la factura para insertarlos en la nota de credito
-  $sql = "SELECT nombre_cliente, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_forma_pago, punto_venta, numero_comprobante, tipo_comprobante, fecha_hora, modalidad_venta FROM ventas WHERE id = ? ";
+  $sql = "SELECT nombre_cliente, tipo_doc, dni, direccion, email, telefono, id_almacen, total, total_con_descuento, id_forma_pago, punto_venta, numero_comprobante, tipo_comprobante, fecha_hora, modalidad_venta FROM ventas WHERE id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -135,13 +135,15 @@ if ( !empty($_GET)) {
 
     $ImpTotal=$data["total_con_descuento"];
     $CbteAsoc=$data["numero_comprobante"];
+    $DocTipo=$data["tipo_doc"];
+    $DocNro=$data["dni"];
     //$total=121;
     if($data["tipo_comprobante"]=="A"){
       $tipo_comprobante_asociado=1;//1 -> Factura A
       $tipo_comprobante=3;//3 -> Nota de Crédito A
       $tipo_de_nota="NCA";
-      $DocTipo=80;
-      $DocNro=$_POST["dni"];
+      /*$DocTipo=80;
+      $DocNro=$_POST["dni"];*/
 
       $ImpNeto=$ImpTotal/1.21;
       $ImpIVA=$ImpTotal-$ImpNeto;
@@ -149,8 +151,8 @@ if ( !empty($_GET)) {
       $tipo_comprobante_asociado=6;//6 -> Factura B
       $tipo_comprobante=8;//8 -> Nota de Crédito B
       $tipo_de_nota="NCB";
-      $DocTipo=99;
-      $DocNro=0;
+      /*$DocTipo=99;
+      $DocNro=0;*/
       
       $ImpNeto=$ImpTotal/1.21;
       $ImpIVA=$ImpTotal-$ImpNeto;
@@ -190,10 +192,12 @@ if ( !empty($_GET)) {
           'PtoVta' 	=> $punto_venta,//punto de venta de la factura
           'Nro' 	=> $CbteAsoc,//nro de comprobante de la factura
         )
-      ), 
+      ),
     );
 
-    //var_dump($dataNC);
+    if ($modoDebug==1) {
+      var_dump($dataNC);
+    }
     
     //$res = $afip->ElectronicBilling->CreateVoucher($dataNC);
     $res = $afip->ElectronicBilling->CreateNextVoucher($dataNC);

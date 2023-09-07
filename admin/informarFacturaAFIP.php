@@ -52,13 +52,46 @@ if ( !empty($_GET)) {
   var_dump($server_status);*/
 
   $ImpTotal=$data["total_con_descuento"];
-  $tipo_comprobante=$data["tipo_comprobante"];
+  $tipo_comprobante_bbdd=$data["tipo_comprobante"];
+  
   //$total=121;
-  if($tipo_comprobante=="A"){
+  /*if($tipo_comprobante=="A"){
     $tipo_comprobante=1;//1 -> Factura A
   }elseif($tipo_comprobante=="B"){
     $tipo_comprobante=6;//6 -> Factura B
-    
+  }*/
+  $aCbteAsoc=NULL;
+  switch ($tipo_comprobante_bbdd) {
+    case 'A':
+      $tipo_comprobante=1;//1 -> Factura A
+      break;
+    case 'B':
+      $tipo_comprobante=6;//6 -> Factura B
+      break;
+    case 'NCB':
+      $tipo_comprobante=8;//8 -> Nota de Crédito B
+      $tipo_comprobante_asociado=6;
+
+      $sql = "SELECT * FROM ventas WHERE id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($data["id_venta_cbte_relacionado"]));
+      $data2 = $q->fetch(PDO::FETCH_ASSOC);
+
+      $punto_venta=$data2["punto_venta"];//punto de venta de la factura
+      $CbteAsoc=$data2["numero_comprobante"];//nro de comprobante de la factura
+
+      $aCbteAsoc=array(// (Solo para notas de credito o debito) Array de comprobantes asociados
+        array(
+          'Tipo' 		=> $tipo_comprobante_asociado, // tipo de factura
+          'PtoVta' 	=> $punto_venta,//punto de venta de la factura
+          'Nro' 	=> $CbteAsoc,//nro de comprobante de la factura
+        )
+      );
+
+      break;
+    default:
+      $tipo_comprobante=NULL;//error
+      break;
   }
   $ImpNeto=$ImpTotal/1.21;
   $ImpIVA=$ImpTotal-$ImpNeto;
@@ -94,8 +127,11 @@ if ( !empty($_GET)) {
         'BaseImp' 	=> $ImpNeto,//100, // Base imponible -> ES IGUAL A ImpNeto?
         'Importe' 	=> $ImpIVA,//21 // Importe -> ES IGUAL A ImpIVA?
       )
-    ), 
+    )
   );
+  if($tipo_comprobante_bbdd=="NCB"){
+    $data['CbtesAsoc']=$aCbteAsoc;
+  }
 
   if ($modoDebug==1) {
     var_dump($data);
