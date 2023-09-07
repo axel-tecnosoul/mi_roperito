@@ -93,7 +93,7 @@ if(empty($_SESSION['user']))
                             echo '<tr>';
                             echo '<td>'. $row['id'] . '</td>';
                             echo '<td>'. $row["fecha_hora"] . 'hs</td>';
-                            echo '<td>'. $row["fecha_canje"] . 'hs</td>';
+                            echo '<td>'. $row["fecha_canje"] . '</td>';
                             echo '<td>'. $row['almacen'] . '</td>';
                             echo '<td>'. $row['nombre'] . ' ' . $row['apellido'] . '</td>';
                             //echo '<td>$'. number_format($row['total'],2) . '</td>';

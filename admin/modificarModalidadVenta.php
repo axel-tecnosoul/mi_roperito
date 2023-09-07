@@ -13,7 +13,7 @@ if ( !empty($_GET['id'])) {
 }
 
 if ( null==$id ) {
-  header("Location: listarPagosRealizados.php");
+  header("Location: listarProveedores.php");
 }
 
 if ( !empty($_POST)) {
@@ -30,10 +30,23 @@ if ( !empty($_POST)) {
     var_dump($_POST);
   }
 
-  $sql = "SELECT vd.id_modalidad AS id_modalidad_venta, p.id_proveedor, v.id_forma_pago, vd.subtotal, vd.deuda_proveedor, v.fecha_hora, IF(DATE_SUB(NOW(), INTERVAL 1 MONTH)>=v.fecha_hora,1,0) AS aumentar_credito, pagado, fecha_hora_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id = ? ";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($id));
-  $data = $q->fetch(PDO::FETCH_ASSOC);
+  $tabla=$_GET["t"];
+  
+  if($tabla=="v"){
+    $sql = "SELECT vd.id_modalidad AS id_modalidad_venta, p.id_proveedor, v.id_forma_pago, vd.subtotal, vd.deuda_proveedor, v.fecha_hora, IF(DATE_SUB(NOW(), INTERVAL 1 MONTH)>=v.fecha_hora,1,0) AS aumentar_credito, pagado, fecha_hora_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id WHERE vd.id = ? ";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+  }else{
+    $sql = "SELECT cd.id_modalidad AS id_modalidad_venta, p.id_proveedor, v.id_forma_pago, cd.subtotal, cd.deuda_proveedor, c.fecha_hora, IF(DATE_SUB(NOW(), INTERVAL 1 MONTH)>=c.fecha_hora,1,0) AS aumentar_credito, pagado, fecha_hora_pago FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id LEFT JOIN ventas v ON c.id_venta=v.id WHERE cd.id = ? ";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($id));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+
+    if(is_null($data["id_forma_pago"])){
+      $data["id_forma_pago"]=1;
+    }
+  }
 
   if ($modoDebug==1) {
     $q->debugDumpParams();
@@ -49,12 +62,22 @@ if ( !empty($_POST)) {
       $pagado=1;//seteamos la variable para que muestre como pagada (sera mas facil identifcar en caso de error)
     }
 
-    $fecha_hora_pago="";
+    $fecha_hora_pago=" , fecha_hora_pago = NULL";
     //SI LA MODALIDAD NUEVA ES A CREDITO Y LA FECHA ES MAYOR A 30 DÍAS, AUMENTAMOS EL CREDITO DE LA PROVEEDORA
     if($_POST["id_modalidad"]==50 and $data["aumentar_credito"]==1){
 
       $pagado=1;//si ya pasó mas de 30 días la marcamos como pagada
       $fecha_hora_pago=" , fecha_hora_pago = NOW()";
+
+      $sql0 = "SELECT credito FROM proveedores WHERE id = ? ";
+      $q0 = $pdo->prepare($sql0);
+      $q0->execute(array($data["id_proveedor"]));
+      $data0 = $q0->fetch(PDO::FETCH_ASSOC);
+
+      if ($modoDebug==1) {
+        $q0->debugDumpParams();
+        var_dump($data0);
+      }
 
       $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
       $q = $pdo->prepare($sql);
@@ -81,7 +104,11 @@ if ( !empty($_POST)) {
       }
     }
 
-    $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado $fecha_hora_pago where id = ?";
+    if($tabla=="v"){
+      $sql = "UPDATE ventas_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado $fecha_hora_pago where id = ?";
+    }else{
+      $sql = "UPDATE canjes_detalle set id_modalidad = ?, deuda_proveedor = ?, pagado = $pagado $fecha_hora_pago where id = ?";
+    }
     $q = $pdo->prepare($sql);
     $q->execute(array($_POST['id_modalidad'],$deuda_proveedor,$id));
 
@@ -107,10 +134,27 @@ if ( !empty($_POST)) {
   
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago,vd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, vd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,vd.precio,vd.cantidad,vd.subtotal FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id LEFT JOIN descuentos d ON v.id_descuento_aplicado=d.id WHERE vd.id = ? ";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($id));
-  $data = $q->fetch(PDO::FETCH_ASSOC);
+
+  if(isset($_GET["t"])){
+    if($_GET["t"]=="v"){
+      $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago,vd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, vd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,vd.precio,vd.cantidad,vd.subtotal FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id LEFT JOIN descuentos d ON v.id_descuento_aplicado=d.id WHERE vd.id = ? ";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($id));
+      $data = $q->fetch(PDO::FETCH_ASSOC);
+    }else{
+      $sql = "SELECT cd.caja_egreso, cd.id_almacen, cd.id_forma_pago,cd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, cd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,cd.precio,cd.cantidad,cd.subtotal FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id LEFT JOIN descuentos d ON c.id_descuento_aplicado=d.id LEFT JOIN ventas v ON c.id_venta=v.id LEFT JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE cd.id = ? ";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($id));
+      $data = $q->fetch(PDO::FETCH_ASSOC);
+
+      if(is_null($data["id_forma_pago"])){
+        $data["id_forma_pago"]=1;
+        $data["forma_pago"]="Crédito";
+      }
+    }
+  }else{
+    header("Location: listarProveedores.php");
+  }
   
   Database::disconnect();
 }?>
@@ -164,7 +208,7 @@ if ( !empty($_POST)) {
                   <div class="card-header">
                     <h5>Modificar Modalidad de Venta</h5>
                   </div>
-				          <form class="form theme-form" role="form" method="post" action="modificarModalidadVenta.php?id=<?=$id?>">
+				          <form class="form theme-form" role="form" method="post" action="modificarModalidadVenta.php?id=<?=$id?>&t=<?=$_GET["t"]?>">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
@@ -256,7 +300,7 @@ if ( !empty($_POST)) {
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
                         <button class="btn btn-primary" type="submit">Modificar</button>
-						            <a href='listarPagosRealizados.php' class="btn btn-light">Volver</a>
+						            <a href='verProveedor.php?id=<?=$data["id"]?>' class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
