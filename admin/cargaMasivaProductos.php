@@ -58,7 +58,7 @@ if ( !empty($_POST)) {
         echo "<br><br>";
       }
     } else {
-      $sql = "UPDATE productos SET id_categoria=?, descripcion=?, id_proveedor=?, precio=?, precio_costo=?, activo=? WHERE codigo=? ";
+      /*$sql = "UPDATE productos SET id_categoria=?, descripcion=?, id_proveedor=?, precio=?, precio_costo=?, activo=? WHERE codigo=? ";
       $q = $pdo->prepare($sql);
       $q->execute(array($_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$_POST["precio_costo"][$key],$activo,$codigo));
 
@@ -66,7 +66,7 @@ if ( !empty($_POST)) {
         $q->debugDumpParams();
         echo "<br><br>Afe: ".$q->rowCount();
         echo "<br><br>";
-      }
+      }*/
 
       /*$sql = "UPDATE stock SET id_producto=?, id_almacen=?, cantidad=?, id_modalidad=? WHERE codigo=? ";
       $q = $pdo->prepare($sql);

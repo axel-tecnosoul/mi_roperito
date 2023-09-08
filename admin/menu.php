@@ -60,7 +60,7 @@
 		  <li><a class="sidebar-header" href="listarUsuarios.php"><i data-feather="user"></i><span>Usuarios</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}*/
 		if ($id_perfil == 1) {?>
-	    <!-- <li><a class="sidebar-header" href="listarBanners.php"><i data-feather="settings"></i><span>Banner</span><i class="fa fa-angle-right pull-right"></i></a></li> -->
+	    <li><a class="sidebar-header" href="listarBanners.php"><i data-feather="settings"></i><span>Banner</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="listarParametros.php"><i data-feather="settings"></i><span>Parametros</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="#"><i data-feather="bar-chart"></i><span>Reportes</span><i class="fa fa-angle-right pull-right"></i></a>
         <ul class="sidebar-submenu">
