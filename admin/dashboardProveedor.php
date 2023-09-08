@@ -1,7 +1,6 @@
 <?php 
 require("config.php");
-require 'database.php';
-?>
+require 'database.php';?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -46,11 +45,11 @@ require 'database.php';
           <!-- Container-fluid starts-->
           <div class="container-fluid">
             
-            <!-- <div class="row">
+            <div class="row">
               <div class="col-3"></div>
               <div class="col-sm-6"> 
                 <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php
-                  /*$pdo = Database::connect();
+                  $pdo = Database::connect();
                   $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
 
                   foreach ($pdo->query($sql) as $row) {
@@ -61,202 +60,202 @@ require 'database.php';
                     echo '</div>';
                   }
 
-                  Database::disconnect();*/?>
+                  Database::disconnect();?>
                 </div>
               </div>
               <div class="col-3"></div>
-            </div> -->
+            </div>
 
-            <div class="row">
+            <!-- <div class="row">
 			        <div class="col-lg-12">
-                  <div class="header-faq">
-                    <h5 class="mb-0">Ayuda / Preguntas Frecuentes</h5>
-                  </div>
-                  <div class="row default-according style-1 faq-accordion" id="accordionoc">
-                    <div class="col-xl-8 xl-60 col-lg-6 col-md-7">
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon" aria-expanded="false" aria-controls="collapseicon"><i data-feather="help-circle"></i> Integrating WordPress with Your Website?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon" aria-labelledby="collapseicon" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
+                <div class="header-faq">
+                  <h5 class="mb-0">Ayuda / Preguntas Frecuentes</h5>
+                </div>
+                <div class="row default-according style-1 faq-accordion" id="accordionoc">
+                  <div class="col-xl-8 xl-60 col-lg-6 col-md-7">
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon" aria-expanded="false" aria-controls="collapseicon"><i data-feather="help-circle"></i> Integrating WordPress with Your Website?</button>
+                        </h5>
                       </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon2" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon2" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon3" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon3" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon4" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>   WordPress in Your Language ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon4" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="faq-title">
-                        <h6>Ventas</h6>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon5" aria-expanded="false"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon5" aria-labelledby="collapseicon5" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon7" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>   WordPress in Your Language ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon7" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon8" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Integrating WordPress with Your Website ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon8" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="faq-title">
-                        <h6>Cobranzas</h6>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon9" aria-expanded="false"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon9" aria-labelledby="collapseicon9" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon10" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon10" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon11" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Validating a Website ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon11" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon12" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Know Your Sources ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon12" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="faq-title">
-                        <h6>Canjes</h6>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon13" aria-expanded="false"><i data-feather="help-circle"></i>Integrating WordPress with Your Website ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon13" aria-labelledby="collapseicon13" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon14" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>WordPress Site Maintenance ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon14" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon16" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i> WordPress in Your Language ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon16" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon17" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>  Validating a Website ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon17" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
-                      </div>
-                      <div class="card">
-                        <div class="card-header">
-                          <h5 class="mb-0">
-                            <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon18" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
-                          </h5>
-                        </div>
-                        <div class="collapse" id="collapseicon18" data-parent="#accordionoc">
-                          <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
-                        </div>
+                      <div class="collapse" id="collapseicon" aria-labelledby="collapseicon" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
                       </div>
                     </div>
-				</div>
-				</div>
-			</div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon2" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon2" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon3" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon3" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon4" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>   WordPress in Your Language ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon4" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="faq-title">
+                      <h6>Ventas</h6>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon5" aria-expanded="false"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon5" aria-labelledby="collapseicon5" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon7" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>   WordPress in Your Language ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon7" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon8" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Integrating WordPress with Your Website ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon8" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="faq-title">
+                      <h6>Cobranzas</h6>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon9" aria-expanded="false"><i data-feather="help-circle"></i> WordPress Site Maintenance ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon9" aria-labelledby="collapseicon9" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon10" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon10" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon11" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Validating a Website ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon11" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon12" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Know Your Sources ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon12" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="faq-title">
+                      <h6>Canjes</h6>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon13" aria-expanded="false"><i data-feather="help-circle"></i>Integrating WordPress with Your Website ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon13" aria-labelledby="collapseicon13" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon14" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>WordPress Site Maintenance ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon14" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon16" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i> WordPress in Your Language ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon16" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon17" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>  Validating a Website ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon17" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed pl-0" data-toggle="collapse" data-target="#collapseicon18" aria-expanded="false" aria-controls="collapseicon2"><i data-feather="help-circle"></i>Meta Tags in WordPress ?</button>
+                        </h5>
+                      </div>
+                      <div class="collapse" id="collapseicon18" data-parent="#accordionoc">
+                        <div class="card-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+            <!-- Container-fluid Ends-->
           </div>
-          <!-- Container-fluid Ends-->
         </div>
-          <!-- Container-fluid Ends-->
+        <!-- Container-fluid Ends-->
         <!-- footer start-->
         <?php include("footer.php"); ?>
       </div>
     </div>
-      <!-- latest jquery-->
-      <script src="assets/js/jquery-3.2.1.min.js"></script>
+    <!-- latest jquery-->
+    <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
     <script src="assets/js/bootstrap/popper.min.js"></script>
     <script src="assets/js/bootstrap/bootstrap.js"></script>

@@ -1,49 +1,45 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
-    }
-	
-	require 'database.php';
-	
-	if ( !empty($_POST)) {
-    
-    $subidajpg = 0;
+require("config.php");
+if(empty($_SESSION['user'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
+require 'database.php';
+if ( !empty($_POST)) {
+  
+  $subidajpg = 0;
 
-    if($_POST['seccion'] == "1"){
-      $seccion = "Home/";
-    }elseif($_POST['seccion'] == "2"){
-      $seccion = "Proveedores/";
-    }
+  if($_POST['seccion'] == "1"){
+    $seccion = "Home/";
+  }elseif($_POST['seccion'] == "2"){
+    $seccion = "Proveedores/";
+  }
 
-    //Subir el archivo JPG
-		if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-      $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
-      $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
+  //Subir el archivo JPG
+  if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
+    $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
+    $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
 
-      if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
-        // El archivo se movió correctamente a la ubicación deseada
-        $subidajpg = 1;
-      }
+    if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
+      // El archivo se movió correctamente a la ubicación deseada
+      $subidajpg = 1;
     }
+  }
 
-    if($subidajpg == 1){
-      // insert data
-      $pdo = Database::connect();
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "INSERT INTO banners(`nombre`, `seccion`, `url-jpg`) VALUES (?,?,?)";
-      $q = $pdo->prepare($sql);
-      $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG));
-        
-      Database::disconnect();
-    }
+  if($subidajpg == 1){
+    // insert data
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "INSERT INTO banners(`nombre`, `seccion`, `url-jpg`) VALUES (?,?,?)";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG));
       
-    header("Location: listarBanners.php");
+    Database::disconnect();
+  }
     
-	}
-	
+  header("Location: listarBanners.php");
+  
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
