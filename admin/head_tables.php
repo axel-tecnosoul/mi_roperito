@@ -42,8 +42,10 @@
     <link id="color" rel="stylesheet" href="assets/css/light-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
-	
 	<link rel="stylesheet" type="text/css" href="assets/css/chartist.css">
     <link rel="stylesheet" type="text/css" href="assets/css/prism.css">
+    <!--Swipper-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="assets/css/swipper.css"/>
 
     
