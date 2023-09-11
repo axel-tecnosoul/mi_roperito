@@ -44,11 +44,11 @@ require 'database.php';?>
           </div>
           <!-- Container-fluid starts-->
           <div class="container-fluid">
-            
+            <!--
             <div class="row">
               <div class="col-3"></div>
               <div class="col-sm-6"> 
-                <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php
+                <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php/*
                   $pdo = Database::connect();
                   $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
 
@@ -60,11 +60,25 @@ require 'database.php';?>
                     echo '</div>';
                   }
 
-                  Database::disconnect();?>
+                  Database::disconnect();*/?>
                 </div>
               </div>
               <div class="col-3"></div>
+            </div>-->
+            <div class="container">
+              <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                  <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                      <img src="../nueva_web/images/Banners/Proveedores/dashboardProveedor.jpeg" alt="Imagen Dashboard Proveedor" class="img-fluid">
+                    </div>
+                    <div class="col-md-3"></div>
+                  </div>
+                </div>
+              </div>
             </div>
+
 
             <!-- <div class="row">
 			        <div class="col-lg-12">
