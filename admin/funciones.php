@@ -154,3 +154,17 @@ function randomColor(){
   }
   return $str;
 }
+
+function get_codigo_producto($pdo, $inicial_almacen){
+  $sql3 = "SELECT CONCAT(SUBSTRING(codigo, 1, 2), LPAD(MAX(CAST(SUBSTRING(codigo, 3) AS SIGNED)) + 1, 4, '0')) AS nuevo_codigo FROM productos WHERE SUBSTRING(codigo, 1, 2) = ?";
+  $q3 = $pdo->prepare($sql3);
+  $q3->execute(array($inicial_almacen));
+  $data3 = $q3->fetch(PDO::FETCH_ASSOC);
+  if (empty($data3["nuevo_codigo"])) {
+    $codigo=$inicial_almacen."0001";
+  }else{
+    $codigo=$data3["nuevo_codigo"];
+  }
+  
+  return $codigo;
+}

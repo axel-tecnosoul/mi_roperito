@@ -8,9 +8,9 @@ $columns = $_GET['columns'];
 $data_columns = ["","p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 //$data_columns = ["p.cb","p.codigo","c.categoria","p.descripcion","CONCAT(pr.nombre,' ',pr.apellido)","p.precio","p.activo"];
 
-$fields = ['cb','codigo','categoria','descripcion','nombre','apellido','precio','p.activo','p.id'];
+$fields = ['cb','codigo','categoria','descripcion','nombre','apellido','precio','p.activo','p.id'];//,'s.id'
 
-$from="FROM productos p inner join categorias c on c.id = p.id_categoria inner join proveedores pr on pr.id = p.id_proveedor";
+$from="FROM productos p INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN proveedores pr ON pr.id = p.id_proveedor";// LEFT JOIN stock s ON s.id_producto = p.id
 
 $orderBy = " ORDER BY ";
 foreach ($_GET['order'] as $order) {
@@ -87,6 +87,18 @@ if ($st) {
       if ($row[7]==1) {
         $activo='Si';
       }
+      $btnModificar='<a href="modificarProducto.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+      $btnEtiquetar='<a href="etiquetarProducto.php?cb='.$row['cb'].'&codigo='.$row['codigo'].'&nombre='.$row['descripcion'].'&precio='.$row['precio'].'"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar" title="Etiquetar"></a>';
+      $btnEliminar='<a href="#" title="Eliminar" onclick="openModalEliminarContacto('.$row["id"].')" data-target="#eliminarModal_'.$row['id'].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>';
+
+      $sql2 = "SELECT id FROM stock WHERE id_producto = ? ";
+      $q2 = $pdo->prepare($sql2);
+      $q2->execute(array($row['id']));
+      $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+      //var_dump($data2);
+      if (!$data2) {
+        $btnEliminar=$btnModificar="";
+      }
       $aProductos[]=[
         '<input type="checkbox" class="no-sort customer-selector" value="'.$row['id'].'" />',
 		    $row['cb'],
@@ -97,9 +109,7 @@ if ($st) {
         '$'. number_format($row['precio'],2),
         $activo,
         //$row['id'],
-        '<a href="modificarProducto.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>
-        <a href="etiquetarProducto.php?cb='.$row['cb'].'&codigo='.$row['codigo'].'&nombre='.$row['descripcion'].'&precio='.$row['precio'].'"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar" title="Etiquetar"></a>
-        <a href="#" title="Eliminar" onclick="openModalEliminarContacto('.$row["id"].')" data-target="#eliminarModal_'.$row['id'].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar"></a>',
+        $btnModificar.$btnEtiquetar.$btnEliminar,
       ];
     }
 

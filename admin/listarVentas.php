@@ -72,6 +72,7 @@ include_once("funciones.php");?>
                       &nbsp;<a href="nuevaVenta.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva Venta" title="Nueva Venta"></a>
                       &nbsp;<a href="exportVentas.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Ventas" title="Exportar Ventas"></a>
                       &nbsp;<a href="listarVentasAnuladas.php"><img src="img/canceled.png" width="24" height="25" border="0" alt="Ventas Eliminadas" title="Ventas Eliminadas"></a>
+                      <span  style="float: right;">Total: <span id="total">$ 0,00</span></span>
                     </h5>
                   </div>
                   <div class="card-body">
@@ -171,7 +172,7 @@ include_once("funciones.php");?>
                             <th>Teléfono</th>
                           </tr>
                         </thead>
-                        <tfoot>
+                        <!-- <tfoot>
                           <tr>
                             <th></th>
                             <th></th>
@@ -183,7 +184,7 @@ include_once("funciones.php");?>
                             <th></th>
                             <th colspan="8"></th>
                           </tr>
-                        </tfoot>
+                        </tfoot> -->
                         <tbody><?php
                           //include 'database.php';
                           /*$pdo = Database::connect();
@@ -442,9 +443,10 @@ include_once("funciones.php");?>
           console.log(settings.json.queryInfo.total_facturas_recibos);*/
           let total_facturas_recibos=settings.json.queryInfo.total_facturas_recibos
 
-          var api = this.api();
           // Update footer
-          $(api.column(6).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
+          /*var api = this.api();
+          $(api.column(6).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));*/
+          $("#total").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total_facturas_recibos));
 
           $('[title]').tooltip();
         }

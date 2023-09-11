@@ -5,6 +5,7 @@ if(empty($_SESSION['user']['id_perfil'])){
   die("Redirecting to index.php"); 
 }
 require 'database.php';
+require 'funciones.php';
 
 if ( !empty($_POST)) {
   
@@ -12,9 +13,21 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $sql2 = " SELECT id FROM productos WHERE codigo = ? ";
+  $modoDebug=0;
+
+  if ($modoDebug==1) {
+    $pdo->beginTransaction();
+    var_dump($_POST);
+  }
+
+  /*$sql2 = " SELECT id FROM productos WHERE codigo = ? ";
   $q2 = $pdo->prepare($sql2);
   $q2->execute(array($_POST['codigo']));
+  $data2 = $q2->fetch(PDO::FETCH_ASSOC);*/
+
+  $sql2 = " SELECT iniciales_codigo_productos FROM almacenes WHERE id = ? ";
+  $q2 = $pdo->prepare($sql2);
+  $q2->execute(array($_POST['id_almacen']));
   $data2 = $q2->fetch(PDO::FETCH_ASSOC);
 
   if ($modoDebug==1) {
@@ -24,21 +37,48 @@ if ( !empty($_POST)) {
     var_dump($data2);
   }
 
-  if (empty($data2)) {
+  if (!empty($data2["iniciales_codigo_productos"])) {
   
     $cb = microtime(true)*10000;
+
+    $codigo=get_codigo_producto($pdo,$data2['iniciales_codigo_productos']);
+
+    if ($modoDebug==1) {
+      $q3->debugDumpParams();
+      echo "<br><br>Afe: ".$q3->rowCount();
+      var_dump($data3);
+      echo "<br><br>Codigo: ".$codigo;
+      echo "<br><br>";
+    }
     
     $sql = "INSERT INTO productos(codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,1,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($_POST['codigo'],$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
+    $q->execute(array($codigo,$_POST['id_categoria'],$_POST['descripcion'],$_POST['id_proveedor'],$_POST['precio'],$_POST["precio_costo"],$cb));
     $idProducto = $pdo->lastInsertId();
+
+    if ($modoDebug==1) {
+      $q->debugDumpParams();
+      echo "<br><br>Afe: ".$q->rowCount();
+      echo "<br><br>";
+    }
 
     $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
     $q3 = $pdo->prepare($sql3);
     $q3->execute(array($idProducto,$_POST['id_almacen'],$_POST['cantidad'],$_POST['id_modalidad']));
+
+    if ($modoDebug==1) {
+      $q3->debugDumpParams();
+      echo "<br><br>Afe: ".$q3->rowCount();
+      echo "<br><br>";
+    }
   
   }
   
+  if ($modoDebug==1) {
+    $pdo->rollBack();
+    die();
+  }
+
   Database::disconnect();
   
   header("Location: listarProductos.php");
@@ -98,10 +138,10 @@ if ( !empty($_POST)) {
                       <div class="row">
                         <div class="col">
 
-                          <div class="form-group row">
+                          <!-- <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Código</label>
                             <div class="col-sm-9"><input name="codigo" type="text" maxlength="99" class="form-control" value="" required="required"></div>
-                          </div>
+                          </div> -->
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Categoría</label>
                             <div class="col-sm-9">
