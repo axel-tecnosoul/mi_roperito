@@ -59,7 +59,6 @@ if (!empty($_POST)) {
     $sql = "SELECT `id`, `nombre`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
     $q = $pdo->prepare($sql);
     $q->execute(array($id));
-
     $data = $q->fetch(PDO::FETCH_ASSOC);
 
     Database::disconnect();

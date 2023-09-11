@@ -21,9 +21,9 @@ if ( !empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $sql = "UPDATE almacenes set almacen = ?, direccion = ?, id_tipo = ?, punto_venta = ?, activo = ? where id = ?";
+  $sql = "UPDATE almacenes set almacen = ?, iniciales_codigo_productos = ?, direccion = ?, id_tipo = ?, punto_venta = ?, activo = ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['almacen'],$_POST['direccion'],$_POST['id_tipo'],$_POST['punto_venta'],$_POST['activo'],$_GET['id']));
+  $q->execute(array($_POST['almacen'],$_POST['iniciales_codigo_productos'],$_POST['direccion'],$_POST['id_tipo'],$_POST['punto_venta'],$_POST['activo'],$_GET['id']));
 
   Database::disconnect();
 
@@ -33,7 +33,7 @@ if ( !empty($_POST)) {
 
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "SELECT id, almacen, direccion, id_tipo, punto_venta, activo FROM almacenes WHERE id = ? ";
+  $sql = "SELECT id, almacen, iniciales_codigo_productos, direccion, id_tipo, punto_venta, activo FROM almacenes WHERE id = ? ";
   $q = $pdo->prepare($sql);
   $q->execute(array($id));
   $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -100,6 +100,10 @@ if ( !empty($_POST)) {
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Almacen</label>
                             <div class="col-sm-9"><input name="almacen" type="text" maxlength="99" class="form-control" value="<?=$data['almacen']; ?>" required="required"></div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Iniciales para los codigos de productos</label>
+                            <div class="col-sm-9"><input name="iniciales_codigo_productos" type="text" maxlength="2" class="form-control" value="<?=$data['iniciales_codigo_productos']; ?>" required="required" oninput="convertirAMayusculas(this)"></div>
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de almacen</label>
@@ -174,5 +178,10 @@ if ( !empty($_POST)) {
     <!-- Plugin used-->
 	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      function convertirAMayusculas(input) {
+        input.value = input.value.toUpperCase();
+      }
+    </script>
   </body>
 </html>

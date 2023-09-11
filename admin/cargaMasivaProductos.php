@@ -5,6 +5,8 @@ if(empty($_SESSION['user']['id_perfil'])){
   die("Redirecting to index.php"); 
 }
 require 'database.php';
+require 'funciones.php';
+
 $modoDebug=0;
 if ( !empty($_POST)) {
 
@@ -16,27 +18,40 @@ if ( !empty($_POST)) {
     var_dump($_POST);
     $pdo->beginTransaction();
   }
-  foreach ($_POST["codigo"] as $key => $codigo) {
+
+  $sql2 = " SELECT iniciales_codigo_productos FROM almacenes WHERE id = ? ";
+  $q2 = $pdo->prepare($sql2);
+  $q2->execute(array($_POST['id_almacen']));
+  $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+
+  if ($modoDebug==1) {
+    $q2->debugDumpParams();
+    echo "<br><br>Afe: ".$q2->rowCount();
+    echo "<br><br>";
+    var_dump($data2);
+  }
+
+  foreach ($_POST["descripcion"] as $key => $codigo) {
     if($key==0){
       continue;
     }
     $cb = microtime(true)*10000;
 
-    $sql2 = " SELECT id FROM productos WHERE codigo = ? ";
+    /*$sql2 = " SELECT id FROM productos WHERE codigo = ? ";
     $q2 = $pdo->prepare($sql2);
     $q2->execute(array($codigo));
-    $data2 = $q2->fetch(PDO::FETCH_ASSOC);
-
-    if ($modoDebug==1) {
-      $q2->debugDumpParams();
-      echo "<br><br>Afe: ".$q2->rowCount();
-      echo "<br><br>";
-      var_dump($data2);
-    }
+    $data2 = $q2->fetch(PDO::FETCH_ASSOC);*/
 
     $descripcion=$_POST["descripcion"][$key];
     
-    if (empty($data2)) {
+    if (!empty($data2["iniciales_codigo_productos"])) {
+
+      $codigo=get_codigo_producto($pdo,$data2['iniciales_codigo_productos']);
+      if ($modoDebug==1) {
+        echo "<br><br>codigo: ".$codigo;
+        echo "<br><br>";
+      }
+
       $sql = "INSERT INTO productos (codigo, id_categoria, descripcion, id_proveedor, precio, precio_costo, activo, cb) VALUES (?,?,?,?,?,?,?,?) ";
       $q = $pdo->prepare($sql);
       $q->execute(array($codigo,$_POST["id_categoria"][$key],$descripcion,$_POST["id_proveedor"],$_POST["precio"][$key],$_POST["precio_costo"][$key],$activo,$cb));
@@ -209,7 +224,7 @@ if ( !empty($_POST)) {
                               <table class="table-detalle table table-bordered table-hover text-center" id="tableEmail">
                                 <thead>
                                   <tr>
-                                    <th>Código</th>
+                                    <!-- <th>Código</th> -->
                                     <th>Categoria</th>
                                     <th>Descripcion</th>
                                     <th>Precio</th>
@@ -220,9 +235,9 @@ if ( !empty($_POST)) {
                                 </thead>
                                 <tbody>
                                   <tr id='addr0' data-id="0" style="display: none;">
-                                    <td data-name="codigo">
+                                    <!-- <td data-name="codigo">
                                       <input type="text" class="form-control" placeholder="Código" name="codigo[]" id="codigo-0"/>
-                                    </td>
+                                    </td> -->
                                     <td data-name="id_categoria">
                                       <select name="id_categoria[]" id="id_categoria-0" class="js-example-basic-single" style="width: 100%">
                                         <option value="">Seleccione...</option><?php
@@ -245,7 +260,7 @@ if ( !empty($_POST)) {
                                       <input type="number" class="form-control" placeholder="Precio" name="precio[]" id="precio-0"/>
                                     </td>
                                     <td data-name="precio_costo">
-                                      <input type="number" class="form-control" placeholder="Precio de costo" name="precio_costo[]" id="precio_costo-0"/>
+                                      <input type="number" class="form-control" placeholder="Precio de costo" value="0" name="precio_costo[]" id="precio_costo-0"/>
                                     </td>
                                     <td data-name="cantidad">
                                       <input type="number" class="form-control" placeholder="Cantidad" name="cantidad[]" id="cantidad-0"/>

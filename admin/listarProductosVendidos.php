@@ -111,6 +111,8 @@ include 'database.php';
                     <h5>Productos Vendidos
                       &nbsp;<a href="exportProductosVendidos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar Productos Vendidos" title="Exportar Productos Vendidos"></a>
                       <!-- <div id="total_pagos_realizados" class="mr-2 d-inline"></div> -->
+                      <span  style="float: right;">Total vendido: <span id="total_vendido">$ 0,00</span></span>
+                      <!-- style="right: 20px;position: absolute;" -->
                     </h5>
                   </div>
                   <div class="card-body">
@@ -222,7 +224,7 @@ include 'database.php';
                               <label for="checkbox-canjes">Canjes</label>
                             </label>
                           </td>
-                          <td colspan="2" class="text-center border-0 p-1"><button class="btn btn-primary btnFiltrar">Filtrar</button></td>
+                          <td rowspan="2" style="vertical-align: middle;" class="text-center border-0 p-1"><button class="btn btn-primary btnFiltrar">Filtrar</button></td>
                           <!-- <td rowspan="2" style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td> -->
                         </tr>
@@ -237,8 +239,8 @@ include 'database.php';
                               <label class="mb-0" for="radio-fecha-venta">Fecha de venta</label>
                             </label>
                           </td>
-                          <td style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
-                          <td style="vertical-align: middle;" class="border-0 p-1" id="total_vendido"></td>
+                          <!-- <td style="vertical-align: middle;" class="text-right border-0 p-1">Total vendido: </td>
+                          <td style="vertical-align: middle;" class="border-0 p-1" id="total_vendido2"></td> -->
                         </tr>
                       </table>
                     </div>
@@ -431,7 +433,7 @@ include 'database.php';
               //console.log(row);
               sumaSubtotal+=parseFloat(row.subtotal);
             })
-            $("#total_vendido").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaSubtotal));
+            $("#total_vendido").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaSubtotal));//, minimumFractionDigits: 0, maximumFractionDigits: 0
           },
           drawCallback: function(settings, json){
             $('[title]').tooltip();
