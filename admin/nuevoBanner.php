@@ -30,9 +30,9 @@ if ( !empty($_POST)) {
     // insert data
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "INSERT INTO banners(`nombre`, `seccion`, `url-jpg`) VALUES (?,?,?)";
+    $sql = "INSERT INTO banners(`seccion`, `url-jpg`) VALUES (?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG));
+    $q->execute(array( $_POST['seccion'], $nombreArchivoJPG));
       
     Database::disconnect();
   }
@@ -95,13 +95,6 @@ if ( !empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Nombre</label>
-                            <div class="col-sm-9">
-                              <input name="nombre" type="text" maxlength="99" class="form-control" value="" required="required">
-                            </div>
-                          </div>
-
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
                             

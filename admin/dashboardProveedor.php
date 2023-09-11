@@ -51,7 +51,7 @@ require 'database.php';?>
                 <div class="swiper mySwiper">
                   <div class="swiper-wrapper"><?php
                     $pdo = Database::connect();
-                    $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
+                    $sql = "SELECT id, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
 
                     foreach ($pdo->query($sql) as $row) {
                       echo '<div class="swiper-slide">';	
