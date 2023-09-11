@@ -44,28 +44,36 @@ require 'database.php';?>
           </div>
           <!-- Container-fluid starts-->
           <div class="container-fluid">
-            <!--
             <div class="row">
-              <div class="col-3"></div>
-              <div class="col-sm-6"> 
-                <div id="testimonial-slider" class="owl-carousel carrusel" style="height: 500px; width: 400px; margin-bottom: 50px;"><?php/*
-                  $pdo = Database::connect();
-                  $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
+              <div class="col-sm-3"></div>
+              <div class="col-sm-6">
+                <!-- Swiper -->
+                <div class="swiper mySwiper">
+                  <div class="swiper-wrapper"><?php
+                    $pdo = Database::connect();
+                    $sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 2"; 
 
-                  foreach ($pdo->query($sql) as $row) {
-                    echo '<div class="testimonial custom-styles">';	
-                    echo '<picture>';
-                    echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
-                    echo '</picture>';
-                    echo '</div>';
-                  }
+                    foreach ($pdo->query($sql) as $row) {
+                      echo '<div class="swiper-slide">';	
+                      echo '<picture>';
+                      echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
+                      echo '</picture>';
+                      echo '</div>';
+                    }
 
-                  Database::disconnect();*/?>
+                    Database::disconnect();?>
+                    
+                  </div>
+                  
+                  <div class="swiper-button-next"></div>
+                  <div class="swiper-button-prev"></div>
                 </div>
+                <div class="swiper-pagination"></div>
               </div>
-              <div class="col-3"></div>
-            </div>-->
-            <div class="container">
+              <div class="col-sm-3"></div>
+            </div>
+
+            <!--<div class="container">
               <div class="row justify-content-center">
                 <div class="col-12 col-md-10 col-lg-8">
                   <div class="row">
@@ -77,7 +85,7 @@ require 'database.php';?>
                   </div>
                 </div>
               </div>
-            </div>
+            </div>-->
 
 
             <!-- <div class="row">
@@ -334,6 +342,27 @@ require 'database.php';?>
     <script defer src="../js/bundle.js"></script>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+      var swiper = new Swiper(".mySwiper", {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+        autoplay: {
+          delay: 2500,
+          disableOnInteraction: false,
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+      });
+    </script>
+    
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     
