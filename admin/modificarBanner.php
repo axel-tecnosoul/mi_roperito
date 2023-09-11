@@ -46,9 +46,9 @@ if (!empty($_POST)) {
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  $sql = "UPDATE banners SET nombre=?, seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
+  $sql = "UPDATE banners SET seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['nombre'], $_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));
+  $q->execute(array($_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));
 
   Database::disconnect();
 
@@ -56,7 +56,7 @@ if (!empty($_POST)) {
 } else {
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = "SELECT `id`, `nombre`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
+    $sql = "SELECT `id`, `seccion`, `url-jpg`, `activo` FROM `banners` WHERE id = ? ";
     $q = $pdo->prepare($sql);
     $q->execute(array($id));
     $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -117,13 +117,6 @@ if (!empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Nombre</label>
-                            <div class="col-sm-9">
-                              <input name="nombre" type="text" maxlength="99" class="form-control" value="<?php echo $data['nombre']; ?>" required="required">
-                            </div>
-                          </div>
-
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
                             <div class="col-sm-5">
