@@ -137,12 +137,12 @@ if ( !empty($_POST)) {
 
   if(isset($_GET["t"])){
     if($_GET["t"]=="v"){
-      $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago,vd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, vd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,vd.precio,vd.cantidad,vd.subtotal FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id LEFT JOIN descuentos d ON v.id_descuento_aplicado=d.id WHERE vd.id = ? ";
+      $sql = "SELECT vd.caja_egreso, vd.id_almacen, vd.id_forma_pago,vd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, vd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(vd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,vd.precio,vd.cantidad,vd.subtotal, pagado FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id INNER JOIN forma_pago fp ON v.id_forma_pago=fp.id LEFT JOIN descuentos d ON v.id_descuento_aplicado=d.id WHERE vd.id = ? ";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
       $data = $q->fetch(PDO::FETCH_ASSOC);
     }else{
-      $sql = "SELECT cd.caja_egreso, cd.id_almacen, cd.id_forma_pago,cd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, cd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,cd.precio,cd.cantidad,cd.subtotal FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id LEFT JOIN descuentos d ON c.id_descuento_aplicado=d.id LEFT JOIN ventas v ON c.id_venta=v.id LEFT JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE cd.id = ? ";
+      $sql = "SELECT cd.caja_egreso, cd.id_almacen, cd.id_forma_pago,cd.id_modalidad AS id_modalidad_venta, m.modalidad AS modalidad_proveedor, cd.deuda_proveedor, p.descripcion, p.codigo, pr.apellido, pr.nombre, pr.id,date_format(cd.fecha_hora_pago,'%d/%m/%Y %H:%i') AS fecha_hora_pago, v.id_forma_pago, fp.forma_pago, d.descripcion AS descuento, d.porcentaje,cd.precio,cd.cantidad,cd.subtotal, pagado FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN modalidades m ON pr.id_modalidad=m.id LEFT JOIN descuentos d ON c.id_descuento_aplicado=d.id LEFT JOIN ventas v ON c.id_venta=v.id LEFT JOIN forma_pago fp ON v.id_forma_pago=fp.id WHERE cd.id = ? ";
       $q = $pdo->prepare($sql);
       $q->execute(array($id));
       $data = $q->fetch(PDO::FETCH_ASSOC);
@@ -206,7 +206,12 @@ if ( !empty($_POST)) {
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Modificar Modalidad de Venta</h5>
+                    <h5>Modificar Modalidad de Venta<?php
+                    if($data["pagado"]==1){
+                      echo "<br><p style='color:red;text-transform: initial;'>ATENCION! La prenda ya está pagada</p>";
+                    }
+                    ?>
+                    </h5>
                   </div>
 				          <form class="form theme-form" role="form" method="post" action="modificarModalidadVenta.php?id=<?=$id?>&t=<?=$_GET["t"]?>">
                     <div class="card-body">
