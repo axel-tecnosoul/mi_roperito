@@ -61,7 +61,6 @@ if(empty($_SESSION['user'])) {
                           <tr>
                             <!-- <th>ID</th> -->
                             <th>ID</th>
-                            <th>Nombre</th>
                             <th>Seccion</th>
                             <th>Activo</th>
                             <th>Opciones</th>
@@ -70,13 +69,12 @@ if(empty($_SESSION['user'])) {
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, nombre, seccion, activo FROM banners";
+                          $sql = " SELECT id, seccion, activo FROM banners";
                           
                           foreach ($pdo->query($sql) as $row) {
                               echo '<tr>';
                               //echo '<td>'.$row[0].'</td>';
                               echo '<td>'.$row['id'].'</td>';
-                              echo '<td>'.$row['nombre'].'</td>';
                               if($row['seccion'] == 1){
                                 echo '<td>"Sabes que se usa?" - Home web</td>';
                               }elseif($row['seccion'] == 2){
