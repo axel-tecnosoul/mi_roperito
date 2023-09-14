@@ -117,6 +117,22 @@ if (!empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Imagen</label>
+                            <div class="col-sm-9"><?php
+                                if ($data['seccion'] == 1) {
+                                    $seccion = "Home";
+                                } else {
+                                    $seccion = "Proveedores";
+                                }?>
+
+                                <img src="../nueva_web/images/Banners/<?= $seccion ?>/<?= $data['url-jpg'] ?>" alt="Imagen Banner" style="display: block; max-width: 200px; max-height: 250px; object-fit: cover;">
+                      
+                                <label style="display: block; margin-top: 10px;"><?= $data['url-jpg']; ?></label>
+                            </div>
+                          </div>
+
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
                             <div class="col-sm-5">
@@ -183,12 +199,8 @@ if (!empty($_POST)) {
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
     <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
