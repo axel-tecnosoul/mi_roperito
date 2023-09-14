@@ -59,8 +59,8 @@ if(empty($_SESSION['user'])) {
                       <table class="display" id="dataTables-example666">
                         <thead>
                           <tr>
-                            <!-- <th>ID</th> -->
                             <th>ID</th>
+                            <th>Imagen</th>
                             <th>Seccion</th>
                             <th>Activo</th>
                             <th>Opciones</th>
@@ -69,27 +69,52 @@ if(empty($_SESSION['user'])) {
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, seccion, activo FROM banners";
-                          
+                          $sql = "SELECT id, seccion, `url-jpg`, activo FROM banners";
+                            
                           foreach ($pdo->query($sql) as $row) {
-                              echo '<tr>';
-                              //echo '<td>'.$row[0].'</td>';
-                              echo '<td>'.$row['id'].'</td>';
-                              if($row['seccion'] == 1){
-                                echo '<td>"Sabes que se usa?" - Home web</td>';
-                              }elseif($row['seccion'] == 2){
-                                echo '<td>Home Proveedores</td>';
-                              }
-                              if($row['activo'] == 1){
-                                echo '<td>SI</td>';
-                              }else{
-                                echo '<td>NO</td>';
-                              }
-                              echo '<td>';
-                              echo '<a href="modificarBanner.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-                              echo '&nbsp;&nbsp;';
-                              echo '</td>';
-                              echo '</tr>';
+                            echo '<tr>';
+                            echo '<td>' . $row['id'] . '</td>';
+                            echo '<td>' . $row['url-jpg'] . '</td>';
+                                
+                            if ($row['seccion'] == 1) {
+                              echo '<td>"Sabes que se usa?" - Home web</td>';
+                            } elseif ($row['seccion'] == 2) {
+                              echo '<td>Home Proveedores</td>';
+                            }
+                            if ($row['activo'] == 1) {
+                              echo '<td>SI</td>';
+                            } else {
+                              echo '<td>NO</td>';
+                            }
+                            echo '<td>';
+                            echo '<a href="modificarBanner.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            echo '&nbsp;&nbsp;';
+                            echo '<a href="#" data-toggle="modal" data-target="#imagenModal' . $row['id'] . '" data-imagen="' . $row['url-jpg'] . '" data-seccion="' . $row['seccion'] . '">
+                              <img src="img/eye.png" id="mostrar_imagen" width="24" height="15" border="0" alt="Ver" title="Ver Imagen">
+                            </a>';
+
+                            echo '</td>';
+                            echo '</tr>';
+                                
+                            // Crea el modal para esta imagen
+                            echo '<div class="modal fade" id="imagenModal'.$row['id'].'" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">';
+                            echo '<div class="modal-dialog" role="document">';
+                            echo '<div class="modal-content">';
+                            echo '<div class="modal-header">';
+                            echo '<h5 class="modal-title" id="exampleModalLabel">Imagen Banner ID:'.$row['id'].'</h5>';
+                            echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
+                            echo '<span aria-hidden="true">&times;</span>';
+                            echo '</button>';
+                            echo '</div>';
+                            echo '<div class="modal-body" style="display: flex;">';
+                                
+                            // Aquí muestra la imagen correspondiente desde la base de datos
+                            echo '<img src="" alt="Imagen" id="modalImagen' . $row['id'] . '" style="margin: auto; display: block; width: 100%; height: 100%; object-fit: cover;">';
+                                
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
                           }
                           Database::disconnect();?>
                         </tbody>
@@ -172,6 +197,38 @@ if(empty($_SESSION['user'])) {
             }
           }
         });
+
+        function abrirModalPorDataTarget(dataTarget) {
+          $(dataTarget).on('show.bs.modal', function (e) {
+              console.log('Modal abierto: ' + dataTarget);
+              
+              var imagenURL = $(e.relatedTarget).data('imagen');
+              var modalID = $(this).attr('id');
+              var seccion = $(e.relatedTarget).data('seccion');
+
+              console.log(imagenURL);
+              console.log(seccion);
+
+              // Obtén la imagen dentro del modal actual y actualiza su fuente solo si está vacía
+              var $modalImagen = $('#modalImagen' + modalID.substring(11));
+
+             
+              var rutaBase = seccion === 1 ? '../nueva_web/images/Banners/Home/' : '../nueva_web/images/Banners/Proveedores/';
+
+              var imagenCompletaURL = rutaBase + imagenURL;
+
+              if ($modalImagen.attr('src') === "") {
+                  $modalImagen.attr('src', imagenCompletaURL);
+              }
+          });
+      }
+
+      $('[data-toggle="modal"]').on('click', function (e) {
+          e.preventDefault(); 
+          var dataTarget = $(this).data('target');
+          abrirModalPorDataTarget(dataTarget);
+      });
+
       });
     </script>
   </body>
