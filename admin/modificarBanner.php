@@ -21,31 +21,56 @@ if (!empty($_POST)) {
 
   $subidajpg = 0;
 
-  if($_POST['seccion'] == "1"){
-    $seccion = "Home";
-  }elseif($_POST['seccion'] == "2"){
-    $seccion = "Proveedores";
+  if ($_POST['seccion'] == "1") {
+      $seccion = "Home";
+  } elseif ($_POST['seccion'] == "2") {
+      $seccion = "Proveedores";
   }
 
-  // Verificamos si se ha enviado una nueva imagen
-  if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-    $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
-    $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
-
-    if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {
-      // El archivo se movió correctamente a la ubicación deseada
-      $subidajpg = 1;
-    }
-  } else {
-    // No se envió una nueva imagen, mantenemos la imagen actual
-    $subidajpg = 0;
-    $nombreArchivoJPG = $_POST['imagenActual'];
-  }
-
-  // update data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $sql_select = "SELECT seccion, `url-jpg` FROM banners WHERE id=?";
+  $q_select = $pdo->prepare($sql_select);
+  $q_select->execute(array($idRegistro));
+  $row = $q_select->fetch(PDO::FETCH_ASSOC);
 
+  $seccionActual = '';
+  if ($row['seccion'] == "1") {
+    $seccionActual = "Home";
+  } elseif ($row['seccion'] == "2") {
+    $seccionActual = "Proveedores";
+  }
+
+  if ($row) {
+    $nombreArchivoJPGActual = $row['url-jpg'];
+
+    if ($seccion != $seccionActual) {
+      // Mueve la imagen de la carpeta de la sección actual a la nueva sección
+      $rutaImagenActual = '../nueva_web/images/Banners/' . $seccionActual . '/' . $nombreArchivoJPGActual;
+      $rutaImagenNueva = '../nueva_web/images/Banners/' . $seccion . '/' . $nombreArchivoJPGActual;
+
+      if (file_exists($rutaImagenActual)) {
+        rename($rutaImagenActual, $rutaImagenNueva);
+      }
+    }
+  }
+
+  // Verifica si se ha enviado una nueva imagen
+  if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
+      $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
+      $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
+
+      if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . '/' . $nombreArchivoJPG)) {
+          // El archivo se movió correctamente a la ubicación deseada
+          $subidajpg = 1;
+      }
+  } else {
+      // No se envió una nueva imagen, mantenemos la imagen actual
+      $subidajpg = 0;
+      $nombreArchivoJPG = $_POST['imagenActual'];
+  }
+
+  // Actualiza los datos
   $sql = "UPDATE banners SET seccion=?, `url-jpg`=?, `activo`=? WHERE id=?";
   $q = $pdo->prepare($sql);
   $q->execute(array($_POST['seccion'], $nombreArchivoJPG, $_POST['activo'], $idRegistro));

@@ -16,7 +16,7 @@
 					<div id="testimonial-slider" class="owl-carousel carrusel"><?php
 						include '../admin/database.php';
 						$pdo = Database::connect();
-						$sql = "SELECT id, nombre, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 1"; 
+						$sql = "SELECT id, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 1"; 
 
 						foreach ($pdo->query($sql) as $row) {
 							$nombreImagenJPG = $row['url-jpg'];
