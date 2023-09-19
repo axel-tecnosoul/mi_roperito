@@ -174,7 +174,7 @@ if (!empty($_POST)) {
                             <div class="col-sm-9">
                               <select name="seccion" id="seccion" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
-                                <option value="1" <?php if ($data['seccion']==1) echo " selected ";?>>"Sabes que se usa?" - Home web</option>
+                                <option value="1" <?php if ($data['seccion']==1) echo " selected ";?>>Home web - "Sabes que se usa?"</option>
                                 <option value="2" <?php if ($data['seccion']==2) echo " selected ";?>>Home Proveedores</option>
                               </select>
                             </div>
