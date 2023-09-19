@@ -77,7 +77,7 @@ if(empty($_SESSION['user'])) {
                             echo '<td>' . $row['url-jpg'] . '</td>';
                                 
                             if ($row['seccion'] == 1) {
-                              echo '<td>"Sabes que se usa?" - Home web</td>';
+                              echo '<td>Home web - "Sabes que se usa?"</td>';
                             } elseif ($row['seccion'] == 2) {
                               echo '<td>Home Proveedores</td>';
                             }
@@ -94,7 +94,7 @@ if(empty($_SESSION['user'])) {
                             echo '<a href="modificarBanner.php?id='.$row['id'].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
                             echo '&nbsp;&nbsp;';
                             echo '<a href="#" data-toggle="modal" data-target="#eliminarModal_'.$row['id'].'"><img src="img/icon_baja.png" width="24" height="25" border="0" alt="Eliminar" title="Eliminar"></a>';
-                              echo '&nbsp;&nbsp;';
+                            echo '&nbsp;&nbsp;';
                             echo '</td>';
                             echo '</tr>';
                                 
@@ -138,24 +138,22 @@ if(empty($_SESSION['user'])) {
     <?php 
     $pdo = Database::connect();
     $sql = " SELECT `id`, seccion, `url-jpg`, activo FROM `banners` WHERE 1 ";
-    foreach ($pdo->query($sql) as $row) {
-    ?>
-    <div class="modal fade" id="eliminarModal_<?php echo $row['id'];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    foreach ($pdo->query($sql) as $row) {?>
+      <div class="modal fade" id="eliminarModal_<?php echo $row['id'];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">¿Está seguro que desea eliminar el Banner?</div>
+          <div class="modal-footer">
+          <a href="eliminarBanner.php?id=<?php echo $row['id'];?>" class="btn btn-primary">Eliminar</a>
+          <a onclick="document.location.href='listarBanners.php'" class="btn btn-light">Volver</a>
+          </div>
         </div>
-        <div class="modal-body">¿Está seguro que desea eliminar el Banner?</div>
-        <div class="modal-footer">
-        <a href="eliminarBanner.php?id=<?php echo $row['id'];?>" class="btn btn-primary">Eliminar</a>
-        <a onclick="document.location.href='listarBanners.php'" class="btn btn-light">Volver</a>
         </div>
-      </div>
-      </div>
-    </div>
-    <?php 
+      </div><?php
     }
     Database::disconnect();
     ?>

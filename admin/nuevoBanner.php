@@ -96,7 +96,7 @@ if ( !empty($_POST)) {
                       <div class="row">
                         <div class="col">
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Subida de imagen JPG</label>
+                            <label class="col-sm-3 col-form-label">Imagen</label>
                             
                             <div class="col-sm-9">
                               <input type="file" name="imagen-banner-jpg" required="required">
@@ -108,7 +108,7 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9">
                               <select name="seccion" id="seccion" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
-                                <option value="1">"Sabes que se usa?" - Home web</option>
+                                <option value="1">Home web - "Sabes que se usa?"</option>
                                 <option value="2">Home Proveedores</option>
                               </select>
                             </div>
