@@ -97,141 +97,31 @@ if ( !empty($_POST)) {
     echo "<br><br>";
   }*/
 
-  //Alta Nueva Venta
-  $sql = "INSERT INTO ventas (fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta,id_descuento_aplicado,total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($_POST["fecha_venta"],$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$_POST["modalidad_venta"],$id_descuento,$total_a_pagar));
-  $idVenta = $pdo->lastInsertId();
 
-  if ($modoDebug==1) {
-    $q->debugDumpParams();
-    echo "<br><br>Afe: ".$q->rowCount();
-    echo "<br><br>";
-  }
+  // Verificar si ya existe un registro similar
+  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND fecha_venta = ? AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
+  $qCheck = $pdo->prepare($sqlCheck);
+  $qCheck->execute(array($fecha_venta,$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
+  $count = $qCheck->fetchColumn();
 
-  // Alta Nueva Devolución
-  $sql2 = "INSERT INTO devoluciones (fecha_hora, id_venta, id_nueva_venta, total, id_usuario) VALUES (now(),null,?,?,?)";
-  $q2 = $pdo->prepare($sql2);
-  $q2->execute(array($idVenta, $total_a_devolver, $id_usuario));
-  $idDevolucion = $pdo->lastInsertId();
-
-  if ($modoDebug==1) {
-    $q2->debugDumpParams();
-    echo "<br><br>Afe: ".$q2->rowCount();
-    echo "<br><br>";
-  }
-
-  if(count($aVentas)>0){
-    $id_venta_detalle = implode(',', $aVentas);
-    $sql = "SELECT id, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado, fecha_hora_pago, caja_egreso, id_almacen, id_forma_pago FROM ventas_detalle WHERE id IN ($id_venta_detalle)";
+  if ($count == 0) {
+    //Alta Nueva Venta
+    $sql = "INSERT INTO ventas (fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario,id_forma_pago,modalidad_venta,id_descuento_aplicado,total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute();
-    $devoluciones_ventas = $q->fetchAll(PDO::FETCH_ASSOC);
-    // Alta Nueva Devolución Detalle de ventas
-    foreach ($devoluciones_ventas as $data) {
-      $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_venta_detalle) VALUES (?,?)";
-      $q5= $pdo->prepare($sql5);
-      $q5->execute(array($idDevolucion,$data['id']));
+    $q->execute(array($_POST["fecha_venta"],$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$_POST["modalidad_venta"],$id_descuento,$total_a_pagar));
+    $idVenta = $pdo->lastInsertId();
 
-      if ($modoDebug==1) {
-        $q5->debugDumpParams();
-        echo "<br><br>Afe: ".$q5->rowCount();
-        echo "<br><br>";
-      }
-
-      // Devolucion del producto en la tabla
-      $sql = " SELECT vd.id_producto, vd.cantidad, vd.subtotal, vd.id_modalidad, p.id_proveedor, v.id_almacen from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto where vd.id = ".$data['id'];
-      foreach ($pdo->query($sql) as $row) {
-        $sql = "SELECT id FROM stock WHERE id_producto = ? and id_almacen = ?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($row['id_producto'], $row['id_almacen']));
-        $data = $q->fetch(PDO::FETCH_ASSOC);
-        if (!empty($data)) {
-          $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
-          $q3 = $pdo->prepare($sql3);
-          $q3->execute(array($row['cantidad'],$data['id']));
-        } else {
-          $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
-          $q3 = $pdo->prepare($sql3);
-          $q3->execute(array($row['id_producto'],$row['id_almacen'],$row['cantidad'],$row['id_modalidad']));
-        }
-
-        if ($modoDebug==1) {
-          $q3->debugDumpParams();
-          echo "<br><br>Afe: ".$q3->rowCount();
-          echo "<br><br>";
-        }
-
-      }
+    if ($modoDebug==1) {
+      $q->debugDumpParams();
+      echo "<br><br>Afe: ".$q->rowCount();
+      echo "<br><br>";
     }
-  }
 
-  if(count($aCanjes)>0){
-    $id_canje_detalle = implode(',', $aCanjes);
-    $sql = "SELECT id, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado, fecha_hora_pago, caja_egreso, id_almacen, id_forma_pago FROM canjes_detalle WHERE id IN ($id_canje_detalle)";
-    $q = $pdo->prepare($sql);
-    $q->execute();
-    /*$error=$q->errorInfo();
-    if($error) var_dump($error);*/
-    $devoluciones_canjes = $q->fetchAll(PDO::FETCH_ASSOC);
-    // Alta Nueva Devolución Detalle de canes
-    foreach ($devoluciones_canjes as $data) {
-      $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_canje_detalle) VALUES (?,?)";
-      $q5= $pdo->prepare($sql5);
-      $q5->execute(array($idDevolucion,$data['id']));
-
-      if ($modoDebug==1) {
-        $q5->debugDumpParams();
-        echo "<br><br>Afe: ".$q5->rowCount();
-        echo "<br><br>";
-      }
-
-      // Devolucion del producto en la tabla
-      $sql = " SELECT cd.id_producto, cd.cantidad, cd.subtotal, cd.id_modalidad, p.id_proveedor, c.id_almacen from canjes_detalle cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto where cd.id = ".$data['id'];
-      foreach ($pdo->query($sql) as $row) {
-        $sql = "SELECT id FROM stock WHERE id_producto = ? and id_almacen = ?";
-        $q = $pdo->prepare($sql);
-        $q->execute(array($row['id_producto'], $row['id_almacen']));
-        $data = $q->fetch(PDO::FETCH_ASSOC);
-        if (!empty($data)) {
-          $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
-          $q3 = $pdo->prepare($sql3);
-          $q3->execute(array($row['cantidad'],$data['id']));
-        } else {
-          $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
-          $q3 = $pdo->prepare($sql3);
-          $q3->execute(array($row['id_producto'],$row['id_almacen'],$row['cantidad'],$row['id_modalidad']));
-        }
-
-        if ($modoDebug==1) {
-          $q3->debugDumpParams();
-          echo "<br><br>Afe: ".$q3->rowCount();
-          echo "<br><br>";
-        }
-
-      }
-    }
-  }
-  
-  /*$total = 0;
-  //var_dump($total);*/
-
-  $cantPrendas = count($_POST["id_producto"]);
-
-  $minimo_compra="";
-  $monto_fijo="";
-  $porcentaje="";
-  $minimo_cantidad_prendas="";
-  if (!is_null($id_descuento)) {
-    $sql2 = "SELECT minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje FROM descuentos WHERE id = ? ";
+    // Alta Nueva Devolución
+    $sql2 = "INSERT INTO devoluciones (fecha_hora, id_venta, id_nueva_venta, total, id_usuario) VALUES (now(),null,?,?,?)";
     $q2 = $pdo->prepare($sql2);
-    $q2->execute(array($id_descuento));
-    $data2 = $q2->fetch(PDO::FETCH_ASSOC);
-
-    $minimo_compra=$data2['minimo_compra'];
-    //$monto_fijo=$data2['monto_fijo'];
-    $porcentaje=$data2['porcentaje'];
-    $minimo_cantidad_prendas=$data2['minimo_cantidad_prendas'];
+    $q2->execute(array($idVenta, $total_a_devolver, $id_usuario));
+    $idDevolucion = $pdo->lastInsertId();
 
     if ($modoDebug==1) {
       $q2->debugDumpParams();
@@ -239,268 +129,388 @@ if ( !empty($_POST)) {
       echo "<br><br>";
     }
 
-  }
+    if(count($aVentas)>0){
+      $id_venta_detalle = implode(',', $aVentas);
+      $sql = "SELECT id, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado, fecha_hora_pago, caja_egreso, id_almacen, id_forma_pago FROM ventas_detalle WHERE id IN ($id_venta_detalle)";
+      $q = $pdo->prepare($sql);
+      $q->execute();
+      $devoluciones_ventas = $q->fetchAll(PDO::FETCH_ASSOC);
+      // Alta Nueva Devolución Detalle de ventas
+      foreach ($devoluciones_ventas as $data) {
+        $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_venta_detalle) VALUES (?,?)";
+        $q5= $pdo->prepare($sql5);
+        $q5->execute(array($idDevolucion,$data['id']));
 
-  $totalConDescuento = 0;
-  foreach ($_POST['id_stock'] as $key => $id_stock) {
-    $cantidadAnterior = $_POST['stock'][$key];
-    $id_producto = $_POST["id_producto"][$key];
-    $cantidad = $_POST['cantidad'][$key];
-    $modalidad = $_POST["id_modalidad"][$key];
-    $precio = $_POST['precio'][$key];
-    $subtotal = $cantidad * $precio;
+        if ($modoDebug==1) {
+          $q5->debugDumpParams();
+          echo "<br><br>Afe: ".$q5->rowCount();
+          echo "<br><br>";
+        }
 
-    $totalConDescuento += $subtotal;
-    //var_dump($totalConDescuento);
+        // Devolucion del producto en la tabla
+        $sql = " SELECT vd.id_producto, vd.cantidad, vd.subtotal, vd.id_modalidad, p.id_proveedor, v.id_almacen from ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto where vd.id = ".$data['id'];
+        foreach ($pdo->query($sql) as $row) {
+          $sql = "SELECT id FROM stock WHERE id_producto = ? and id_almacen = ?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($row['id_producto'], $row['id_almacen']));
+          $data = $q->fetch(PDO::FETCH_ASSOC);
+          if (!empty($data)) {
+            $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
+            $q3 = $pdo->prepare($sql3);
+            $q3->execute(array($row['cantidad'],$data['id']));
+          } else {
+            $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
+            $q3 = $pdo->prepare($sql3);
+            $q3->execute(array($row['id_producto'],$row['id_almacen'],$row['cantidad'],$row['id_modalidad']));
+          }
 
-    $deuda_proveedor=calcularDeudaProveedor($id_forma_pago,$modalidad,$subtotal);
+          if ($modoDebug==1) {
+            $q3->debugDumpParams();
+            echo "<br><br>Afe: ".$q3->rowCount();
+            echo "<br><br>";
+          }
 
-    $pagado = 0;
-    if($modalidad==1){
-      $pagado = 1;
-    }elseif($modalidad==50){
-      //$sql = "UPDATE proveedores set credito = credito + ? where id = ?";
-      //$q = $pdo->prepare($sql);
-      //$q->execute(array($deuda_proveedor,$idProveedor));
+        }
+      }
+    }
+
+    if(count($aCanjes)>0){
+      $id_canje_detalle = implode(',', $aCanjes);
+      $sql = "SELECT id, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado, fecha_hora_pago, caja_egreso, id_almacen, id_forma_pago FROM canjes_detalle WHERE id IN ($id_canje_detalle)";
+      $q = $pdo->prepare($sql);
+      $q->execute();
+      /*$error=$q->errorInfo();
+      if($error) var_dump($error);*/
+      $devoluciones_canjes = $q->fetchAll(PDO::FETCH_ASSOC);
+      // Alta Nueva Devolución Detalle de canes
+      foreach ($devoluciones_canjes as $data) {
+        $sql5 = "INSERT INTO devoluciones_detalle (id_devolucion, id_canje_detalle) VALUES (?,?)";
+        $q5= $pdo->prepare($sql5);
+        $q5->execute(array($idDevolucion,$data['id']));
+
+        if ($modoDebug==1) {
+          $q5->debugDumpParams();
+          echo "<br><br>Afe: ".$q5->rowCount();
+          echo "<br><br>";
+        }
+
+        // Devolucion del producto en la tabla
+        $sql = " SELECT cd.id_producto, cd.cantidad, cd.subtotal, cd.id_modalidad, p.id_proveedor, c.id_almacen from canjes_detalle cd inner join canjes c on c.id = cd.id_canje inner join productos p on p.id = cd.id_producto where cd.id = ".$data['id'];
+        foreach ($pdo->query($sql) as $row) {
+          $sql = "SELECT id FROM stock WHERE id_producto = ? and id_almacen = ?";
+          $q = $pdo->prepare($sql);
+          $q->execute(array($row['id_producto'], $row['id_almacen']));
+          $data = $q->fetch(PDO::FETCH_ASSOC);
+          if (!empty($data)) {
+            $sql3 = "UPDATE stock set cantidad = cantidad + ? where id = ?";
+            $q3 = $pdo->prepare($sql3);
+            $q3->execute(array($row['cantidad'],$data['id']));
+          } else {
+            $sql3 = "INSERT INTO stock(id_producto, id_almacen, cantidad, id_modalidad) VALUES (?,?,?,?)";
+            $q3 = $pdo->prepare($sql3);
+            $q3->execute(array($row['id_producto'],$row['id_almacen'],$row['cantidad'],$row['id_modalidad']));
+          }
+
+          if ($modoDebug==1) {
+            $q3->debugDumpParams();
+            echo "<br><br>Afe: ".$q3->rowCount();
+            echo "<br><br>";
+          }
+
+        }
+      }
     }
     
-    //$idProducto = $row[8];
-    //$idProveedor = $_POST["id_proveedor"][$key];
-    
-    //var_dump($subtotal);  
-    if ($minimo_compra!="" and $total>$minimo_compra and $minimo_cantidad_prendas!="" and $cantPrendas>=$minimo_cantidad_prendas) {
-      //$totalConDescuento = $totalConDescuento - $monto_fijo;
-      $subtotal-=(($subtotal*$porcentaje)/100);
-      //var_dump($subtotal);
-    }
-    
-    //$deuda_proveedor=0;
-    
-    $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
-    $q = $pdo->prepare($sql);
-    //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
-    $q->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
+    /*$total = 0;
+    //var_dump($total);*/
 
-    if ($modoDebug==1) {
-      $q->debugDumpParams();
-      echo "<br><br>Afe: ".$q->rowCount();
-      echo "<br><br>";
-    }
-    
-    $sql3 = "UPDATE stock set cantidad = cantidad - ? where id = ?";
-    $q3 = $pdo->prepare($sql3);
-    $q3->execute(array($cantidad,$id_stock));
+    $cantPrendas = count($_POST["id_producto"]);
 
-    if ($modoDebug==1) {
-      $q3->debugDumpParams();
-      echo "<br><br>Afe: ".$q3->rowCount();
-      echo "<br><br>";
+    $minimo_compra="";
+    $monto_fijo="";
+    $porcentaje="";
+    $minimo_cantidad_prendas="";
+    if (!is_null($id_descuento)) {
+      $sql2 = "SELECT minimo_compra, minimo_cantidad_prendas, monto_fijo, porcentaje FROM descuentos WHERE id = ? ";
+      $q2 = $pdo->prepare($sql2);
+      $q2->execute(array($id_descuento));
+      $data2 = $q2->fetch(PDO::FETCH_ASSOC);
+
+      $minimo_compra=$data2['minimo_compra'];
+      //$monto_fijo=$data2['monto_fijo'];
+      $porcentaje=$data2['porcentaje'];
+      $minimo_cantidad_prendas=$data2['minimo_cantidad_prendas'];
+
+      if ($modoDebug==1) {
+        $q2->debugDumpParams();
+        echo "<br><br>Afe: ".$q2->rowCount();
+        echo "<br><br>";
+      }
+
     }
-    
-    if ($cantidadAnterior == $cantidad) {
-      $sql3 = "DELETE from stock where id = ?";
+
+    $totalConDescuento = 0;
+    foreach ($_POST['id_stock'] as $key => $id_stock) {
+      $cantidadAnterior = $_POST['stock'][$key];
+      $id_producto = $_POST["id_producto"][$key];
+      $cantidad = $_POST['cantidad'][$key];
+      $modalidad = $_POST["id_modalidad"][$key];
+      $precio = $_POST['precio'][$key];
+      $subtotal = $cantidad * $precio;
+
+      $totalConDescuento += $subtotal;
+      //var_dump($totalConDescuento);
+
+      $deuda_proveedor=calcularDeudaProveedor($id_forma_pago,$modalidad,$subtotal);
+
+      $pagado = 0;
+      if($modalidad==1){
+        $pagado = 1;
+      }elseif($modalidad==50){
+        //$sql = "UPDATE proveedores set credito = credito + ? where id = ?";
+        //$q = $pdo->prepare($sql);
+        //$q->execute(array($deuda_proveedor,$idProveedor));
+      }
+      
+      //$idProducto = $row[8];
+      //$idProveedor = $_POST["id_proveedor"][$key];
+      
+      //var_dump($subtotal);  
+      if ($minimo_compra!="" and $total>$minimo_compra and $minimo_cantidad_prendas!="" and $cantPrendas>=$minimo_cantidad_prendas) {
+        //$totalConDescuento = $totalConDescuento - $monto_fijo;
+        $subtotal-=(($subtotal*$porcentaje)/100);
+        //var_dump($subtotal);
+      }
+      
+      //$deuda_proveedor=0;
+      
+      $sql = "INSERT INTO ventas_detalle (id_venta, id_producto, cantidad, precio, subtotal, id_modalidad, deuda_proveedor, pagado) VALUES (?,?,?,?,?,?,?,?)";
+      $q = $pdo->prepare($sql);
+      //$q->execute(array($idVenta,$id_producto,$cantidad,$precio,$subtotal,$modalidad,$pagado));
+      $q->execute(array($idVenta,$id_producto,$cantidad,$_POST['precio'][$key],$subtotal,$modalidad,$deuda_proveedor,$pagado));
+
+      if ($modoDebug==1) {
+        $q->debugDumpParams();
+        echo "<br><br>Afe: ".$q->rowCount();
+        echo "<br><br>";
+      }
+      
+      $sql3 = "UPDATE stock set cantidad = cantidad - ? where id = ?";
       $q3 = $pdo->prepare($sql3);
-      $q3->execute(array($id_stock));
+      $q3->execute(array($cantidad,$id_stock));
 
       if ($modoDebug==1) {
         $q3->debugDumpParams();
         echo "<br><br>Afe: ".$q3->rowCount();
         echo "<br><br>";
       }
-    }
-    //$cantPrendas++;
-  }
-
-  /*if ($modoDebug==1) {
-    $q->debugDumpParams();
-    echo "<br><br>Total: ".$total;
-    echo "<br><br>totalConDescuento: ".$totalConDescuento;
-    echo "<br><br>";
-  }*/
-
-  /*$sql = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
-  $q = $pdo->prepare($sql);
-  $q->execute(array($total,$id_descuento,$totalConDescuento,$idVenta));
-
-  if ($modoDebug==1) {
-    $q->debugDumpParams();
-    echo "<br><br>Afe: ".$q->rowCount();
-    echo "<br><br>";
-  }*/
-  
-  //Descuentos Nueva Venta
-  /*$id_descuento=NULL;
-  if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
-    $id_descuento = $_POST['id_descuento'];
-    $total_d= $totalConDescuento - $precio_devolucion;
-    if ($modoDebug==1) {
-      echo "Ultimo UPDATE:";
-      $q->debugDumpParams();
-      echo "<br><br>Precio Devolucion: ".$precio_devolucion;
-      echo "<br><br>Total con descuentos Final: ".$total_d;
-      echo "<br><br>";
-      echo "<br><br>Total_Ventas con dscuento: ".$total_ventas;
-      echo "<br><br>";
-      echo "<br><br>Total_devolucion con dscuento: ".$total_devolucion;
-      echo "<br><br>";
-    }
-    if ($modoDebug==1) {
       
+      if ($cantidadAnterior == $cantidad) {
+        $sql3 = "DELETE from stock where id = ?";
+        $q3 = $pdo->prepare($sql3);
+        $q3->execute(array($id_stock));
+
+        if ($modoDebug==1) {
+          $q3->debugDumpParams();
+          echo "<br><br>Afe: ".$q3->rowCount();
+          echo "<br><br>";
+        }
+      }
+      //$cantPrendas++;
     }
-    //Si tiene descuentos cambia el total
-    $sql5 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
-    $q5 = $pdo->prepare($sql5);
-    $q5->execute(array($totalConDescuento,$id_descuento,$total_d,$idVenta));
-    if ($modoDebug==1) {
-      echo "Ultimo UPDATE:";
+
+    /*if ($modoDebug==1) {
       $q->debugDumpParams();
-      echo "<br><br>Precio Devolucion: ".$precio_devolucion;
-      echo "<br><br>Total con descuentos Final: ".$total_d;
-      
+      echo "<br><br>Total: ".$total;
+      echo "<br><br>totalConDescuento: ".$totalConDescuento;
       echo "<br><br>";
-    }
-  }else {
-    //Si no tiene descuentos cambia el total
-    $sql2 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
-    $q2 = $pdo->prepare($sql2);
-    $q2->execute(array($totalConDescuento,$id_descuento,$total_ventas,$idVenta));
-    if ($modoDebug==1) {
-      $q->debugDumpParams();
-      echo "<br><br>Total sin descuentos Final: ".$totalConDescuento;
-      echo "<br><br>";
-      echo "<br><br>Total_Ventas sin dscuento: ".$total_ventas;
-      echo "<br><br>";
-      echo "<br><br>Total_devolucion sin dscuento: ".$total_devolucion;
-      echo "<br><br>";
-    }
-  }*/
+    }*/
 
-  if($tipo_comprobante!="R"){
-
-    include './../external/afip/Afip.php';
-
-    /*$cuit=30717754200;
-    $produccion=true;
-    if ($modoDebug==1) {
-      $cuit=20351290340;
-      $produccion=false;
-    }
-
-    //$afip = new Afip(array('CUIT' => 20351290340,$production=true));
-    $afip = new Afip(array('CUIT' => $cuit,'production'=>$produccion));*/
-
-    include 'config_facturacion_electronica.php';//poner $homologacion=1 para facturar en modo homologacion. Retorna $aInitializeAFIP.
-    $afip = new Afip($aInitializeAFIP);
-
-    $sql4 = "SELECT punto_venta FROM almacenes WHERE id = ? ";
-    $q4 = $pdo->prepare($sql4);
-    $q4->execute(array($id_almacen));
-    $data4 = $q4->fetch(PDO::FETCH_ASSOC);
-
-    if ($modoDebug==1) {
-      $q4->debugDumpParams();
-      echo "<br><br>Afe: ".$q4->rowCount();
-      echo "<br><br>";
-    }
-    $punto_venta=$data4["punto_venta"];
-
-    $server_status = $afip->ElectronicBilling->GetServerStatus();
-    /*echo 'Este es el estado del servidor:';
-    var_dump($server_status);*/
-
-    $ImpTotal=$total_a_pagar;
-    //$total=121;
-    if($tipo_comprobante=="A"){
-      $tipo_comprobante=1;//1 -> Factura A
-      /*$DocTipo=80;
-      $DocNro=$_POST["dni"];*/
-
-      $ImpNeto=$ImpTotal/1.21;
-      $ImpIVA=$ImpTotal-$ImpNeto;
-    }elseif($tipo_comprobante=="B"){
-      $tipo_comprobante=6;//6 -> Factura B
-      /*$DocTipo=99;
-      $DocNro=0;*/
-      
-      $ImpNeto=$ImpTotal/1.21;
-      $ImpIVA=$ImpTotal-$ImpNeto;
-    }
-
-    $DocTipo=99;
-    $DocNro=0;
-    //$_POST["dni"]="33216897";
-    //$_POST["cuit"]="27332168970";
-    if(isset($_POST["dni"]) and $_POST["dni"]!=""){
-      $DocNro=$_POST["dni"];
-      $DocTipo=96;
-    }
-    if(isset($_POST["cuit"]) and $_POST["cuit"]!=""){
-      $DocNro=$_POST["cuit"];
-      $DocTipo=80;
-    }
-
-    $ImpNeto=number_format($ImpNeto,2,".","");
-    $ImpIVA=number_format($ImpIVA,2,".","");
-    
-
-    $data = array(
-      'CantReg' 	=> 1,  // Cantidad de comprobantes a registrar
-      'PtoVta' 	=> $punto_venta,  // Punto de venta
-      'CbteTipo' 	=> $tipo_comprobante,  // Tipo de comprobante (ver tipos disponibles) 
-      'Concepto' 	=> 1,  // Concepto del Comprobante: (1)Productos, (2)Servicios, (3)Productos y Servicios
-      'DocTipo' 	=> $DocTipo, // Tipo de documento del comprador (99 consumidor final, ver tipos disponibles). Para comprobantes clase A y M el campo DocTipo debe ser igual a 80 (CUIT)
-      'DocNro' 	=> $DocNro,  // Número de documento del comprador (0 consumidor final)
-      'CbteDesde' 	=> 2,  // Número de comprobante o numero del primer comprobante en caso de ser mas de uno
-      'CbteHasta' 	=> 2,  // Número de comprobante o numero del último comprobante en caso de ser mas de uno
-      'CbteFch' 	=> intval(date('Ymd')), // (Opcional) Fecha del comprobante (yyyymmdd) o fecha actual si es nulo
-      'ImpTotal' 	=> $ImpTotal,//121, // Importe total del comprobante
-      'ImpTotConc' 	=> 0,   // Importe neto no gravado
-      'ImpNeto' 	=> $ImpNeto,//100, // Importe neto gravado
-      'ImpOpEx' 	=> 0,   // Importe exento de IVA
-      'ImpIVA' 	=> $ImpIVA,//21,  //Importe total de IVA
-      'ImpTrib' 	=> 0,   //Importe total de tributos
-      'MonId' 	=> 'PES', //Tipo de moneda usada en el comprobante (ver tipos disponibles)('PES' para pesos argentinos) 
-      'MonCotiz' 	=> 1,     // Cotización de la moneda usada (1 para pesos argentinos)  
-      'Iva' 		=> array( // (Opcional) Alícuotas asociadas al comprobante
-        array(
-          'Id' 		=> 5, // Id del tipo de IVA (5 para 21%)(ver tipos disponibles) 
-          'BaseImp' 	=> $ImpNeto,//100, // Base imponible -> ES IGUAL A ImpNeto?
-          'Importe' 	=> $ImpIVA,//21 // Importe -> ES IGUAL A ImpIVA?
-        )
-      ), 
-    );
-
-    if ($modoDebug==1) {
-      var_dump($data);
-    }
-    
-    //$res = $afip->ElectronicBilling->CreateVoucher($data);
-    $res = $afip->ElectronicBilling->CreateNextVoucher($data);
-    
-    $estado="E";
-    if(isset($res['CAE'])){
-      $estado="A";
-      $CAE=$res['CAE'];//CAE asignado el comprobante
-      $CAEFchVto=$res['CAEFchVto'];//Fecha de vencimiento del CAE (yyyy-mm-dd)
-      $voucher_number=$res['voucher_number'];//Número asignado al comprobante
-      //var_dump($res);
-    }
-    
-    if ($modoDebug==1) {
-      var_dump($res);
-      var_dump($CAE);
-      var_dump($CAEFchVto);
-      var_dump($voucher_number);
-    }
-
-    $sql = "UPDATE ventas SET tipo_doc = ?, estado = ?, punto_venta = ?, numero_comprobante = ?, cae = ?, fecha_vencimiento_cae = ? WHERE id = ?";
+    /*$sql = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
     $q = $pdo->prepare($sql);
-    $q->execute(array($DocTipo,$estado,$punto_venta,$voucher_number,$CAE,$CAEFchVto,$idVenta));
+    $q->execute(array($total,$id_descuento,$totalConDescuento,$idVenta));
 
     if ($modoDebug==1) {
       $q->debugDumpParams();
       echo "<br><br>Afe: ".$q->rowCount();
       echo "<br><br>";
+    }*/
+    
+    //Descuentos Nueva Venta
+    /*$id_descuento=NULL;
+    if(isset($_POST['id_descuento']) and $_POST['id_descuento']!=""){
+      $id_descuento = $_POST['id_descuento'];
+      $total_d= $totalConDescuento - $precio_devolucion;
+      if ($modoDebug==1) {
+        echo "Ultimo UPDATE:";
+        $q->debugDumpParams();
+        echo "<br><br>Precio Devolucion: ".$precio_devolucion;
+        echo "<br><br>Total con descuentos Final: ".$total_d;
+        echo "<br><br>";
+        echo "<br><br>Total_Ventas con dscuento: ".$total_ventas;
+        echo "<br><br>";
+        echo "<br><br>Total_devolucion con dscuento: ".$total_devolucion;
+        echo "<br><br>";
+      }
+      if ($modoDebug==1) {
+        
+      }
+      //Si tiene descuentos cambia el total
+      $sql5 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+      $q5 = $pdo->prepare($sql5);
+      $q5->execute(array($totalConDescuento,$id_descuento,$total_d,$idVenta));
+      if ($modoDebug==1) {
+        echo "Ultimo UPDATE:";
+        $q->debugDumpParams();
+        echo "<br><br>Precio Devolucion: ".$precio_devolucion;
+        echo "<br><br>Total con descuentos Final: ".$total_d;
+        
+        echo "<br><br>";
+      }
+    }else {
+      //Si no tiene descuentos cambia el total
+      $sql2 = "UPDATE ventas set total = ?, id_descuento_aplicado = ?, total_con_descuento = ? WHERE id = ?";
+      $q2 = $pdo->prepare($sql2);
+      $q2->execute(array($totalConDescuento,$id_descuento,$total_ventas,$idVenta));
+      if ($modoDebug==1) {
+        $q->debugDumpParams();
+        echo "<br><br>Total sin descuentos Final: ".$totalConDescuento;
+        echo "<br><br>";
+        echo "<br><br>Total_Ventas sin dscuento: ".$total_ventas;
+        echo "<br><br>";
+        echo "<br><br>Total_devolucion sin dscuento: ".$total_devolucion;
+        echo "<br><br>";
+      }
+    }*/
+
+    if($tipo_comprobante!="R"){
+
+      include './../external/afip/Afip.php';
+
+      /*$cuit=30717754200;
+      $produccion=true;
+      if ($modoDebug==1) {
+        $cuit=20351290340;
+        $produccion=false;
+      }
+
+      //$afip = new Afip(array('CUIT' => 20351290340,$production=true));
+      $afip = new Afip(array('CUIT' => $cuit,'production'=>$produccion));*/
+
+      include 'config_facturacion_electronica.php';//poner $homologacion=1 para facturar en modo homologacion. Retorna $aInitializeAFIP.
+      $afip = new Afip($aInitializeAFIP);
+
+      $sql4 = "SELECT punto_venta FROM almacenes WHERE id = ? ";
+      $q4 = $pdo->prepare($sql4);
+      $q4->execute(array($id_almacen));
+      $data4 = $q4->fetch(PDO::FETCH_ASSOC);
+
+      if ($modoDebug==1) {
+        $q4->debugDumpParams();
+        echo "<br><br>Afe: ".$q4->rowCount();
+        echo "<br><br>";
+      }
+      $punto_venta=$data4["punto_venta"];
+
+      $server_status = $afip->ElectronicBilling->GetServerStatus();
+      /*echo 'Este es el estado del servidor:';
+      var_dump($server_status);*/
+
+      $ImpTotal=$total_a_pagar;
+      //$total=121;
+      if($tipo_comprobante=="A"){
+        $tipo_comprobante=1;//1 -> Factura A
+        /*$DocTipo=80;
+        $DocNro=$_POST["dni"];*/
+
+        $ImpNeto=$ImpTotal/1.21;
+        $ImpIVA=$ImpTotal-$ImpNeto;
+      }elseif($tipo_comprobante=="B"){
+        $tipo_comprobante=6;//6 -> Factura B
+        /*$DocTipo=99;
+        $DocNro=0;*/
+        
+        $ImpNeto=$ImpTotal/1.21;
+        $ImpIVA=$ImpTotal-$ImpNeto;
+      }
+
+      $DocTipo=99;
+      $DocNro=0;
+      //$_POST["dni"]="33216897";
+      //$_POST["cuit"]="27332168970";
+      if(isset($_POST["dni"]) and $_POST["dni"]!=""){
+        $DocNro=$_POST["dni"];
+        $DocTipo=96;
+      }
+      if(isset($_POST["cuit"]) and $_POST["cuit"]!=""){
+        $DocNro=$_POST["cuit"];
+        $DocTipo=80;
+      }
+
+      $ImpNeto=number_format($ImpNeto,2,".","");
+      $ImpIVA=number_format($ImpIVA,2,".","");
+      
+
+      $data = array(
+        'CantReg' 	=> 1,  // Cantidad de comprobantes a registrar
+        'PtoVta' 	=> $punto_venta,  // Punto de venta
+        'CbteTipo' 	=> $tipo_comprobante,  // Tipo de comprobante (ver tipos disponibles) 
+        'Concepto' 	=> 1,  // Concepto del Comprobante: (1)Productos, (2)Servicios, (3)Productos y Servicios
+        'DocTipo' 	=> $DocTipo, // Tipo de documento del comprador (99 consumidor final, ver tipos disponibles). Para comprobantes clase A y M el campo DocTipo debe ser igual a 80 (CUIT)
+        'DocNro' 	=> $DocNro,  // Número de documento del comprador (0 consumidor final)
+        'CbteDesde' 	=> 2,  // Número de comprobante o numero del primer comprobante en caso de ser mas de uno
+        'CbteHasta' 	=> 2,  // Número de comprobante o numero del último comprobante en caso de ser mas de uno
+        'CbteFch' 	=> intval(date('Ymd')), // (Opcional) Fecha del comprobante (yyyymmdd) o fecha actual si es nulo
+        'ImpTotal' 	=> $ImpTotal,//121, // Importe total del comprobante
+        'ImpTotConc' 	=> 0,   // Importe neto no gravado
+        'ImpNeto' 	=> $ImpNeto,//100, // Importe neto gravado
+        'ImpOpEx' 	=> 0,   // Importe exento de IVA
+        'ImpIVA' 	=> $ImpIVA,//21,  //Importe total de IVA
+        'ImpTrib' 	=> 0,   //Importe total de tributos
+        'MonId' 	=> 'PES', //Tipo de moneda usada en el comprobante (ver tipos disponibles)('PES' para pesos argentinos) 
+        'MonCotiz' 	=> 1,     // Cotización de la moneda usada (1 para pesos argentinos)  
+        'Iva' 		=> array( // (Opcional) Alícuotas asociadas al comprobante
+          array(
+            'Id' 		=> 5, // Id del tipo de IVA (5 para 21%)(ver tipos disponibles) 
+            'BaseImp' 	=> $ImpNeto,//100, // Base imponible -> ES IGUAL A ImpNeto?
+            'Importe' 	=> $ImpIVA,//21 // Importe -> ES IGUAL A ImpIVA?
+          )
+        ), 
+      );
+
+      if ($modoDebug==1) {
+        var_dump($data);
+      }
+      
+      //$res = $afip->ElectronicBilling->CreateVoucher($data);
+      $res = $afip->ElectronicBilling->CreateNextVoucher($data);
+      
+      $estado="E";
+      if(isset($res['CAE'])){
+        $estado="A";
+        $CAE=$res['CAE'];//CAE asignado el comprobante
+        $CAEFchVto=$res['CAEFchVto'];//Fecha de vencimiento del CAE (yyyy-mm-dd)
+        $voucher_number=$res['voucher_number'];//Número asignado al comprobante
+        //var_dump($res);
+      }
+      
+      if ($modoDebug==1) {
+        var_dump($res);
+        var_dump($CAE);
+        var_dump($CAEFchVto);
+        var_dump($voucher_number);
+      }
+
+      $sql = "UPDATE ventas SET tipo_doc = ?, estado = ?, punto_venta = ?, numero_comprobante = ?, cae = ?, fecha_vencimiento_cae = ? WHERE id = ?";
+      $q = $pdo->prepare($sql);
+      $q->execute(array($DocTipo,$estado,$punto_venta,$voucher_number,$CAE,$CAEFchVto,$idVenta));
+
+      if ($modoDebug==1) {
+        $q->debugDumpParams();
+        echo "<br><br>Afe: ".$q->rowCount();
+        echo "<br><br>";
+      }
+
     }
 
   }
@@ -1092,9 +1102,16 @@ $hoy=date("Y-m-d");?>
                   return false
                 }
                 let minimo_compra=descuento.data("minimo_compra")
-                let total=calcularTotalCompra();
-                if(minimo_compra!=undefined && minimo_compra>total){
-                  alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
+                let totalProductosVendidos=calcularTotalCompra();
+                if(minimo_compra!=undefined && minimo_compra>totalProductosVendidos){
+                  alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalProductosVendidos)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
+                  return false
+                }
+                let tipo_comprobante=$("#tipo_comprobante").val();
+                console.log(total)
+                console.log(tipo_comprobante)
+                if(total==0 && tipo_comprobante=="B"){
+                  alert("Para realizar una Factura B el monto debe ser mayor a 0")
                   return false
                 }
                 $(this).find("#formSubmit").attr("disabled",true).addClass("disabled")
