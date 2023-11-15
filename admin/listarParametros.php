@@ -68,7 +68,7 @@ if(empty($_SESSION['user'])) {
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8) ";
+                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8,9) ";
                           
                           foreach ($pdo->query($sql) as $row) {
                               echo '<tr>';

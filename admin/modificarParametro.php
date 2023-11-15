@@ -17,17 +17,41 @@ if (null==$id) {
 
 if (!empty($_POST)) {
 
-  $modo_debug=0;
-  
+  //$modo_debug=1;
+  //var_dump($_POST);
+  //die;
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
   $id=$_GET['id'];
 
-  $sql = "UPDATE parametros set valor = ? where id = ?";
-  $q = $pdo->prepare($sql);
-  $q->execute([$_POST['valor'],$id]);
+  if ($id == 9) {
+    if ($_FILES['archivo_pdf']['error'] === UPLOAD_ERR_OK) {
+      $file_info = pathinfo($_FILES['archivo_pdf']['name']);
+      $file_extension = strtolower($file_info['extension']);
+
+      if ($file_extension == 'pdf') {
+        
+        $pdf_name = 'Convenio.pdf';
+        
+        $target_dir = 'files/';
+        $target_file = $target_dir . $pdf_name;
+
+        if (move_uploaded_file($_FILES['archivo_pdf']['tmp_name'], $target_file)) {
+          $sql = "UPDATE parametros SET valor = ? WHERE id = ?";
+          $q = $pdo->prepare($sql);
+          $q->execute([$pdf_name, $id]);
+
+          Database::disconnect();
+        } 
+      } 
+    }
+  }else{
+    $sql = "UPDATE parametros set valor = ? where id = ?";
+    $q = $pdo->prepare($sql);
+    $q->execute([$_POST['valor'],$id]);
+  }
 
   if($id==8 and isset($_POST["fecha_desde"]) and $_POST["fecha_desde"]!=""){
     
@@ -180,27 +204,49 @@ if (!empty($_POST)) {
                   <div class="card-header">
                     <h5>Modificar Parametros</h5>
                   </div>
-                  <form class="form theme-form" role="form" method="post" action="modificarParametro.php?id=<?php echo $id?>">
+                  <form enctype="multipart/form-data" class="form theme-form" role="form" method="post" action="modificarParametro.php?id=<?php echo $id?>">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-            
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Parámetro</label>
                             <div class="col-sm-9"><input name="parametro" type="text" class="form-control" value="<?php echo $data['parametro']; ?>" readonly></div>
                           </div>
-                          <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Valor</label>
-                            <div class="col-sm-9"><input name="valor" type="text" maxlength="99" class="form-control" value="<?php echo $data['valor']; ?>" required="required"></div>
-                          </div><?php
 
-                          if($id==8){
-                            $fecha_desde=date("Y-m-d",strtotime(date("Y-m-01")." -1 month"))?>
-                            <div class="form-group row d-flex align-items-center">
-                              <label class="col-sm-3 col-form-label">Fecha desde la cual se actualizará el porcentaje de las prendas vendidas que aún no fueron pagadas </label>
-                              <div class="col-sm-9"><input name="fecha_desde" type="date" class="form-control" value="<?=$fecha_desde?>" max="<?=date("Y-m-d")?>" required="required"></div>
-                          </div><?php
-                          }?>
+                          <?php
+                          if ($id != 9) {
+                          ?>
+                          <div class="form-group row">
+                              <label class="col-sm-3 col-form-label">Valor</label>
+                              <div class="col-sm-9">
+                                  <input name="valor" type="text" maxlength="99" class="form-control" value="<?php echo $data['valor']; ?>" required="required">
+                              </div>
+                          </div>
+                          <?php
+                          } elseif ($id == 9) {
+                          ?>
+                          <div class="form-group row">
+                              <label class="col-sm-3 col-form-label">Subir Convenio (PDF)</label>
+                              <div class="col-sm-9">
+                                <input type="file" id="archivo_pdf" name="archivo_pdf" accept=".pdf" required>
+                              </div>
+                          </div>
+                          <?php
+                          }
+
+                          if ($id == 8) {
+                              $fecha_desde = date("Y-m-d", strtotime(date("Y-m-01") . " -1 month"));
+                          ?>
+                          <div class="form-group row d-flex align-items-center">
+                              <label class="col-sm-3 col-form-label">Fecha desde la cual se actualizará el porcentaje de las prendas vendidas que aún no fueron pagadas</label>
+                              <div class="col-sm-9">
+                                  <input name="fecha_desde" type="date" class="form-control" value="<?= $fecha_desde ?>" max="<?= date("Y-m-d") ?>" required="required">
+                              </div>
+                          </div>
+                          <?php
+                          }
+                          ?>
+
               
                         </div>
                       </div>
