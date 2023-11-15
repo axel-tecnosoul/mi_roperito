@@ -125,7 +125,7 @@
 							<img src="images/nosotros/PC.png" alt="">
 							<div class="btn-tienda-online">
 								<img src="images/nosotros/flecha.png" alt="">
-								<a href="http://miroperito.prestotienda.com/" class="button btn-tienda-boton" >ENTRAR</a>
+								<a href="http://miroperito.prestotienda.com/" target="_blank" class="button btn-tienda-boton" >ENTRAR</a>
 							</div>
 						</div>
 					</div>
