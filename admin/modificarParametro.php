@@ -32,8 +32,7 @@ if (!empty($_POST)) {
       $file_extension = strtolower($file_info['extension']);
 
       if ($file_extension == 'pdf') {
-        
-        $pdf_name = 'Convenio.pdf';
+        $pdf_name = $_FILES['archivo_pdf']['name'];
         
         $target_dir = 'files/';
         $target_file = $target_dir . $pdf_name;

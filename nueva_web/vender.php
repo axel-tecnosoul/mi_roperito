@@ -58,7 +58,7 @@
 								<div class="prenda">
 
 								</div>
-								<a href="turnos.php" target="_blank" class="green-button">QUIERO VENDER MIS PRENDAS</a>
+								<a href="turnos.php" class="green-button">QUIERO VENDER MIS PRENDAS</a>
 							</div>
 						</div>
 					</div>
