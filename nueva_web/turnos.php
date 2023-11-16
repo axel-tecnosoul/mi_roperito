@@ -1,6 +1,6 @@
 <?php
 require("../admin/config.php");
-require '../admin/database.php';
+include_one('../admin/database.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
