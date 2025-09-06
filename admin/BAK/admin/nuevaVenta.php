@@ -3,7 +3,7 @@ ini_set("display_errors",1);
 ini_set("display_startup_errors",1);
 error_reporting(E_ALL);
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -22,6 +22,7 @@ if ( !empty($_POST)) {
     var_dump($_POST);
   }
 
+  $fecha_venta=($_POST['fecha_venta']) ?: date("Y-m-d");
   $nombre_cliente=($_POST['nombre_cliente']) ?: "";
   $dni=($_POST['dni']) ?: "";
   $direccion=($_POST['direccion']) ?: "";
@@ -40,16 +41,16 @@ if ( !empty($_POST)) {
 
   // Verificar si ya existe un registro similar
   //$sqlCheck = "SELECT COUNT(*) FROM ventas WHERE DATE_FORMAT(fecha_hora, '%Y-%m-%d %H:%i') = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i') AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
-  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
+  $sqlCheck = "SELECT COUNT(*) FROM ventas WHERE fecha_hora >= NOW() - INTERVAL 60 SECOND AND fecha_venta = ? AND nombre_cliente = ? AND dni = ? AND direccion = ? AND email = ? AND telefono = ? AND id_almacen = ? AND total = ? AND tipo_comprobante = ? AND id_usuario = ? AND id_forma_pago = ? AND modalidad_venta = ?";
   $qCheck = $pdo->prepare($sqlCheck);
-  $qCheck->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
+  $qCheck->execute(array($fecha_venta,$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
   $count = $qCheck->fetchColumn();
 
   if ($count == 0) {
   
-    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO ventas(fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, total, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
+    $q->execute(array($fecha_venta,$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$total,$tipo_comprobante,$id_usuario,$id_forma_pago,$modalidad_venta));
     $idVenta = $pdo->lastInsertId();
 
     if ($modoDebug==1) {
@@ -313,7 +314,8 @@ if ( !empty($_POST)) {
   
   header("Location: listarVentas.php");
 }
-$id_perfil=$_SESSION["user"]["id_perfil"];?>
+$id_perfil=$_SESSION["user"]["id_perfil"];
+$hoy=date("Y-m-d");?>
 <!DOCTYPE html>
 <html lang="en">
   <head><?php
@@ -371,6 +373,12 @@ $id_perfil=$_SESSION["user"]["id_perfil"];?>
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Fecha de venta</label>
+                            <div class="col-sm-9">
+                              <input type="date" name="fecha_venta" class="form-control" value="<?=$hoy?>" required id="fecha_venta">
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Modalidad de venta</label>
                             <div class="col-sm-9">

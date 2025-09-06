@@ -55,17 +55,21 @@ if(empty($_SESSION['user'])){
               <div class="col-sm-12">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Productos
-                      &nbsp;
-                      <a href="nuevoProducto.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a>
+                    <h5>Productos<?php
+                      if($id_perfil != 4){?>
+                        &nbsp;
+                        <a href="nuevoProducto.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nuevo" title="Nuevo"></a><?php
+                      }?>
                       &nbsp;
                       <a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
                       &nbsp;
                       <!-- <a href="importProductos.php"><img src="img/import.png" width="24" height="25" border="0" alt="Importar Productos" title="Importar Productos"></a>
                       &nbsp; -->
                       <a href="exportProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
-                      &nbsp;
-                      <a href="cargaMasivaProductos.php" title="Carga masiva"><img src="img/table_plus_icon.png" width="24" height="25" border="0" alt="Carga masiva"></a>
+                      &nbsp;<?php
+                      if($id_perfil != 4){?>
+                        <a href="cargaMasivaProductos.php" title="Carga masiva"><img src="img/table_plus_icon.png" width="24" height="25" border="0" alt="Carga masiva"></a><?php
+                      }?>
                     </h5>
                   </div>
                   <div class="card-body">
@@ -215,7 +219,7 @@ if(empty($_SESSION['user'])){
           },
           "columnDefs": [
             {
-              "targets": [0],
+              "targets": [0,8],
               "searchable": false,
               "orderable": false,
             }

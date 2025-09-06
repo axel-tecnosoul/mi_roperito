@@ -1,7 +1,7 @@
 <?php 
 ini_set( "session.gc_maxlifetime", 600 );
 session_start(); 
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }?>

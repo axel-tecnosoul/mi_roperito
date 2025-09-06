@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -19,16 +19,18 @@ if ( !empty($_POST)) {
     var_dump($_POST);
   }
   
+  $fecha_canje=$_POST['fecha_canje'];
   $id_almacen=$_POST['id_almacen'];
   $id_proveedor_canje=$_POST['id_proveedor_canje'];
   $id_usuario=$_SESSION['user']['id'];
-  $total_a_pagar = $_POST['total_input'];
+  //$total_a_pagar = $_POST['total_input'];
+  $total_a_pagar = $_POST['total_a_pagar_sin_formato'];
   $credito_usar = $_POST['credito_usar'];
   $forma_pago = $_POST["id_forma_pago"];
   
-  $sql = "INSERT INTO canjes (fecha_hora, id_proveedor, id_almacen, total, id_usuario) VALUES (now(),?,?,0,?)";
+  $sql = "INSERT INTO canjes (fecha_hora, fecha_canje, id_proveedor, id_almacen, total, id_usuario) VALUES (now(),?,?,?,0,?)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($id_proveedor_canje,$id_almacen,$id_usuario));
+  $q->execute(array($fecha_canje,$id_proveedor_canje,$id_almacen,$id_usuario));
   $idCanje = $pdo->lastInsertId();
 
   if ($modoDebug==1) {
@@ -175,9 +177,9 @@ if ( !empty($_POST)) {
     $modalidad = 'Presencial';
 
     //Alta Nueva Venta
-    $sql = "INSERT INTO ventas(fecha_hora, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, id_descuento_aplicado, total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO ventas(fecha_hora, fecha_venta, nombre_cliente, dni, direccion, email, telefono, id_almacen, tipo_comprobante, id_usuario, id_forma_pago, modalidad_venta, total, id_descuento_aplicado, total_con_descuento) VALUES (now(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     $q = $pdo->prepare($sql);
-    $q->execute(array($nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$tipo_comprobante,$id_usuario,$forma_pago,$modalidad,$total_a_pagar,$id_descuento,$total_a_pagar));
+    $q->execute(array($fecha_canje,$nombre_cliente,$dni,$direccion,$email,$telefono,$id_almacen,$tipo_comprobante,$id_usuario,$forma_pago,$modalidad,$total_a_pagar,$id_descuento,$total_a_pagar));
     $id_venta = $pdo->lastInsertId();
 
     if ($modoDebug==1) {
@@ -364,7 +366,8 @@ if ( !empty($_POST)) {
   Database::disconnect();
   
   header("Location: listarCanjes.php");
-}?>
+}
+$hoy=date("Y-m-d");?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -420,6 +423,12 @@ if ( !empty($_POST)) {
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Fecha de venta</label>
+                            <div class="col-sm-9">
+                              <input type="date" name="fecha_canje" class="form-control" value="<?=$hoy?>" required id="fecha_canje">
+                            </div>
+                          </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Proveedor</label>
                             <div class="col-sm-9">
@@ -612,7 +621,7 @@ if ( !empty($_POST)) {
                             $q4->execute();
                             $data4 = $q4->fetch(PDO::FETCH_ASSOC);?>
                             <input type="hidden" name="monto_maximo_sin_informar_dni" id="monto_maximo_sin_informar_dni" value="<?=$data4["valor"]?>">
-                            <input type="hidden" id="total_a_pagar_sin_formato">
+                            <input type="hidden" id="total_a_pagar_sin_formato" name="total_a_pagar_sin_formato">
                           </div>
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de comprobante</label>

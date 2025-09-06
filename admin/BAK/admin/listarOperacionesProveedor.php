@@ -100,7 +100,7 @@ if(empty($_SESSION['proveedor'])){
                           include 'database.php';
                           $pdo = Database::connect();
                           $sql = " SELECT v.id, a.almacen, v.fecha_hora, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, IF(vd.pagado=1,'Si','NO') AS pagado,vd.deuda_proveedor, v.tipo_comprobante, v.estado FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 AND vd.pagado=0 AND de.id_devolucion IS NULL AND date(v.fecha_hora)<'$primerDiaDelMes' and p.id_proveedor = ".$_SESSION['proveedor']['id'];// AND id_venta_cbte_relacionado IS NULL
-                          
+                          //echo $sql;
                           foreach ($pdo->query($sql) as $row) {
                             $subtotal=$row["subtotal"];
                             $deuda = $row["deuda_proveedor"];

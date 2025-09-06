@@ -57,8 +57,11 @@ if(empty($_SESSION['user']['id_perfil'])){
                 <div class="card">
                   <div class="card-header">
                     <h5>
-                      Devoluciones&nbsp;
-                      <a href="nuevaDevolucionSelectProductos.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a>
+                      Devoluciones<?php
+                      if($id_perfil != 4){?>
+                        &nbsp;
+                        <a href="nuevaDevolucionSelectProductos.php"><img src="img/icon_alta.png" width="24" height="25" border="0" alt="Nueva" title="Nueva"></a><?php
+                      }?>
                     </h5>
                   </div>
                   <div class="card-body">

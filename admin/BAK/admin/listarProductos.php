@@ -1,11 +1,9 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user']))
-{
+if(empty($_SESSION['user'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
-}
-?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -63,8 +61,8 @@ if(empty($_SESSION['user']))
                       &nbsp;
                       <a href="#"><img src="img/pdf.png" width="24" height="25" border="0" alt="Etiquetar Productos Seleccionados" id="etiquetado-masivo" title="Etiquetar Productos Seleccionados"></a>
                       &nbsp;
-                      <a href="importProductos.php"><img src="img/import.png" width="24" height="25" border="0" alt="Importar Productos" title="Importar Productos"></a>
-                      &nbsp;
+                      <!-- <a href="importProductos.php"><img src="img/import.png" width="24" height="25" border="0" alt="Importar Productos" title="Importar Productos"></a>
+                      &nbsp; -->
                       <a href="exportProductos.php"><img src="img/xls.png" width="24" height="25" border="0" alt="Exportar" title="Exportar"></a>
                       &nbsp;
                       <a href="cargaMasivaProductos.php" title="Carga masiva"><img src="img/table_plus_icon.png" width="24" height="25" border="0" alt="Carga masiva"></a>
@@ -217,7 +215,7 @@ if(empty($_SESSION['user']))
           },
           "columnDefs": [
             {
-              "targets": [0],
+              "targets": [0,8],
               "searchable": false,
               "orderable": false,
             }

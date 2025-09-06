@@ -17,7 +17,7 @@ if (null==$id) {
 
 if (!empty($_POST)) {
 
-  //$modo_debug=1;
+  $modo_debug=0;
   //var_dump($_POST);
   //die;
   // insert data
@@ -63,7 +63,7 @@ if (!empty($_POST)) {
     $q = $pdo->prepare($sql);
     $q->execute();
     $venta_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
-    echo $q->rowCount()."<br>";
+    //echo $q->rowCount()."<br>";
     foreach ($venta_detalle as $data){
       
       $forma_pago = $data['id_forma_pago'];
@@ -102,7 +102,7 @@ if (!empty($_POST)) {
     $q = $pdo->prepare($sql);
     $q->execute();
     $canje_detalle = $q->fetchAll(PDO::FETCH_ASSOC);
-    echo $q->rowCount()."<br>";
+    //echo $q->rowCount()."<br>";
     foreach ($canje_detalle as $data){
       
       $forma_pago = $data['id_forma_pago'];

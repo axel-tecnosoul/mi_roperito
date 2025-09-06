@@ -174,12 +174,13 @@
     <script src="assets/js/select2/select2-custom.js"></script>
 	<script>
 	function jsAlmacen() {
-		if (document.getElementById("id_perfil").value != 1) {
+    let id_perfil=document.getElementById("id_perfil").value
+		if (id_perfil == 1 || id_perfil == 4) {
+			document.getElementById("id_almacen").disabled = "disabled";
+			document.getElementById("id_almacen").required = "";
+		} else {
 			document.getElementById("id_almacen").disabled = "";
 			document.getElementById("id_almacen").required = "required";
-		} else {
-			document.getElementById("id_almacen").disabled = "disabled";
-			document.getElementById("id_almacen").required = "";			
 		}
 	}
 	</script>

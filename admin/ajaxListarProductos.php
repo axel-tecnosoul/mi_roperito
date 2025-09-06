@@ -12,20 +12,28 @@ $fields = ['cb','codigo','categoria','descripcion','nombre','apellido','precio',
 
 $from="FROM productos p INNER JOIN categorias c ON c.id = p.id_categoria INNER JOIN proveedores pr ON pr.id = p.id_proveedor";// LEFT JOIN stock s ON s.id_producto = p.id
 
-$orderBy = " ORDER BY ";
-foreach ($_GET['order'] as $order) {
-    //$orderBy .= $order['column'] + 1 . " {$order['dir']}, ";
-    //if($order['column']!=0){
-      $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
-    //}
-    /*var_dump($order['column']);
-    var_dump($order['dir']);
-    var_dump($orderBy);*/
-}
+//var_dump($_GET["order"]);
+//if($order['column']!=0 and $order['column']<=count($data_columns)){
+  $orderBy = $orderByAux = " ORDER BY ";
+  foreach ($_GET['order'] as $order) {
+      //var_dump($order['column']);
+      //$orderBy .= $order['column'] + 1 . " {$order['dir']}, ";
+      if($order['column']!=0 and $order['column']<count($data_columns)){
+        $orderBy .= $data_columns[$order['column']] . " {$order['dir']}, ";
+      }
+      /*var_dump($order['column']);
+      var_dump($order['dir']);
+      var_dump($orderBy);*/
+  }
+//}
 
 //var_dump($orderBy);
-$orderBy = substr($orderBy, 0, -2);
-//var_dump($orderBy);
+if($orderByAux==$orderBy){
+  $orderBy="";
+}else{
+  $orderBy = substr($orderBy, 0, -2);
+  //var_dump($orderBy);
+}
 $where = '';
 
 foreach ($columns as $k => $column) {

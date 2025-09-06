@@ -1,6 +1,6 @@
 <?php 
-session_start(); 
-if(empty($_SESSION['user'])){
+session_start();
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }?>

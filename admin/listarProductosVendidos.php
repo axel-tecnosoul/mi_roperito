@@ -7,7 +7,7 @@ if(empty($_SESSION['user']['id_perfil'])){
 
 //$desde=date("Y-m-d");
 //$desde = date("Y-m-d", strtotime("last month"));
-$desde = "2023-01-01";
+$desde = "2024-01-01";
 $filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];
@@ -231,7 +231,7 @@ include 'database.php';
                         <tr>
                           <td class="text-right border-0 p-1">Hasta: </td>
                           <td class="border-0 p-1">
-                            <input type="date" name="hasta" id="hasta" value="<?=$hasta?>" class="form-control form-control-sm filtraTabla">
+                            <input type="date" name="hasta" id="hasta" value="<?=$hasta;//="2023-06-30"?>" class="form-control form-control-sm filtraTabla">
                           </td>
                           <td class="border-0 p-1" style="vertical-align: middle;">
                             <label class="d-block mb-0" for="radio-fecha-venta">
@@ -343,10 +343,10 @@ include 'database.php';
         let canjes=$("#checkbox-canjes").prop("checked")
         let tipo_fecha=$("input[name='tipo_fecha[]']:checked").val();
 
-        //console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
+        console.log("Desde: " + desde + ", Hasta: " + hasta + ", Almacen: " + id_almacen + ", Proveedor: " + proveedor);
         console.log(ventas);
         console.log(canjes);
-        let id_perfil="<?=$_SESSION["user"]["id_perfil"]?>";
+        //let id_perfil="<?php //echo $_SESSION["user"]["id_perfil"]?>";
 
         let table=$('#dataTables-example666')
         table.DataTable().destroy();
@@ -418,16 +418,17 @@ include 'database.php';
             {"data": "almacen"},
             {"data": "pagado"},
             {"data": "input"},
-            {"data": "caja_egreso"},
-            {"data": "forma_pago"},
-            {"data": "cantidad"},
-            {"data": "categoria"}
+            {"data": "caja_egreso", className: 'none',},
+            {"data": "forma_pago", className: 'none',},
+            {"data": "cantidad", className: 'none',},
+            {"data": "categoria", className: 'none',},
           ],
           columnDefs: [
             //{ targets: [0], visible: false},
             { targets: [1], type: 'datetime'},
           ],
           initComplete: function(settings, json){
+            //console.log("success");
             sumaSubtotal=0;
             json.forEach((row)=>{
               //console.log(row);
