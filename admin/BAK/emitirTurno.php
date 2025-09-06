@@ -83,14 +83,25 @@
 	</html>
 	";
 	
-	$smtpHost = "c1971287.ferozo.com";
+	//$smtpHost = "c1971287.ferozo.com";
+  //$smtpHost = "miroperito.ar";
+  //$smtpHost = "tecnosoul.com.ar";
 	$smtpUsuario = "avisos@miroperito.ar";
 	$smtpClave = "zR*eHJJ3zK";
 	$mail = new PHPMailer();
 	$mail->IsSMTP();
 	$mail->SMTPAuth = true;
-	$mail->Port = 465; 
-	$mail->SMTPSecure = 'ssl';
+  if($email=="axelbritzius@gmail.com"){
+    $mail->SMTPDebug = 3;
+  }
+	/*$mail->Port = 465; 
+	$mail->SMTPSecure = 'ssl';*/
+  
+  if($smtpSecure!=""){
+    $mail->SMTPSecure = $smtpSecure;
+  }
+  $mail->Port = $smtpPort;
+
 	$mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
 	$mail->Host = $smtpHost; 
@@ -106,8 +117,12 @@
 	$mail->Body = "{$mensajeHtml} <br /><br />"; 
 	$mail->AltBody = "{$mensaje} \n\n"; 
 		
-	$mail->Send();
+	$ok=$mail->Send();
 
+  if($email=="axelbritzius@gmail.com"){
+    var_dump($ok);
+    die();
+  }
 
   //COMENTADO PARA SUBIR A PRODUCCION
   /*include_once("admin/funciones.php");

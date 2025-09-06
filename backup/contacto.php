@@ -37,39 +37,38 @@
       <!-- Form with header -->
       <div class="card">
         <div class="card-body">
-          <!-- Header --><?php
-          if(1==2){?>
-            <div class="form-header blue accent-1">
-              <h3 class="mt-2"><i class="fas fa-envelope"></i> Escribinos!</h3>
-            </div>
-            <form id="" class="" method="post" action="contactar.php">
-              <!-- Body -->
-              <div class="md-form">
-                <input type="text" name="nombre" id="form-name" class="form-control" required="required">
-                <label for="form-name">Nombre</label>
-              </div>
-              <div class="md-form">
-                <input type="email" name="email" id="form-email" class="form-control" required="required">
-                <label for="form-email">E-mail</label>
-              </div>
-              <div class="md-form">
-                <input type="text" name="asunto" id="form-Subject" class="form-control" required="required">
-                <label for="form-Subject">Asunto</label>
-              </div>
-              <div class="md-form">
-                <textarea id="form-text" name="mensaje" class="form-control md-textarea" rows="3" required="required"></textarea>
-                <label for="form-text">Mensaje</label>
-              </div>
-              <br>
-              <div class="text-center">
-                <button type="submit" class="btn btn-light-blue">Envíar</button>
-              </div>
-            </form><?php
-          }else{?>
-            <a href="https://wa.me/541138896897" target="_blank" class="btn me-1 mb-1" style="font-size: 28px;border-radius: 50px;background-color: #25d366 !important;border-color: #25d366 !important;height: auto;padding: 30px;text-decoration: none;">
-              <i class="fab fa-whatsapp mr-2"></i>Escribinos al whatsapp!
-            </a><?php
-          }?>
+          <!-- Header -->
+          <div class="form-header blue accent-1">
+            <h3 class="mt-2"><i class="fas fa-envelope"></i> Escribinos!</h3>
+          </div>
+          <form id="" class="" method="post" action="contactar.php">
+									
+          <!-- Body -->
+          <div class="md-form">
+            
+            <input type="text" name="nombre" id="form-name" class="form-control" required="required">
+            <label for="form-name">Nombre</label>
+          </div>
+          <div class="md-form">
+            
+            <input type="email" name="email" id="form-email" class="form-control" required="required">
+            <label for="form-email">E-mail</label>
+          </div>
+          <div class="md-form">
+            
+            <input type="text" name="asunto" id="form-Subject" class="form-control" required="required">
+            <label for="form-Subject">Asunto</label>
+          </div>
+          <div class="md-form">
+           
+            <textarea id="form-text" name="mensaje" class="form-control md-textarea" rows="3" required="required"></textarea>
+            <label for="form-text">Mensaje</label>
+          </div>
+		  <br>
+          <div class="text-center">
+            <button type="submit" class="btn btn-light-blue">Envíar</button>
+          </div>
+		  </form>
         </div>
       </div>
       <!-- Form with header -->

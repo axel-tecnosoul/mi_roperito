@@ -1,29 +1,25 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
-    }
-	
-	require 'database.php';
-	
-	if ( !empty($_POST)) {
-		
-		// insert data
-		$pdo = Database::connect();
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		
-		$sql = "INSERT INTO almacenes(almacen, direccion, punto_venta, id_tipo, activo) VALUES (?,?,?,?,1)";
-		$q = $pdo->prepare($sql);
-		$q->execute(array($_POST['almacen'],$_POST['direccion'],$_POST['punto_venta'],$_POST['id_tipo']));
-		
-		Database::disconnect();
-		
-		header("Location: listarAlmacenes.php");
-	}
-	
-?>
+require("config.php");
+if(empty($_SESSION['user'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
+require 'database.php';
+
+if ( !empty($_POST)) {
+  
+  // insert data
+  $pdo = Database::connect();
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  
+  $sql = "INSERT INTO almacenes(almacen, iniciales_codigo_productos, direccion, punto_venta, id_tipo, activo) VALUES (?,?,?,?,?,1)";
+  $q = $pdo->prepare($sql);
+  $q->execute(array($_POST['almacen'],$_POST['iniciales_codigo_productos'],$_POST['direccion'],$_POST['punto_venta'],$_POST['id_tipo']));
+  
+  Database::disconnect();
+  
+  header("Location: listarAlmacenes.php");
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -84,6 +80,10 @@
                             <div class="col-sm-9"><input name="almacen" type="text" maxlength="99" class="form-control" value="" required="required"></div>
                           </div>
                           <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Iniciales para los codigos de productos</label>
+                            <div class="col-sm-9"><input name="iniciales_codigo_productos" type="text" maxlength="2" class="form-control" value="" required="required" oninput="convertirAMayusculas(this)"></div>
+                          </div>
+                          <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Tipo de almacen</label>
                             <div class="col-sm-9">
                               <select name="id_tipo" id="id_tipo" class="js-example-basic-single col-sm-12" required>
@@ -119,7 +119,7 @@
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-		<?php include("footer.php"); ?>
+		    <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->
@@ -145,7 +145,12 @@
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-	<script src="assets/js/select2/select2.full.min.js"></script>
+	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
+    <script>
+      function convertirAMayusculas(input) {
+        input.value = input.value.toUpperCase();
+      }
+    </script>
   </body>
 </html>

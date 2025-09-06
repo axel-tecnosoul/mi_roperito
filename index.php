@@ -79,7 +79,7 @@
 			<br>
 			<br>
 			<br>
-			<?php include("suscribite.php"); ?>
+			<?php //include("suscribite.php"); ?>
 <br>
 <br>
 <br>

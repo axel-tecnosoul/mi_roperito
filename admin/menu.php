@@ -19,18 +19,20 @@
 		}
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarMovimientoStock.php"><i data-feather="repeat"></i><span>Movimientos de Stock</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-		}?>
-		<li><a class="sidebar-header" href="listarVentas.php"><i data-feather="settings"></i><span>Ventas</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-    //if ($id_perfil == 1) {?>
+		}
+    if($id_perfil != 4){?>
+		  <li><a class="sidebar-header" href="listarVentas.php"><i data-feather="settings"></i><span>Ventas</span><i class="fa fa-angle-right pull-right"></i></a></li><?php
+    }
+    if ($id_perfil != 4) {?>
 		  <li><a class="sidebar-header" href="listarCajaChica.php"><i data-feather="dollar-sign"></i><span>Caja chica</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-		//}
-    	if ($id_perfil == 1) {?>
+		}
+    if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarCajaGrande.php"><i data-feather="dollar-sign" class="mr-0"></i><i data-feather="dollar-sign"></i><span>Caja grande</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarDescuentos.php"><i data-feather="flag"></i><span>Descuentos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
-		if ($id_perfil != 3) {?>
+		if ($id_perfil != 3 and $id_perfil != 4) {?>
 		  <li><a class="sidebar-header" href="listarPagosPendientes.php"><i data-feather="maximize"></i><span>Pagos Pendientes</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="listarPagosRealizados.php"><i data-feather="check-square"></i><span>Pagos Realizados</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
@@ -39,7 +41,7 @@
 		}
 		if ($id_perfil != 3) {?>
 			<li><a class="sidebar-header" href="listarDevoluciones.php"><i data-feather="repeat"></i><span>Devoluciones</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
-		  }
+		}
 		  
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProveedores.php"><i data-feather="file"></i><span>Proveedores</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
@@ -50,7 +52,7 @@
 		if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarContactos.php"><i data-feather="home"></i><span>Contactos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
-		if ($id_perfil != 3) {?>
+		if ($id_perfil != 3 and $id_perfil != 4) {?>
 		  <li><a class="sidebar-header" href="listarTurnos.php"><i data-feather="calendar"></i><span>Turnos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		/*if ($id_perfil != 3) {?>

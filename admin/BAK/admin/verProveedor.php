@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -217,7 +217,7 @@ Database::disconnect();?>
 
                           //}else{
                             if($_SESSION["user"]["id_perfil"]==1){
-                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'&t=v"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
                             }
                           }
                           echo $row["modalidad"];
@@ -297,9 +297,9 @@ Database::disconnect();?>
                             
                             //AGREGAR POSIBILIDAD DE MODIFICAR MODALIDAD EN LOS CANJES
 
-                            /*if($_SESSION["user"]["id_perfil"]==1){
-                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-                            }*/
+                            if($_SESSION["user"]["id_perfil"]==1){
+                              echo '<a href="modificarModalidadVenta.php?id='.$row["id_detalle_venta"].'&t=c"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
+                            }
                           }
                           echo $row["modalidad"];
                           echo '</td>';

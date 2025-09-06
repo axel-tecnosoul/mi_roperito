@@ -73,7 +73,7 @@ if(empty($_SESSION['user']))
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, forma_pago,activo FROM forma_pago";
+                          $sql = " SELECT id, forma_pago,activo FROM forma_pago WHERE id!=0";
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row[0] . '</td>';

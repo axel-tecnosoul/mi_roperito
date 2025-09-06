@@ -629,8 +629,8 @@ $hoy=date("Y-m-d");?>
                               <select name="tipo_comprobante" id="tipo_comprobante" class="js-example-basic-single col-sm-12" disabled>
                                 <option value="">Seleccione...</option>
                                 <!-- <option value="A" class="cbte_only_punto_venta" disabled>Factura A</option> -->
-                                <option value="B" class="cbte_only_punto_venta">Factura B</option>
-                                <option value="R">Recibo</option>
+                                <!-- <option value="B" class="cbte_only_punto_venta">Factura B</option> -->
+                                <option value="R" selected>Recibo</option>
                               </select>
                             </div>
                           </div>

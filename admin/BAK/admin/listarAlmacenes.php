@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
@@ -65,6 +65,7 @@ if(empty($_SESSION['user'])){
                           <tr>
                             <th>ID</th>
                             <th>Almacen</th>
+                            <th>Iniciales Cod. Prod.</th>
                             <th>Direccion</th>
                             <th>Tipo</th>
                             <th>Pto. de Vta. Fact. Elec.</th>
@@ -75,7 +76,7 @@ if(empty($_SESSION['user'])){
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, almacen, direccion, IF(id_tipo=1,'Venta','Deposito') AS tipo, punto_venta, activo FROM almacenes WHERE 1 ";
+                          $sql = " SELECT id, almacen, iniciales_codigo_productos, direccion, IF(id_tipo=1,'Venta','Deposito') AS tipo, punto_venta, activo FROM almacenes WHERE 1 ";
                           
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
@@ -84,7 +85,8 @@ if(empty($_SESSION['user'])){
                             echo '<td>'. $row[2] . '</td>';
                             echo '<td>'. $row[3] . '</td>';
                             echo '<td>'. $row[4] . '</td>';
-                            if ($row[5] == 1) {
+                            echo '<td>'. $row[5] . '</td>';
+                            if ($row[6] == 1) {
                               echo '<td>Si</td>';
                             } else {
                               echo '<td>No</td>';

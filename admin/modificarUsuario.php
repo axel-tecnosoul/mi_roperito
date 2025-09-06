@@ -168,7 +168,7 @@
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
                         <button class="btn btn-primary" type="submit">Modificar</button>
-						<a onclick="document.location.href='listarUsuarios.php'" class="btn btn-light">Volver</a>
+						            <a href="listarUsuarios.php" class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
@@ -179,7 +179,7 @@
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-		<?php include("footer.php"); ?>
+		    <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->
@@ -194,29 +194,27 @@
     <script src="assets/js/sidebar-menu.js"></script>
     <script src="assets/js/config.js"></script>
     <!-- Plugins JS start-->
-    <script src="assets/js/typeahead/handlebars.js"></script>
-    <script src="assets/js/typeahead/typeahead.bundle.js"></script>
-    <script src="assets/js/typeahead/typeahead.custom.js"></script>
     <script src="assets/js/chat-menu.js"></script>
     <script src="assets/js/tooltip-init.js"></script>
-    <script src="assets/js/typeahead-search/handlebars.js"></script>
-    <script src="assets/js/typeahead-search/typeahead-custom.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- Plugin used-->
-	<script src="assets/js/select2/select2.full.min.js"></script>
+	  <script src="assets/js/select2/select2.full.min.js"></script>
     <script src="assets/js/select2/select2-custom.js"></script>
-	<script>
-	function jsAlmacen() {
-		if (document.getElementById("id_perfil").value != 1) {
-			document.getElementById("id_almacen").disabled = "";
-			document.getElementById("id_almacen").required = "required";
-		} else {
-			document.getElementById("id_almacen").disabled = "disabled";
-			document.getElementById("id_almacen").required = "";			
-		}
-	}
-	</script>
+    <script>
+      function jsAlmacen() {
+        let id_perfil=document.getElementById("id_perfil").value
+        if (id_perfil == 1 || id_perfil == 4) {
+          $('#id_almacen').val('').trigger('change.select2');
+          //document.getElementById("id_almacen").selectedIndex = 0;
+          document.getElementById("id_almacen").disabled = "disabled";
+          document.getElementById("id_almacen").required = "";
+        } else {
+          document.getElementById("id_almacen").disabled = "";
+          document.getElementById("id_almacen").required = "required";
+        }
+      }
+    </script>
   </body>
 </html>

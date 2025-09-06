@@ -1,48 +1,44 @@
 <?php
-    require("config.php");
-    if(empty($_SESSION['user']))
-    {
-        header("Location: index.php");
-        die("Redirecting to index.php"); 
-    }
-	
-	require 'database.php';
+require("config.php");
+if(empty($_SESSION['user'])){
+  header("Location: index.php");
+  die("Redirecting to index.php"); 
+}
+require 'database.php';
 
-	$id = null;
-	if ( !empty($_GET['id'])) {
-		$id = $_REQUEST['id'];
-	}
-	
-	if ( null==$id ) {
-		header("Location: listarCanjes.php");
-	}
-	
-	$pdo = Database::connect();
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sql = "SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') fecha_hora, pr.nombre, pr.apellido, a.almacen, c.total, c.total_con_descuento, d.descripcion as descuento, credito_usado FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor left join descuentos d on d.id = c.id_descuento_aplicado WHERE c.id = ? ";
-	$q = $pdo->prepare($sql);
-	$q->execute(array($id));
-	$data = $q->fetch(PDO::FETCH_ASSOC);
-		
-	Database::disconnect();
-	
-?>
+$id = null;
+if ( !empty($_GET['id'])) {
+  $id = $_REQUEST['id'];
+}
+
+if ( null==$id ) {
+  header("Location: listarCanjes.php");
+}
+
+$pdo = Database::connect();
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$sql = "SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i') fecha_hora, pr.nombre, pr.apellido, a.almacen, c.total, c.total_con_descuento, d.descripcion as descuento, credito_usado, id_venta FROM canjes c inner join almacenes a on a.id = c.id_almacen inner join proveedores pr on pr.id = c.id_proveedor left join descuentos d on d.id = c.id_descuento_aplicado WHERE c.id = ? ";
+$q = $pdo->prepare($sql);
+$q->execute(array($id));
+$data = $q->fetch(PDO::FETCH_ASSOC);
+  
+Database::disconnect();?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/datatables.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/datatables.css">
   </head>
   <body class="light-only">
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper">
-	  <?php include('header.php');?>
+	    <?php include('header.php');?>
 	  
       <!-- Page Header Start-->
       <div class="page-body-wrapper">
-		<?php include('menu.php');?>
+		    <?php include('menu.php');?>
         <!-- Page Sidebar Start-->
         <!-- Right sidebar Ends-->
         <div class="page-body">
@@ -153,13 +149,25 @@
                           <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Credito usado</label>
                             <div class="col-sm-9">$<?php echo number_format($data['credito_usado'],2); ?></div>
-                          </div>
+                          </div><?php
+                          if($data['total_con_descuento']!=$data['credito_usado']){?>
+                            <div class="form-group row">
+                              <label class="col-sm-3 col-form-label">Diferencia abonada</label>
+                              <div class="col-sm-9">
+                                $<?php echo number_format($data['total_con_descuento']-$data['credito_usado'],2);
+                                if($data['id_venta']){?>
+                                  &nbsp;
+                                  <a href="verVenta.php?id=<?=$data['id_venta']?>" target="_blank">(<img src="img/eye.png" width="24" height="15" border="0" alt="Ver" title="Ver Venta">V#<?=$data['id_venta']?>)</a><?php
+                                }?>
+                              </div>
+                            </div><?php
+                          }?>
                         </div>
                       </div>
                     </div>
                     <div class="card-footer">
                       <div class="col-sm-9 offset-sm-3">
-                        <a onclick="document.location.href='listarCanjes.php'" class="btn btn-light">Volver</a>
+                        <a href='listarCanjes.php' class="btn btn-light">Volver</a>
                       </div>
                     </div>
                   </form>
@@ -170,7 +178,7 @@
           <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
-		<?php include("footer.php"); ?>
+		    <?php include("footer.php"); ?>
       </div>
     </div>
     <!-- latest jquery-->

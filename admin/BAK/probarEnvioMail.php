@@ -57,8 +57,10 @@
 	";
 	
 	//$smtpHost = "c1971287.ferozo.com";
-  //$smtpHost = "hosting3.tecnosoul.com.ar";
-  $smtpHost = "mail.miroperito.ar";
+  $smtpHost = "hosting3.tecnosoul.com.ar";
+  $smtpSecure = "";
+  $smtpPort = 25;
+  //$smtpHost = "mail.miroperito.ar";
 	$smtpUsuario = "avisos@miroperito.ar";
 	$smtpClave = "zR*eHJJ3zK";
 
@@ -66,13 +68,18 @@
 	$mail->IsSMTP();
 	$mail->SMTPAuth = true;
   $mail->SMTPDebug = 3;
-  $mail->SMTPDebug = SMTP::DEBUG_CLIENT;
+  //$mail->SMTPDebug = SMTP::DEBUG_CLIENT;
 	
-  //$mail->SMTPSecure = 'ssl';
-  //$mail->Port = 465;
+  /*$mail->SMTPSecure = 'ssl';
+  $mail->Port = 465;*/
 
-  $mail->SMTPSecure = 'tls';
-  $mail->Port = 587;
+  /*$mail->SMTPSecure = 'tls';
+  $mail->Port = 587;*/
+
+  if($smtpSecure!=""){
+    $mail->SMTPSecure = $smtpSecure;
+  }
+  $mail->Port = $smtpPort;
 	
   $mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";

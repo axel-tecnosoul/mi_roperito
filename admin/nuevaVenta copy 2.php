@@ -468,8 +468,8 @@ $hoy=date("Y-m-d");?>
                               <select name="tipo_comprobante" id="tipo_comprobante" class="js-example-basic-single col-sm-12" required="required">
                                 <option value="">Seleccione...</option>
                                 <!-- <option value="A" class="cbte_only_punto_venta" disabled>Factura A</option> -->
-                                <!-- <option value="B" class="cbte_only_punto_venta">Factura B</option> -->
-                                <option value="R" selected>Recibo</option>
+                                <option value="B" class="cbte_only_punto_venta">Factura B</option>
+                                <option value="R">Recibo</option>
                               </select>
                             </div>
                           </div>
@@ -794,7 +794,7 @@ $hoy=date("Y-m-d");?>
             let minimo_compra=descuento.data("minimo_compra")
             let total=calcularTotalCompra();
             if(minimo_compra!=undefined && minimo_compra>total){
-              alert("El monto total ("+formatearPrecio(total)+") no alcanza para aplicar el descuento ("+formatearPrecio(minimo_compra)+")")
+              alert("El monto total ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total)+") no alcanza para aplicar el descuento ("+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(minimo_compra)+")")
               return false
             }
             //console.log("submit")
@@ -857,7 +857,7 @@ $hoy=date("Y-m-d");?>
                 <input type="hidden" disabled name="id_producto[]" class="enviar_form id_producto" value="${row.id_producto}">
                 <input type="hidden" disabled name="stock[]" class="enviar_form stock" value="${row.cantidad}">
                 <input type="hidden" disabled name="precio[]" class="enviar_form precio" value="${row.precio}">
-                <label class="precio">`+formatearPrecio(row.precio)+`</label>`;
+                <label class="precio">`+new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.precio)+`</label>`;
             },
             className: 'dt-body-right text-right',
             orderDataType: "num-fmt"
@@ -925,61 +925,23 @@ $hoy=date("Y-m-d");?>
       return total
     }
 
-    function formatearPrecio(precio){
-      return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(precio)
-    }
-
     function actualizarMontoTotal(){
       let total=calcularTotalCompra()
-      $("#total_productos").html(formatearPrecio(total))
+      $("#total_productos").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(total))
       mostrarTotalDescuento(total)
     }
 
     function mostrarTotalDescuento(total){
-      let totalConDescuento=total;
       let id_descuento=$("#id_descuento option:selected");
-      /*if(id_descuento.val()==28){//EL DESCUENTO ID 28 ERA 2 X 1, PERO ESTA FUNCIONALIDAD FINALMENTE NO SE IMPLEMENTÓ
-        let productos_agregados=$("#productos_vender tbody tr")
-        let cant_productos=productos_agregados.length
-        let cant_productos_gratis=Math.floor(cant_productos / 2)
-        
-        // Paso 1: Obtener los valores de los inputs con clase 'precio'
-        let precios = [];
-        productos_agregados.each(function() {
-          let fila=$(this);
-          let input_precio=fila.find("input.precio")
-          let valor = parseFloat($(input_precio).val()); // Obtener el valor numérico del input
-          if (!isNaN(valor)) { // Asegurarse de que sea un número válido
-            precios.push({ valor: valor, elemento: fila }); // Guardar valor y referencia al elemento
-          }
-        });
-        alert("es 2 x 1 y hay "+cant_productos+" productos, asi que se lleva "+cant_productos_gratis+" gratis");
-
-        // Paso 2: Ordenar los precios de menor a mayor
-        precios.sort((a, b) => a.valor - b.valor);
-
-        // Paso 3: Seleccionar los N precios más baratos
-        for (let i = 0; i < cant_productos_gratis && i < precios.length; i++) {
-          var fila=precios[i].elemento
-          var precio=precios[i].valor
-
-          fila.css("background-color", "lightgreen"); // Ejemplo: resaltar los inputs
-          console.log("Precio más barato:", precio); // Mostrar en consola
-          totalConDescuento-=precio
-          console.log(fila);
-          fila.find("input.precio").val(0)
-          fila.find("label.precio").val(formatearPrecio(0))
-        }
-      }else{*/
-        let porcentaje=$(id_descuento).data("porcentaje");
-        if(porcentaje!=undefined){
-          let descuento=porcentaje*total/100;
-          totalConDescuento=total-descuento;
-        }
-      //}
+      let porcentaje=$(id_descuento).data("porcentaje");
+      let totalConDescuento=total;
+      if(porcentaje!=undefined){
+        let descuento=porcentaje*total/100;
+        totalConDescuento=total-descuento;
+      }
       //console.log(parseInt(total)-parseInt(totalConDescuento))
       if(isNaN(totalConDescuento)){totalConDescuento=0;}
-      $("#total_a_pagar").html(formatearPrecio(totalConDescuento))
+      $("#total_a_pagar").html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(totalConDescuento))
       $("#total_a_pagar_sin_formato").val(totalConDescuento)
       checkTotalPagarDNI();
     }

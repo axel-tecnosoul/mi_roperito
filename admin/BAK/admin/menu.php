@@ -6,7 +6,7 @@
 	<ul class="sidebar-menu">
 		
 		<?php
-    $id_perfil=$_SESSION['user']['id_perfil']; 
+    $id_perfil=$_SESSION['user']['id_perfil'];
 
 		if ($id_perfil != 3) {?>
 		  <li><a class="sidebar-header" href="listarProductos.php"><i data-feather="clipboard"></i><span>Productos</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
@@ -24,7 +24,7 @@
     //if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarCajaChica.php"><i data-feather="dollar-sign"></i><span>Caja chica</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		//}
-    if ($id_perfil == 1) {?>
+    	if ($id_perfil == 1) {?>
 		  <li><a class="sidebar-header" href="listarCajaGrande.php"><i data-feather="dollar-sign" class="mr-0"></i><i data-feather="dollar-sign"></i><span>Caja grande</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}
 		if ($id_perfil == 1) {?>
@@ -60,6 +60,7 @@
 		  <li><a class="sidebar-header" href="listarUsuarios.php"><i data-feather="user"></i><span>Usuarios</span><i class="fa fa-angle-right pull-right"></i></a></li><?php 
 		}*/
 		if ($id_perfil == 1) {?>
+	    <li><a class="sidebar-header" href="listarBanners.php"><i data-feather="image"></i><span>Banner</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="listarParametros.php"><i data-feather="settings"></i><span>Parametros</span><i class="fa fa-angle-right pull-right"></i></a></li>
       <li><a class="sidebar-header" href="#"><i data-feather="bar-chart"></i><span>Reportes</span><i class="fa fa-angle-right pull-right"></i></a>
         <ul class="sidebar-submenu">

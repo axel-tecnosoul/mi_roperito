@@ -1,6 +1,6 @@
 <?php
 require("config.php");
-if(empty($_SESSION['user'])){
+if(empty($_SESSION['user']['id_perfil'])){
   header("Location: index.php");
   die("Redirecting to index.php"); 
 }
@@ -151,20 +151,10 @@ if ( null==$id ) {
 
       $("#btnConfirmGenerarNC").on("click",function(){
         $(this).attr("disabled",true).addClass("disabled")
+        let form=$(this).parents("form");
+        console.log(form);
+        form[0].submit()
       })
-
-      $('#devolver-masivo').on('click', function (e) {
-        e.preventDefault();
-        if ($('.customer-selector:checked').length < 1) {
-          alert("Debe seleccionar un producto como mínimo");
-        } else {
-          var arr = [];
-          $('.customer-selector:checked').each(function (i,o) { arr.push($(o).val()); });
-          //window.location.href=window.location.href.replace("listarProductos.php", "etiquetarMasivo.php?id=" + arr.join(",") );
-          window.location.href="nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(",");
-          //window.open("nuevaVentaDevolucion.php?id_venta_detalle=" + arr.join(","));
-        }
-      });
 
 		});
 		

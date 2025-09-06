@@ -68,24 +68,28 @@ if(empty($_SESSION['user'])) {
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8,9) ";
+                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8) ";//,9
                           
-                          foreach ($pdo->query($sql) as $row) {
-                              echo '<tr>';
-                              //echo '<td>'.$row[0].'</td>';
-                              echo '<td>'.$row[1].'</td>';
-                              echo '<td>';
-                              if(is_numeric($row[2])){
-                                echo number_format($row[2],0,",",".");
-                              }else{
-                                echo $row[2];
-                              }
-                              echo '</td>';
-                              echo '<td>';
-                              echo '<a href="modificarParametro.php?id='.$row[0].'"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>';
-                              echo '&nbsp;&nbsp;';
-                              echo '</td>';
-                              echo '</tr>';
+                          foreach ($pdo->query($sql) as $row) {?>
+                              <tr>
+                                <!-- <td>'.$row[0].'</td> -->
+                                <td><?=$row[1]?></td>
+                                <td><?php
+                                  if(is_numeric($row[2])){
+                                    echo number_format($row[2],0,",",".");
+                                  }else{
+                                    echo $row[2];
+                                  }?>
+                                </td>
+                                <td>
+                                  <a href="modificarParametro.php?id=<?=$row[0]?>"><img src="img/icon_modificar.png" width="24" height="25" border="0" alt="Modificar" title="Modificar"></a>
+                                  &nbsp;&nbsp;<?php
+                                  if($row[0]==8){?>
+                                    <!-- Ajustar el porcentaje a descontar por pagos que no son en efectivo a las ventas/canjes no liquidadas -->
+                                    <a href="ajustarPorcentajeDescuentoLiquidaciones.php" title="Ajustar el porcentaje a descontar en liquidadciones pendientes a proveedoras" style="vertical-align: sub;font-size: large;"><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></a><?php
+                                  }?>
+                                </td>
+                              </tr><?php
                           }
                           Database::disconnect();?>
                         </tbody>

@@ -1,6 +1,6 @@
 <?php
 require("admin/config.php");
-include('../admin/database.php');
+include('admin/database.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,6 +53,7 @@ include('../admin/database.php');
           <form id="" class="" method="post" action="emitirTurno.php">
 									
           <!-- Body -->
+           <!-- <h5><u>Atención! No estamos recibiendo prendas por el momento en la sucursal de Nuñez.</u></h5> -->
             <div class="md-form">
               <label for="form-suc">Sucursal</label>
               <select name="id_almacen" id="id_almacen" class="form-control" required="required">
@@ -82,14 +83,16 @@ include('../admin/database.php');
               <option value="Más de 86 prendas">Más de 86 prendas</option>
 			      </select>
             
-          </div>
+          </div><?php
+          $hoy=date("Y-m-d");
+          $hora_ahora=date("H:i",strtotime(date("H:i")))?>
 		      <div class="md-form">
             <label for="form-fec">Fecha</label>
-            <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="2023-08-15">
+            <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="<?=$hoy?>" value="<?=$hoy?>">
           </div>
 		      <div class="md-form">
             <label for="form-hora">Hora</label>
-            <input type="time" name="hora" id="form-hora" class="form-control" min="11:00" max="18:30" required="required">
+            <input type="time" name="hora" id="form-hora" class="form-control" min="<?=$hora_ahora?>" max="18:30" required="required" value="<?=$hora_ahora?>">
           </div>
 		      <div class="md-form">
             <label for="form-dni">DNI</label>
@@ -205,31 +208,56 @@ include('../admin/database.php');
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
 <script>
   $(document).ready(function () {
-    $("#id_almacen").on("change",function(){
-      if(this.value==4 || this.value==6 || this.value==7){
+    $("#id_almacen").on("change", function () {
+      if (this.value == 4 || this.value == 6 || this.value == 7) {
         $("#modalNoRecibimosPrendas").modal("show");
-        if(this.value==6){
-          $("#form-hora").attr("max","17:30");
-        }else{
-          $("#form-hora").attr("max","18:30");
+        if (this.value == 6) {
+          $("#form-hora").attr("max", "17:30");
+        } else {
+          $("#form-hora").attr("max", "18:30");
         }
-        //$("#id_almacen").val("")
-      }
-    })
-
-    document.getElementById("form-fec").addEventListener("change", function() {
-      var selectedDate = new Date(this.value);
-      var dayOfWeek = selectedDate.getDay();
-      console.log(dayOfWeek);
-      if (dayOfWeek === 5 || dayOfWeek === 6) {
-        console.log("La fecha seleccionada es un sábado o domingo.");
-        $("#modalFinesDeSemana").modal("show")
-        this.value="";
-      } else {
-        console.log("La fecha seleccionada NO es un sábado ni domingo.");
       }
     });
 
+    $(document).submit(function (e) {
+      e.preventDefault(); // Evitar el envío del formulario por defecto
+      alert("El formulario ha sido enviado correctamente.");
+    });
+
+    document.getElementById("form-fec").addEventListener("change", function () {
+      var selectedDate = new Date(this.value);
+      var today = new Date();
+      var dayOfWeek = selectedDate.getDay();
+
+      if (dayOfWeek === 5 || dayOfWeek === 6) {
+        console.log("La fecha seleccionada es un sábado o domingo.");
+        $("#modalFinesDeSemana").modal("show");
+        this.value = "";
+      } else {
+        console.log("La fecha seleccionada NO es un sábado ni domingo.");
+      }
+
+      // Si la fecha seleccionada es hoy, ajustar el horario mínimo
+      if (
+        selectedDate.toDateString() === today.toDateString()
+      ) {
+        var currentHour = today.getHours();
+        var currentMinutes = today.getMinutes();
+        var formattedTime =
+          (currentHour < 10 ? "0" : "") +
+          currentHour +
+          ":" +
+          (currentMinutes < 10 ? "0" : "") +
+          currentMinutes;
+
+        var formHora = document.getElementById("form-hora");
+        formHora.setAttribute("min", formattedTime);
+        console.log("Horario mínimo ajustado a: " + formattedTime);
+      } else {
+        // Restablecer el horario mínimo a 11:00 si no es hoy
+        document.getElementById("form-hora").setAttribute("min", "11:00");
+      }
+    });
   });
 </script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
