@@ -6,6 +6,8 @@ if(empty($_SESSION['user']['id_perfil'])){
 }
 $diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 $horarios = [];
+$freqGlobal = null;
+$bloqGlobal = null;
 require 'database.php';
 
 $id = null;
@@ -21,16 +23,16 @@ if ( !empty($_POST)) {
 
   // Validaciones de horarios
   $errores = [];
+  $freqGlobal = isset($_POST['frecuencia_minutos']) ? (int)$_POST['frecuencia_minutos'] : 0;
+  $bloqGlobal = isset($_POST['bloqueo_minutos']) ? (int)$_POST['bloqueo_minutos'] : 0;
+  if ($freqGlobal <= 0 || $freqGlobal % 5 !== 0) {
+    $errores[] = 'Frecuencia inválida';
+  }
+  if ($bloqGlobal < $freqGlobal) {
+    $errores[] = 'Bloqueo inválido';
+  }
   if (!empty($_POST['horarios'])) {
     foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $freq = isset($_POST['frecuencia_minutos'][$dia]) ? (int)$_POST['frecuencia_minutos'][$dia] : 0;
-      $bloq = isset($_POST['bloqueo_minutos'][$dia]) ? (int)$_POST['bloqueo_minutos'][$dia] : 0;
-      if ($freq <= 0 || $freq % 5 !== 0) {
-        $errores[] = 'Frecuencia inválida para el día ' . $diasSemana[$dia];
-      }
-      if ($bloq < $freq) {
-        $errores[] = 'Bloqueo inválido para el día ' . $diasSemana[$dia];
-      }
       $inicios = $dataDia['inicio'] ?? [];
       $fines   = $dataDia['fin'] ?? [];
       foreach ($inicios as $k => $ini) {
@@ -61,14 +63,12 @@ if ( !empty($_POST)) {
     $sqlH = "INSERT INTO almacenes_horarios(id_almacen,dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos) VALUES (?,?,?,?,?,?)";
     $qH = $pdo->prepare($sqlH);
     foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $freq = $_POST['frecuencia_minutos'][$dia] ?? null;
-      $bloq = $_POST['bloqueo_minutos'][$dia] ?? null;
       $inicios = $dataDia['inicio'] ?? [];
       $fines   = $dataDia['fin'] ?? [];
       foreach ($inicios as $k => $ini) {
         $fin = $fines[$k] ?? null;
         if ($ini && $fin) {
-          $qH->execute(array($_GET['id'],$dia,$ini,$fin,$freq,$bloq));
+          $qH->execute(array($_GET['id'],$dia,$ini,$fin,$freqGlobal,$bloqGlobal));
         }
       }
     }
@@ -92,9 +92,9 @@ if ( !empty($_POST)) {
   $qH = $pdo->prepare($sqlH);
   $qH->execute(array($id));
   while($row = $qH->fetch(PDO::FETCH_ASSOC)){
+    if ($freqGlobal === null) $freqGlobal = $row['frecuencia_minutos'];
+    if ($bloqGlobal === null) $bloqGlobal = $row['bloqueo_minutos'];
     $d = $row['dia_semana'];
-    $horarios[$d]['frecuencia_minutos'] = $row['frecuencia_minutos'];
-    $horarios[$d]['bloqueo_minutos'] = $row['bloqueo_minutos'];
     $horarios[$d]['inicio'][] = $row['hora_inicio'];
     $horarios[$d]['fin'][] = $row['hora_fin'];
   }
@@ -201,37 +201,34 @@ if ( !empty($_POST)) {
                               </div>
                             </div>
 
-                          <h5 class="schedule-title">Configuración de horarios</h5>
-<?php for($d=0;$d<7;$d++):
-  $freq = $horarios[$d]['frecuencia_minutos'] ?? '';
-  $bloq = $horarios[$d]['bloqueo_minutos'] ?? '';
-?>
-  <div class="day-block mb-3 border p-3">
-    <h6><?= $diasSemana[$d] ?></h6>
-    <div class="form-group row">
-      <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
-      <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos[<?= $d ?>]" class="form-control" value="<?= $freq ?>"></div>
-      <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
-      <div class="col-sm-3"><input type="number" name="bloqueo_minutos[<?= $d ?>]" class="form-control" value="<?= $bloq ?>"></div>
-    </div>
-    <div class="blocks">
-<?php if(!empty($horarios[$d]['inicio'])): foreach($horarios[$d]['inicio'] as $i=>$ini): $fin = $horarios[$d]['fin'][$i] ?? ''; ?>
-      <div class="block form-group row">
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control" value="<?= $ini ?>"></div>
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control" value="<?= $fin ?>"></div>
-        <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
-      </div>
-<?php endforeach; else: ?>
-      <div class="block form-group row">
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control"></div>
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control"></div>
-        <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
-      </div>
-<?php endif; ?>
-    </div>
-    <button type="button" class="btn btn-secondary btn-sm add-block" data-day="<?= $d ?>">Agregar bloque</button>
+  <h5 class="schedule-title">Configuración de horarios</h5>
+  <div class="form-group row">
+    <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
+    <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos" class="form-control" value="<?= $freqGlobal ?>"></div>
+    <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
+    <div class="col-sm-3"><input type="number" name="bloqueo_minutos" class="form-control" value="<?= $bloqGlobal ?>"></div>
   </div>
-<?php endfor; ?>
+  <?php for($d=0;$d<7;$d++): ?>
+    <div class="day-block mb-3 border p-3">
+      <h6><?= $diasSemana[$d] ?></h6>
+      <div class="blocks">
+  <?php if(!empty($horarios[$d]['inicio'])): foreach($horarios[$d]['inicio'] as $i=>$ini): $fin = $horarios[$d]['fin'][$i] ?? ''; ?>
+        <div class="block form-group row">
+          <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control" value="<?= $ini ?>"></div>
+          <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control" value="<?= $fin ?>"></div>
+          <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
+        </div>
+  <?php endforeach; else: ?>
+        <div class="block form-group row">
+          <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control"></div>
+          <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control"></div>
+          <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
+        </div>
+  <?php endif; ?>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm add-block" data-day="<?= $d ?>">Agregar bloque</button>
+    </div>
+  <?php endfor; ?>
 
                           </div>
                         </div>

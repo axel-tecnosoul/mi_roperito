@@ -13,16 +13,16 @@ if ( !empty($_POST)) {
 
   // Validaciones de horarios
   $errores = [];
+  $freq = isset($_POST['frecuencia_minutos']) ? (int)$_POST['frecuencia_minutos'] : 0;
+  $bloq = isset($_POST['bloqueo_minutos']) ? (int)$_POST['bloqueo_minutos'] : 0;
+  if ($freq <= 0 || $freq % 5 !== 0) {
+    $errores[] = 'Frecuencia inválida';
+  }
+  if ($bloq < $freq) {
+    $errores[] = 'Bloqueo inválido';
+  }
   if (!empty($_POST['horarios'])) {
     foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $freq = isset($_POST['frecuencia_minutos'][$dia]) ? (int)$_POST['frecuencia_minutos'][$dia] : 0;
-      $bloq = isset($_POST['bloqueo_minutos'][$dia]) ? (int)$_POST['bloqueo_minutos'][$dia] : 0;
-      if ($freq <= 0 || $freq % 5 !== 0) {
-        $errores[] = 'Frecuencia inválida para el día ' . $diasSemana[$dia];
-      }
-      if ($bloq < $freq) {
-        $errores[] = 'Bloqueo inválido para el día ' . $diasSemana[$dia];
-      }
       $inicios = $dataDia['inicio'] ?? [];
       $fines   = $dataDia['fin'] ?? [];
       foreach ($inicios as $k => $ini) {
@@ -52,8 +52,6 @@ if ( !empty($_POST)) {
     $sqlH = "INSERT INTO almacenes_horarios(id_almacen,dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos) VALUES (?,?,?,?,?,?)";
     $qH = $pdo->prepare($sqlH);
     foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $freq = $_POST['frecuencia_minutos'][$dia] ?? null;
-      $bloq = $_POST['bloqueo_minutos'][$dia] ?? null;
       $inicios = $dataDia['inicio'] ?? [];
       $fines   = $dataDia['fin'] ?? [];
       foreach ($inicios as $k => $ini) {
@@ -158,15 +156,15 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="punto_venta" type="number" maxlength="99" class="form-control" value=""></div>
                           </div>
                           <h5 class="schedule-title">Configuración de horarios</h5>
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
+                            <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos" class="form-control"></div>
+                            <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
+                            <div class="col-sm-3"><input type="number" name="bloqueo_minutos" class="form-control"></div>
+                          </div>
 <?php for($d=0;$d<7;$d++): ?>
   <div class="day-block mb-3 border p-3">
     <h6><?= $diasSemana[$d] ?></h6>
-    <div class="form-group row">
-      <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
-      <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos[<?= $d ?>]" class="form-control"></div>
-      <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
-      <div class="col-sm-3"><input type="number" name="bloqueo_minutos[<?= $d ?>]" class="form-control"></div>
-    </div>
     <div class="blocks">
       <div class="block form-group row">
         <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control"></div>
