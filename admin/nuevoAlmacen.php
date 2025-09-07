@@ -78,6 +78,9 @@ if ( !empty($_POST)) {
               margin-top: 1.5rem;
               margin-bottom: 1rem;
             }
+            .block-label {
+              font-weight: bold;
+            }
           </style>
   </head>
   <body class="light-only">
@@ -173,9 +176,16 @@ if ( !empty($_POST)) {
     <h6><?= $diasSemana[$d] ?></h6>
     <div class="blocks">
       <div class="block form-group row">
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control"></div>
-        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control"></div>
-        <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
+        <span class="block-label col-12">Bloque 1</span>
+        <div class="col-sm-5">
+          <label>Inicio</label>
+          <input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control">
+        </div>
+        <div class="col-sm-5">
+          <label>Fin</label>
+          <input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control">
+        </div>
+        <div class="col-sm-2 d-flex align-items-end"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
       </div>
     </div>
     <button type="button" class="btn btn-secondary btn-sm add-block" data-day="<?= $d ?>">Agregar bloque</button>
