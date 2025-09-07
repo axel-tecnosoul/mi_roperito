@@ -1,8 +1,29 @@
 <?php 
-session_start(); 
+session_start();
 if(empty($_SESSION['user']['id_perfil'])){
-	header("Location: index.php");
-	die("Redirecting to index.php"); 
+        header("Location: index.php");
+        die("Redirecting to index.php");
+}
+// Devuelve una cadena con los horarios del almacén agrupados por día
+function obtenerHorarios($pdo, $idAlmacen){
+        $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+        $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
+        $q = $pdo->prepare($sql);
+        $q->execute([$idAlmacen]);
+        $rows = $q->fetchAll(PDO::FETCH_ASSOC);
+        if(!$rows){
+                return '';
+        }
+        $horarios = [];
+        foreach($rows as $r){
+                $dia = $dias[$r['dia_semana']];
+                $horarios[$dia][] = $r['hora_inicio'].'-'.$r['hora_fin'].' ('.$r['frecuencia_minutos'].'m)';
+        }
+        $partes = [];
+        foreach($horarios as $dia => $rangos){
+                $partes[] = $dia.': '.implode(', ', $rangos);
+        }
+        return implode('<br>', $partes);
 }
 ?>
 <!DOCTYPE html>
@@ -69,6 +90,7 @@ if(empty($_SESSION['user']['id_perfil'])){
                             <th>Direccion</th>
                             <th>Tipo</th>
                             <th>Pto. de Vta. Fact. Elec.</th>
+                            <th>Horarios</th>
                             <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
@@ -86,6 +108,7 @@ if(empty($_SESSION['user']['id_perfil'])){
                             echo '<td>'. $row[3] . '</td>';
                             echo '<td>'. $row[4] . '</td>';
                             echo '<td>'. $row[5] . '</td>';
+                            echo '<td>'. obtenerHorarios($pdo, $row[0]) . '</td>';
                             if ($row[6] == 1) {
                               echo '<td>Si</td>';
                             } else {
