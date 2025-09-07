@@ -6,18 +6,41 @@ if(empty($_SESSION['user'])){
 }
 require 'database.php';
 
+$diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+$horarios = [];
+
 if ( !empty($_POST)) {
-  
+
   // insert data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
+  $pdo->beginTransaction();
+
   $sql = "INSERT INTO almacenes(almacen, iniciales_codigo_productos, direccion, punto_venta, id_tipo, activo) VALUES (?,?,?,?,?,1)";
   $q = $pdo->prepare($sql);
   $q->execute(array($_POST['almacen'],$_POST['iniciales_codigo_productos'],$_POST['direccion'],$_POST['punto_venta'],$_POST['id_tipo']));
-  
+  $idAlmacen = $pdo->lastInsertId();
+
+  if (!empty($_POST['horarios'])) {
+    $sqlH = "INSERT INTO almacenes_horarios(id_almacen,dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos) VALUES (?,?,?,?,?,?)";
+    $qH = $pdo->prepare($sqlH);
+    foreach ($_POST['horarios'] as $dia => $dataDia) {
+      $freq = $_POST['frecuencia_minutos'][$dia] ?? null;
+      $bloq = $_POST['bloqueo_minutos'][$dia] ?? null;
+      $inicios = $dataDia['inicio'] ?? [];
+      $fines   = $dataDia['fin'] ?? [];
+      foreach ($inicios as $k => $ini) {
+        $fin = $fines[$k] ?? null;
+        if ($ini && $fin) {
+          $qH->execute(array($idAlmacen,$dia,$ini,$fin,$freq,$bloq));
+        }
+      }
+    }
+  }
+
+  $pdo->commit();
   Database::disconnect();
-  
+
   header("Location: listarAlmacenes.php");
 }?>
 <!DOCTYPE html>
@@ -102,6 +125,26 @@ if ( !empty($_POST)) {
                             <div class="col-sm-9"><input name="punto_venta" type="number" maxlength="99" class="form-control" value=""></div>
                           </div>
 
+<?php for($d=0;$d<7;$d++): ?>
+  <div class="day-block mb-3 border p-3">
+    <h6><?= $diasSemana[$d] ?></h6>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
+      <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos[<?= $d ?>]" class="form-control"></div>
+      <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
+      <div class="col-sm-3"><input type="number" name="bloqueo_minutos[<?= $d ?>]" class="form-control"></div>
+    </div>
+    <div class="blocks">
+      <div class="block form-group row">
+        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control"></div>
+        <div class="col-sm-5"><input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control"></div>
+        <div class="col-sm-2"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm add-block" data-day="<?= $d ?>">Agregar bloque</button>
+  </div>
+<?php endfor; ?>
+
                         </div>
                       </div>
                     </div>
@@ -144,13 +187,14 @@ if ( !empty($_POST)) {
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
-    <!-- Plugin used-->
-	  <script src="assets/js/select2/select2.full.min.js"></script>
-    <script src="assets/js/select2/select2-custom.js"></script>
-    <script>
-      function convertirAMayusculas(input) {
-        input.value = input.value.toUpperCase();
-      }
-    </script>
+      <!-- Plugin used-->
+            <script src="assets/js/select2/select2.full.min.js"></script>
+      <script src="assets/js/select2/select2-custom.js"></script>
+      <script src="assets/js/horarios.js"></script>
+      <script>
+        function convertirAMayusculas(input) {
+          input.value = input.value.toUpperCase();
+        }
+      </script>
   </body>
 </html>
