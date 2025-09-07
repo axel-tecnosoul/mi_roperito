@@ -107,7 +107,13 @@ if ( !empty($_POST)) {
 <html lang="en">
   <head>
     <?php include('head_forms.php');?>
-	<link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/select2.css">
+        <style>
+          .schedule-title {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+          }
+        </style>
   </head>
   <body class="light-only">
     <!-- Loader ends-->
@@ -195,7 +201,8 @@ if ( !empty($_POST)) {
                               </div>
                             </div>
 
-<?php for($d=0;$d<7;$d++): 
+                          <h5 class="schedule-title">Configuración de horarios</h5>
+<?php for($d=0;$d<7;$d++):
   $freq = $horarios[$d]['frecuencia_minutos'] ?? '';
   $bloq = $horarios[$d]['bloqueo_minutos'] ?? '';
 ?>
