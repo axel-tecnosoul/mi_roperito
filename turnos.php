@@ -80,21 +80,34 @@ include('admin/database.php');
               <option value="36 a 50 prendas">36 a 50 prendas</option>
               <option value="51 a 70 prendas">51 a 70 prendas</option>
               <option value="71 a 85 prendas">71 a 85 prendas</option>
-              <option value="Más de 86 prendas">Más de 86 prendas</option>
-			      </select>
-            
+          <option value="Más de 86 prendas">Más de 86 prendas</option>
+                              </select>
+
           </div><?php
           $hoy=date("Y-m-d");
-          $hora_ahora=date("H:i",strtotime(date("H:i")))?>
-		      <div class="md-form">
+          // Código anterior para la hora actual
+          // $hora_ahora=date("H:i",strtotime(date("H:i")));
+          ?>
+                      <div class="md-form">
             <label for="form-fec">Fecha</label>
             <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="<?=$hoy?>" value="<?=$hoy?>">
           </div>
-		      <div class="md-form">
+                      <?php
+          // Código anterior del campo hora:
+          /*
+          <div class="md-form">
             <label for="form-hora">Hora</label>
             <input type="time" name="hora" id="form-hora" class="form-control" min="<?=$hora_ahora?>" max="18:30" required="required" value="<?=$hora_ahora?>">
           </div>
-		      <div class="md-form">
+          */
+          ?>
+                      <div class="md-form">
+            <label for="form-hora">Hora</label>
+            <select name="hora" id="form-hora" class="form-control" required="required" disabled>
+              <option value="">Seleccione un horario</option>
+            </select>
+          </div>
+                      <div class="md-form">
             <label for="form-dni">DNI</label>
             <input type="text" name="dni" id="form-dni" class="form-control" required="required">
           </div>
@@ -112,7 +125,10 @@ include('admin/database.php');
           </div>
 		      <br>
           <div class="text-center">
+            <!-- Botón original:
             <button type="submit" class="btn btn-light-blue">Solicitar Turno</button>
+            -->
+            <button type="submit" class="btn btn-light-blue" id="btn-submit" disabled>Solicitar Turno</button>
           </div>
 		    </form>
         </div>
@@ -207,6 +223,7 @@ include('admin/database.php');
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
 <script>
+  /* Código anterior:
   $(document).ready(function () {
     $("#id_almacen").on("change", function () {
       if (this.value == 4 || this.value == 6 || this.value == 7) {
@@ -220,7 +237,7 @@ include('admin/database.php');
     });
 
     $(document).submit(function (e) {
-      e.preventDefault(); // Evitar el envío del formulario por defecto
+      e.preventDefault();
       alert("El formulario ha sido enviado correctamente.");
     });
 
@@ -237,10 +254,7 @@ include('admin/database.php');
         console.log("La fecha seleccionada NO es un sábado ni domingo.");
       }
 
-      // Si la fecha seleccionada es hoy, ajustar el horario mínimo
-      if (
-        selectedDate.toDateString() === today.toDateString()
-      ) {
+      if (selectedDate.toDateString() === today.toDateString()) {
         var currentHour = today.getHours();
         var currentMinutes = today.getMinutes();
         var formattedTime =
@@ -254,10 +268,66 @@ include('admin/database.php');
         formHora.setAttribute("min", formattedTime);
         console.log("Horario mínimo ajustado a: " + formattedTime);
       } else {
-        // Restablecer el horario mínimo a 11:00 si no es hoy
         document.getElementById("form-hora").setAttribute("min", "11:00");
       }
     });
+  });
+  */
+  $(document).ready(function () {
+    function fetchHorarios() {
+      var idAlmacen = $("#id_almacen").val();
+      var fecha = $("#form-fec").val();
+      var $hora = $("#form-hora");
+      var $submit = $("#btn-submit");
+      if (!idAlmacen || !fecha) {
+        $hora.empty().append('<option value="">Seleccione un horario</option>');
+        $hora.prop('disabled', true);
+        $submit.prop('disabled', true);
+        return;
+      }
+      $.getJSON('obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
+        var todayStr = new Date().toISOString().split('T')[0];
+        if (fecha === todayStr) {
+          var now = new Date();
+          var currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+          data = data.filter(function (h) { return h >= currentTime; });
+        }
+        $hora.empty();
+        if (data.length) {
+          $hora.append('<option value="">Seleccione...</option>');
+          data.forEach(function (h) {
+            $hora.append('<option value="' + h + '">' + h + '</option>');
+          });
+          $hora.prop('disabled', false);
+          $submit.prop('disabled', false);
+        } else {
+          $hora.append('<option value="">Sin horarios disponibles</option>');
+          $hora.prop('disabled', true);
+          $submit.prop('disabled', true);
+        }
+      });
+    }
+
+    $("#id_almacen").on("change", function () {
+      if (this.value == 4 || this.value == 6 || this.value == 7) {
+        $("#modalNoRecibimosPrendas").modal("show");
+      }
+      fetchHorarios();
+    });
+
+    $("#form-fec").on("change", function () {
+      var selectedDate = new Date(this.value);
+      var dayOfWeek = selectedDate.getDay();
+      if (dayOfWeek === 5 || dayOfWeek === 6) {
+        $("#modalFinesDeSemana").modal("show");
+        this.value = "";
+        fetchHorarios();
+        return;
+      }
+      fetchHorarios();
+    });
+
+    fetchHorarios();
   });
 </script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
