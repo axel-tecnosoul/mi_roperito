@@ -43,6 +43,7 @@ $reservas = $q->fetchAll(PDO::FETCH_COLUMN);
 $bloqueados = [];
 foreach ($reservas as $res) {
     $r = new DateTime($res);
+    $bloqueados[$r->format('H:i')] = true;
     // buscar franja correspondiente para obtener parametros
     foreach ($franjas as $franja) {
         $inicioFr = new DateTime($franja['hora_inicio']);

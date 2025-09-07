@@ -77,8 +77,15 @@ if(!turnoDisponible($pdo, $_POST['id_almacen'], $_POST['fecha'], $_POST['hora'])
 
 $sql = 'INSERT INTO `turnos`(`fecha_hora`,`id_almacen`, `cantidad`, `fecha`, `hora`, `dni`, `nombre`, `email`, `telefono`, `id_estado`) VALUES (now(),?,?,?,?,?,?,?,?,1)';
 $q = $pdo->prepare($sql);
-$q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
-$pdo->commit();
+try {
+    $q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
+    $pdo->commit();
+} catch (PDOException $e) {
+    $pdo->rollBack();
+    Database::disconnect();
+    echo 'Error al generar turno';
+    exit;
+}
 
   //var_dump($_POST);
   
