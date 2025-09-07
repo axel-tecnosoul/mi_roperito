@@ -19,6 +19,33 @@ if ( null==$id ) {
 
 if ( !empty($_POST)) {
 
+  // Validaciones de horarios
+  $errores = [];
+  if (!empty($_POST['horarios'])) {
+    foreach ($_POST['horarios'] as $dia => $dataDia) {
+      $freq = isset($_POST['frecuencia_minutos'][$dia]) ? (int)$_POST['frecuencia_minutos'][$dia] : 0;
+      $bloq = isset($_POST['bloqueo_minutos'][$dia]) ? (int)$_POST['bloqueo_minutos'][$dia] : 0;
+      if ($freq <= 0 || $freq % 5 !== 0) {
+        $errores[] = 'Frecuencia inválida para el día ' . $diasSemana[$dia];
+      }
+      if ($bloq < $freq) {
+        $errores[] = 'Bloqueo inválido para el día ' . $diasSemana[$dia];
+      }
+      $inicios = $dataDia['inicio'] ?? [];
+      $fines   = $dataDia['fin'] ?? [];
+      foreach ($inicios as $k => $ini) {
+        $fin = $fines[$k] ?? null;
+        if ($ini && $fin && $ini >= $fin) {
+          $errores[] = 'Hora inicio debe ser menor a hora fin para el día ' . $diasSemana[$dia];
+        }
+      }
+    }
+  }
+  if ($errores) {
+    echo implode('<br>', $errores);
+    exit;
+  }
+
   // update data
   $pdo = Database::connect();
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
