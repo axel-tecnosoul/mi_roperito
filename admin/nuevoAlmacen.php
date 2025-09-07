@@ -157,9 +157,15 @@ if ( !empty($_POST)) {
                           </div>
                           <h5 class="schedule-title">Configuración de horarios</h5>
                           <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Frecuencia (min)</label>
+                            <label class="col-sm-3 col-form-label">
+                              Frecuencia (min)
+                              <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Intervalo entre turnos (múltiplos de 5 minutos)"></i>
+                            </label>
                             <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos" class="form-control"></div>
-                            <label class="col-sm-3 col-form-label">Bloqueo (min)</label>
+                            <label class="col-sm-3 col-form-label">
+                              Bloqueo (min)
+                              <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Minutos adicionales bloqueados tras un turno reservado"></i>
+                            </label>
                             <div class="col-sm-3"><input type="number" name="bloqueo_minutos" class="form-control"></div>
                           </div>
 <?php for($d=0;$d<7;$d++): ?>
