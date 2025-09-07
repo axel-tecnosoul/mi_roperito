@@ -9557,7 +9557,6 @@ ALTER TABLE `stock`
 ALTER TABLE `suscripciones`
   ADD PRIMARY KEY (`id`);
 
---
 -- Indices de la tabla `turnos`
 --
 ALTER TABLE `turnos`
