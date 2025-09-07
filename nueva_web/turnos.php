@@ -82,14 +82,29 @@ include('../admin/database.php');
               <option value="Más de 86 prendas">Más de 86 prendas</option>
 			      </select>
             
-          </div>
-		      <div class="md-form">
+           </div><?php
+          $hoy=date("Y-m-d");?>
+                      <div class="md-form">
             <label for="form-fec">Fecha</label>
+            <!-- Línea original:
             <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="2023-08-15">
+            -->
+            <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="<?=$hoy?>" value="<?=$hoy?>">
           </div>
-		      <div class="md-form">
+                      <?php
+          // Código original del campo hora:
+          /*
+          <div class="md-form">
             <label for="form-hora">Hora</label>
             <input type="time" name="hora" id="form-hora" class="form-control" min="11:00" max="18:30" required="required">
+          </div>
+          */
+          ?>
+                      <div class="md-form">
+            <label for="form-hora">Hora</label>
+            <select name="hora" id="form-hora" class="form-control" required="required" disabled>
+              <option value="">Seleccione un horario</option>
+            </select>
           </div>
 		      <div class="md-form">
             <label for="form-dni">DNI</label>
@@ -109,7 +124,10 @@ include('../admin/database.php');
           </div>
 		      <br>
           <div class="text-center">
+            <!-- Botón original:
             <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;">Solicitar Turno</button>
+            -->
+            <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;" id="btn-submit" disabled>Solicitar Turno</button>
           </div>
 		    </form>
         </div>
@@ -176,36 +194,94 @@ include('../admin/database.php');
 <script src="separate-include/portfolio/portfolio.js"></script>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
-<script>
-  $(document).ready(function () {
-    $("#id_almacen").on("change",function(){
-      if(this.value==4 || this.value==6 || this.value==7){
-        $("#modalNoRecibimosPrendas").modal("show");
-        if(this.value==6){
-          $("#form-hora").attr("max","17:30");
-        }else{
-          $("#form-hora").attr("max","18:30");
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+  <script>
+    /* Código anterior:
+    $(document).ready(function () {
+      $("#id_almacen").on("change",function(){
+        if(this.value==4 || this.value==6 || this.value==7){
+          $("#modalNoRecibimosPrendas").modal("show");
+          if(this.value==6){
+            $("#form-hora").attr("max","17:30");
+          }else{
+            $("#form-hora").attr("max","18:30");
+          }
+          //$("#id_almacen").val("")
         }
-        //$("#id_almacen").val("")
-      }
-    })
+      })
 
-    document.getElementById("form-fec").addEventListener("change", function() {
-      var selectedDate = new Date(this.value);
-      var dayOfWeek = selectedDate.getDay();
-      console.log(dayOfWeek);
-      if (dayOfWeek === 5 || dayOfWeek === 6) {
-        console.log("La fecha seleccionada es un sábado o domingo.");
-        $("#modalFinesDeSemana").modal("show")
-        this.value="";
-      } else {
-        console.log("La fecha seleccionada NO es un sábado ni domingo.");
-      }
+      document.getElementById("form-fec").addEventListener("change", function() {
+        var selectedDate = new Date(this.value);
+        var dayOfWeek = selectedDate.getDay();
+        console.log(dayOfWeek);
+        if (dayOfWeek === 5 || dayOfWeek === 6) {
+          console.log("La fecha seleccionada es un sábado o domingo.");
+          $("#modalFinesDeSemana").modal("show")
+          this.value="";
+        } else {
+          console.log("La fecha seleccionada NO es un sábado ni domingo.");
+        }
+      });
+
     });
+    */
+    $(document).ready(function () {
+      function fetchHorarios() {
+        var idAlmacen = $("#id_almacen").val();
+        var fecha = $("#form-fec").val();
+        var $hora = $("#form-hora");
+        var $submit = $("#btn-submit");
+        if (!idAlmacen || !fecha) {
+          $hora.empty().append('<option value="">Seleccione un horario</option>');
+          $hora.prop('disabled', true);
+          $submit.prop('disabled', true);
+          return;
+        }
+        $.getJSON('../obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
+          var todayStr = new Date().toISOString().split('T')[0];
+          if (fecha === todayStr) {
+            var now = new Date();
+            var currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+            data = data.filter(function (h) { return h >= currentTime; });
+          }
+          $hora.empty();
+          if (data.length) {
+            $hora.append('<option value="">Seleccione...</option>');
+            data.forEach(function (h) {
+              $hora.append('<option value="' + h + '">' + h + '</option>');
+            });
+            $hora.prop('disabled', false);
+            $submit.prop('disabled', false);
+          } else {
+            $hora.append('<option value="">Sin horarios disponibles</option>');
+            $hora.prop('disabled', true);
+            $submit.prop('disabled', true);
+          }
+        });
+      }
 
-  });
-</script>
+      $("#id_almacen").on("change", function () {
+        if (this.value == 4 || this.value == 6 || this.value == 7) {
+          $("#modalNoRecibimosPrendas").modal("show");
+        }
+        fetchHorarios();
+      });
+
+      $("#form-fec").on("change", function () {
+        var selectedDate = new Date(this.value);
+        var dayOfWeek = selectedDate.getDay();
+        if (dayOfWeek === 5 || dayOfWeek === 6) {
+          $("#modalFinesDeSemana").modal("show");
+          this.value = "";
+          fetchHorarios();
+          return;
+        }
+        fetchHorarios();
+      });
+
+      fetchHorarios();
+    });
+  </script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
 </body>
 </html>
