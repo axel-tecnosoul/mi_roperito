@@ -1,16 +1,84 @@
-<?php 
-  require("../admin/config.php");
-	require("../admin/database.php");
-	
-	require("../admin/PHPMailer/class.phpmailer.php");
-	require("../admin/PHPMailer/class.smtp.php");
-    
-	$pdo = Database::connect();
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	
-	$sql = "INSERT INTO `turnos`(`fecha_hora`,`id_almacen`, `cantidad`, `fecha`, `hora`, `dni`, `nombre`, `email`, `telefono`, `id_estado`) VALUES (now(),?,?,?,?,?,?,?,?,1)";
-	$q = $pdo->prepare($sql);
-	$q->execute(array($_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']));
+<?php
+require('../admin/config.php');
+require('../admin/database.php');
+
+require('../admin/PHPMailer/class.phpmailer.php');
+require('../admin/PHPMailer/class.smtp.php');
+
+$pdo = Database::connect();
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
+    $diaSemana = (int)date('N', strtotime($fecha)) - 1;
+    $sqlFranjas = 'SELECT hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos FROM almacenes_horarios WHERE id_almacen = ? AND dia_semana = ? ORDER BY hora_inicio';
+    $q = $pdo->prepare($sqlFranjas);
+    $q->execute([$idAlmacen,$diaSemana]);
+    $franjas = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    $slots = [];
+    foreach ($franjas as $franja) {
+        $inicio = new DateTime($franja['hora_inicio']);
+        $fin    = new DateTime($franja['hora_fin']);
+        $freq   = (int)$franja['frecuencia_minutos'];
+        $bloq   = (int)$franja['bloqueo_minutos'];
+        for ($t = clone $inicio; $t < $fin; $t->modify('+'.$freq.' minutes')) {
+            $slots[] = ['hora' => $t->format('H:i'), 'bloqueo' => $bloq, 'frecuencia' => $freq];
+        }
+    }
+
+    $slotEncontrado = null;
+    foreach ($slots as $slot) {
+        if ($slot['hora'] == $hora) {
+            $slotEncontrado = $slot;
+            break;
+        }
+    }
+    if (!$slotEncontrado) {
+        return false;
+    }
+
+    $sqlTurnos = 'SELECT hora FROM turnos WHERE id_almacen = ? AND fecha = ? AND id_estado = 1 FOR UPDATE';
+    $q = $pdo->prepare($sqlTurnos);
+    $q->execute([$idAlmacen,$fecha]);
+    $reservas = $q->fetchAll(PDO::FETCH_COLUMN);
+
+    $bloqueados = [];
+    foreach ($reservas as $res) {
+        $r = new DateTime($res);
+        foreach ($franjas as $franja) {
+            $inicioFr = new DateTime($franja['hora_inicio']);
+            $finFr    = new DateTime($franja['hora_fin']);
+            if ($r >= $inicioFr && $r < $finFr) {
+                $freq = (int)$franja['frecuencia_minutos'];
+                $bloq = (int)$franja['bloqueo_minutos'];
+                $inicioBloq = (clone $r)->modify('-'.$bloq.' minutes');
+                $finBloq    = (clone $r)->modify('+'.$bloq.' minutes');
+                for ($t = clone $r; $t < $finBloq; $t->modify('+'.$freq.' minutes')) {
+                    $bloqueados[$t->format('H:i')] = true;
+                }
+                for ($t = clone $r; $t > $inicioBloq; $t->modify('-'.$freq.' minutes')) {
+                    $bloqueados[$t->format('H:i')] = true;
+                }
+                break;
+            }
+        }
+    }
+
+    return !isset($bloqueados[$hora]);
+}
+
+$pdo->beginTransaction();
+if(!turnoDisponible($pdo, $_POST['id_almacen'], $_POST['fecha'], $_POST['hora'])){
+    $pdo->rollBack();
+    Database::disconnect();
+    echo 'Horario ocupado';
+    exit;
+}
+
+$sql = 'INSERT INTO `turnos`(`fecha_hora`,`id_almacen`, `cantidad`, `fecha`, `hora`, `dni`, `nombre`, `email`, `telefono`, `id_estado`) VALUES (now(),?,?,?,?,?,?,?,?,1)';
+$q = $pdo->prepare($sql);
+$q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
+$pdo->commit();
 
   //var_dump($_POST);
   
