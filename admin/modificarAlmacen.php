@@ -248,35 +248,39 @@ if ( !empty($_POST)) {
   </div>
   <div id="groups">
   <?php foreach($grupos as $i => $g): ?>
-    <div class="group-block mb-3 border p-3" data-index="<?= $i ?>">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <label class="col-form-label mb-0">Días</label>
+    <div class="group-row row mb-3">
+      <div class="group-block col-sm-11 border p-3" data-index="<?= $i ?>">
+        <div class="mb-2">
+          <label class="col-form-label mb-0">Días</label>
+        </div>
+        <div class="form-group">
+          <select multiple class="dias-select" name="horarios[<?= $i ?>][dias][]">
+            <?php for($d=0;$d<7;$d++): ?>
+              <option value="<?= $d ?>" <?php if(in_array($d,$g['dias'])) echo 'selected'; ?>><?= $diasSemana[$d] ?></option>
+            <?php endfor; ?>
+          </select>
+        </div>
+        <div class="blocks">
+          <?php foreach($g['inicio'] as $k=>$ini): $fin=$g['fin'][$k] ?? ''; ?>
+          <div class="block form-group row">
+            <span class="block-label col-12">Bloque <?= $k + 1 ?></span>
+            <div class="col-sm-5">
+              <label>Inicio</label>
+              <input type="time" step="300" name="horarios[<?= $i ?>][inicio][]" class="form-control" value="<?= $ini ?>">
+            </div>
+            <div class="col-sm-5">
+              <label>Fin</label>
+              <input type="time" step="300" name="horarios[<?= $i ?>][fin][]" class="form-control" value="<?= $fin ?>">
+            </div>
+            <div class="col-sm-2 d-flex align-items-end"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
+      </div>
+      <div class="col-sm-1 d-flex align-items-center justify-content-center">
         <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
       </div>
-      <div class="form-group">
-        <select multiple class="dias-select" name="horarios[<?= $i ?>][dias][]">
-          <?php for($d=0;$d<7;$d++): ?>
-            <option value="<?= $d ?>" <?php if(in_array($d,$g['dias'])) echo 'selected'; ?>><?= $diasSemana[$d] ?></option>
-          <?php endfor; ?>
-        </select>
-      </div>
-      <div class="blocks">
-        <?php foreach($g['inicio'] as $k=>$ini): $fin=$g['fin'][$k] ?? ''; ?>
-        <div class="block form-group row">
-          <span class="block-label col-12">Bloque <?= $k + 1 ?></span>
-          <div class="col-sm-5">
-            <label>Inicio</label>
-            <input type="time" step="300" name="horarios[<?= $i ?>][inicio][]" class="form-control" value="<?= $ini ?>">
-          </div>
-          <div class="col-sm-5">
-            <label>Fin</label>
-            <input type="time" step="300" name="horarios[<?= $i ?>][fin][]" class="form-control" value="<?= $fin ?>">
-          </div>
-          <div class="col-sm-2 d-flex align-items-end"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
-        </div>
-        <?php endforeach; ?>
-      </div>
-      <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
     </div>
   <?php endforeach; ?>
   </div>
