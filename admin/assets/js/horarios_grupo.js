@@ -14,7 +14,7 @@ function addGroup(){
   }
 
   row.innerHTML = `
-    <div class="group-block col-sm-11 border p-3" data-index="${idx}">
+    <div class="group-block col-sm-10 border p-3" data-index="${idx}">
       <div class="mb-2">
         <label class="col-form-label mb-0">Días</label>
       </div>
@@ -24,8 +24,8 @@ function addGroup(){
       <div class="blocks"></div>
       <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
     </div>
-    <div class="col-sm-1 d-flex align-items-center justify-content-center">
-      <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
+    <div class="col-sm-2 d-flex align-items-center justify-content-center">
+      <button type="button" class="btn btn-danger btn-sm remove-group" title="Eliminar grupo"><i class="fa fa-trash"></i></button>
     </div>
   `;
 
