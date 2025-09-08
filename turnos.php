@@ -50,7 +50,7 @@ include('admin/database.php');
         <div class="card-body">
           <!-- Header -->
           
-          <form id="" class="" method="post" action="emitirTurno.php">
+          <form id="turnoForm" class="" method="post" action="emitirTurno.php">
 									
           <!-- Body -->
            <!-- <h5><u>Atención! No estamos recibiendo prendas por el momento en la sucursal de Nuñez.</u></h5> -->
@@ -129,8 +129,9 @@ include('admin/database.php');
             <button type="submit" class="btn btn-light-blue">Solicitar Turno</button>
             -->
             <button type="submit" class="btn btn-light-blue" id="btn-submit" disabled>Solicitar Turno</button>
+            <div id="turno-message" class="mt-3"></div>
           </div>
-		    </form>
+                    </form>
         </div>
       </div>
       <!-- Form with header -->
@@ -329,6 +330,29 @@ include('admin/database.php');
     });
 
     fetchHorarios();
+
+    $("#turnoForm").on("submit", function (e) {
+      e.preventDefault();
+      var $form = $(this);
+      $.ajax({
+        url: $form.attr('action'),
+        type: 'POST',
+        data: $form.serialize(),
+        dataType: 'json'
+      })
+        .done(function (res) {
+          var $msg = $('#turno-message');
+          if (res.success) {
+            $msg.removeClass('text-danger').addClass('text-success').text(res.message);
+          } else {
+            $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+          }
+          fetchHorarios();
+        })
+        .fail(function () {
+          $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+        });
+    });
   });
 </script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
