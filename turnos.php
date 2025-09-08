@@ -289,8 +289,9 @@ include('admin/database.php');
         var todayStr = new Date().toISOString().split('T')[0];
         if (fecha === todayStr) {
           var now = new Date();
-          var currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-          data = data.filter(function (h) { return h >= currentTime; });
+          now.setMinutes(now.getMinutes() + 60);
+          var limitTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+          data = data.filter(function (h) { return h >= limitTime; });
         }
         $hora.empty();
         if (data.length) {

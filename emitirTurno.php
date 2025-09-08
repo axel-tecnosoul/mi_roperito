@@ -67,6 +67,27 @@ function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     return !isset($bloqueados[$hora]);
 }
 
+$fechaSolicitada = $_POST['fecha'] ?? '';
+$horaSolicitada  = $_POST['hora'] ?? '';
+$hoy = new DateTime('today');
+$limite = new DateTime('+60 minutes');
+
+$fechaDT = DateTime::createFromFormat('Y-m-d', $fechaSolicitada);
+if (!$fechaDT || $fechaDT < $hoy) {
+    Database::disconnect();
+    echo 'La fecha seleccionada no es válida.';
+    exit;
+}
+
+if ($fechaDT->format('Y-m-d') === $hoy->format('Y-m-d')) {
+    $horaDT = DateTime::createFromFormat('H:i', $horaSolicitada);
+    if (!$horaDT || $horaDT < $limite) {
+        Database::disconnect();
+        echo 'La hora debe ser al menos 60 minutos posterior a la actual.';
+        exit;
+    }
+}
+
 $pdo->beginTransaction();
 if(!turnoDisponible($pdo, $_POST['id_almacen'], $_POST['fecha'], $_POST['hora'])){
     $pdo->rollBack();
