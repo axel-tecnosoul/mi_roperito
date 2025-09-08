@@ -103,5 +103,13 @@ document.addEventListener('change', function(e){
 });
 
 document.addEventListener('DOMContentLoaded', function(){
-  addGroup();
+  groupCounter = document.querySelectorAll('#groups .group-block').length;
+  if(groupCounter === 0){
+    addGroup();
+  }else{
+    document.querySelectorAll('#groups .group-block').forEach(group=>{
+      $(group).find('.dias-select').select2({width:'100%'});
+    });
+    updateDisabledDays();
+  }
 });
