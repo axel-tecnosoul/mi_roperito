@@ -4,28 +4,24 @@ if(empty($_SESSION['user']['id_perfil'])){
         header("Location: index.php");
         die("Redirecting to index.php");
 }
-// Devuelve una cadena con los horarios del almacén agrupados por día
+// Devuelve un arreglo con los horarios del almacén agrupados por día
 function obtenerHorarios($pdo, $idAlmacen){
         $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-        $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
+        $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
         $q = $pdo->prepare($sql);
         $q->execute([$idAlmacen]);
         $rows = $q->fetchAll(PDO::FETCH_ASSOC);
-        if(!$rows){
-                return '';
-        }
         $horarios = [];
         foreach($rows as $r){
                 $dia = $dias[$r['dia_semana']];
-                $inicio = date('H:i', strtotime($r['hora_inicio']));
-                $fin = date('H:i', strtotime($r['hora_fin']));
-                $horarios[$dia][] = $inicio.'-'.$fin.' ('.$r['frecuencia_minutos'].'m)';
+                $horarios[$dia][] = [
+                        'inicio' => date('H:i', strtotime($r['hora_inicio'])),
+                        'fin' => date('H:i', strtotime($r['hora_fin'])),
+                        'frecuencia' => $r['frecuencia_minutos'],
+                        'bloqueo' => $r['bloqueo_minutos']
+                ];
         }
-        $partes = [];
-        foreach($horarios as $dia => $rangos){
-                $partes[] = $dia.': '.implode(', ', $rangos);
-        }
-        return implode('<br>', $partes);
+        return $horarios;
 }
 ?>
 <!DOCTYPE html>
@@ -91,8 +87,8 @@ function obtenerHorarios($pdo, $idAlmacen){
                             <th>Iniciales Cod. Prod.</th>
                             <th>Direccion</th>
                             <th>Tipo</th>
-                            <th>Pto. de Vta. Fact. Elec.</th>
                             <th>Horarios</th>
+                            <th>Frec./Bloq.</th>
                             <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
@@ -100,7 +96,7 @@ function obtenerHorarios($pdo, $idAlmacen){
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, almacen, iniciales_codigo_productos, direccion, IF(id_tipo=1,'Venta','Deposito') AS tipo, punto_venta, activo FROM almacenes WHERE 1 ";
+                          $sql = " SELECT id, almacen, iniciales_codigo_productos, direccion, IF(id_tipo=1,'Venta','Deposito') AS tipo, activo FROM almacenes WHERE 1 ";
                           
                           foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
@@ -109,9 +105,31 @@ function obtenerHorarios($pdo, $idAlmacen){
                             echo '<td>'. $row[2] . '</td>';
                             echo '<td>'. $row[3] . '</td>';
                             echo '<td>'. $row[4] . '</td>';
-                            echo '<td>'. $row[5] . '</td>';
-                            echo '<td>'. obtenerHorarios($pdo, $row[0]) . '</td>';
-                            if ($row[6] == 1) {
+                            $horarios = obtenerHorarios($pdo, $row[0]);
+                            $horariosHtml = '';
+                            $freqHtml = '';
+                            if(!empty($horarios)){
+                              $horariosHtml .= '<table class="table table-sm table-borderless mb-0"><tbody>';
+                              $freqHtml .= '<table class="table table-sm table-borderless mb-0"><tbody>';
+                              foreach($horarios as $dia => $bloques){
+                                $rowspan = count($bloques);
+                                $first = true;
+                                foreach($bloques as $b){
+                                  $horariosHtml .= '<tr>';
+                                  if($first){
+                                    $horariosHtml .= '<td rowspan="'.$rowspan.'" class="align-middle">'.$dia.'</td>';
+                                    $first = false;
+                                  }
+                                  $horariosHtml .= '<td>'.$b['inicio'].'-'.$b['fin'].'</td></tr>';
+                                  $freqHtml .= '<tr><td>'.$b['frecuencia'].'m / '.$b['bloqueo'].'m</td></tr>';
+                                }
+                              }
+                              $horariosHtml .= '</tbody></table>';
+                              $freqHtml .= '</tbody></table>';
+                            }
+                            echo '<td>'.$horariosHtml.'</td>';
+                            echo '<td>'.$freqHtml.'</td>';
+                            if ($row[5] == 1) {
                               echo '<td>Si</td>';
                             } else {
                               echo '<td>No</td>';
