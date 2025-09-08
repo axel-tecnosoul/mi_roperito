@@ -9,7 +9,7 @@ require 'database.php';
 $diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 $horarios = [];
 
-if ( !empty($_POST)) {
+if (!empty($_POST)) {
 
   // Validaciones de horarios
   $errores = [];
@@ -21,14 +21,22 @@ if ( !empty($_POST)) {
   if ($bloq < $freq) {
     $errores[] = 'Bloqueo inválido';
   }
+  $diasUsados = [];
   if (!empty($_POST['horarios'])) {
-    foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $inicios = $dataDia['inicio'] ?? [];
-      $fines   = $dataDia['fin'] ?? [];
+    foreach ($_POST['horarios'] as $grupo) {
+      $dias = $grupo['dias'] ?? [];
+      $inicios = $grupo['inicio'] ?? [];
+      $fines = $grupo['fin'] ?? [];
+      foreach ($dias as $d) {
+        if (isset($diasUsados[$d])) {
+          $errores[] = 'El día ' . $diasSemana[$d] . ' está repetido';
+        }
+        $diasUsados[$d] = true;
+      }
       foreach ($inicios as $k => $ini) {
         $fin = $fines[$k] ?? null;
         if ($ini && $fin && $ini >= $fin) {
-          $errores[] = 'Hora inicio debe ser menor a hora fin para el día ' . $diasSemana[$dia];
+          $errores[] = 'Hora inicio debe ser menor a hora fin';
         }
       }
     }
@@ -45,19 +53,22 @@ if ( !empty($_POST)) {
 
   $sql = "INSERT INTO almacenes(almacen, iniciales_codigo_productos, direccion, punto_venta, id_tipo, activo) VALUES (?,?,?,?,?,1)";
   $q = $pdo->prepare($sql);
-  $q->execute(array($_POST['almacen'],$_POST['iniciales_codigo_productos'],$_POST['direccion'],$_POST['punto_venta'],$_POST['id_tipo']));
+  $q->execute(array($_POST['almacen'], $_POST['iniciales_codigo_productos'], $_POST['direccion'], $_POST['punto_venta'], $_POST['id_tipo']));
   $idAlmacen = $pdo->lastInsertId();
 
   if (!empty($_POST['horarios'])) {
     $sqlH = "INSERT INTO almacenes_horarios(id_almacen,dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos) VALUES (?,?,?,?,?,?)";
     $qH = $pdo->prepare($sqlH);
-    foreach ($_POST['horarios'] as $dia => $dataDia) {
-      $inicios = $dataDia['inicio'] ?? [];
-      $fines   = $dataDia['fin'] ?? [];
-      foreach ($inicios as $k => $ini) {
-        $fin = $fines[$k] ?? null;
-        if ($ini && $fin) {
-          $qH->execute(array($idAlmacen,$dia,$ini,$fin,$freq,$bloq));
+    foreach ($_POST['horarios'] as $grupo) {
+      $dias = $grupo['dias'] ?? [];
+      $inicios = $grupo['inicio'] ?? [];
+      $fines = $grupo['fin'] ?? [];
+      foreach ($dias as $d) {
+        foreach ($inicios as $k => $ini) {
+          $fin = $fines[$k] ?? null;
+          if ($ini && $fin) {
+            $qH->execute(array($idAlmacen, $d, $ini, $fin, $freq, $bloq));
+          }
         }
       }
     }
@@ -67,7 +78,8 @@ if ( !empty($_POST)) {
   Database::disconnect();
 
   header("Location: listarAlmacenes.php");
-}?>
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -127,7 +139,7 @@ if ( !empty($_POST)) {
                   <div class="card-header">
                     <h5>Nuevo Almacen</h5>
                   </div>
-				          <form class="form theme-form" role="form" method="post" action="nuevoAlmacen.php">
+                                          <form class="form theme-form" role="form" method="post" action="nuevoAlmacen.php">
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
@@ -171,26 +183,8 @@ if ( !empty($_POST)) {
                             </label>
                             <div class="col-sm-3"><input type="number" name="bloqueo_minutos" class="form-control"></div>
                           </div>
-<?php for($d=0;$d<7;$d++): ?>
-  <div class="day-block mb-3 border p-3">
-    <h6><?= $diasSemana[$d] ?></h6>
-    <div class="blocks">
-      <div class="block form-group row">
-        <span class="block-label col-12">Bloque 1</span>
-        <div class="col-sm-5">
-          <label>Inicio</label>
-          <input type="time" step="300" name="horarios[<?= $d ?>][inicio][]" class="form-control">
-        </div>
-        <div class="col-sm-5">
-          <label>Fin</label>
-          <input type="time" step="300" name="horarios[<?= $d ?>][fin][]" class="form-control">
-        </div>
-        <div class="col-sm-2 d-flex align-items-end"><button type="button" class="btn btn-danger btn-sm remove-block">X</button></div>
-      </div>
-    </div>
-    <button type="button" class="btn btn-secondary btn-sm add-block" data-day="<?= $d ?>">Agregar bloque</button>
-  </div>
-<?php endfor; ?>
+                          <div id="groups"></div>
+                          <button type="button" class="btn btn-primary btn-sm" id="add-group">Agregar grupo de días</button>
 
                         </div>
                       </div>
@@ -237,7 +231,7 @@ if ( !empty($_POST)) {
       <!-- Plugin used-->
             <script src="assets/js/select2/select2.full.min.js"></script>
       <script src="assets/js/select2/select2-custom.js"></script>
-      <script src="assets/js/horarios.js"></script>
+      <script src="assets/js/horarios_grupo.js"></script>
       <script>
         function convertirAMayusculas(input) {
           input.value = input.value.toUpperCase();
