@@ -13,15 +13,15 @@ function addGroup(){
     options += `<option value="${i}">${diasSemana[i]}</option>`;
   }
   div.innerHTML = `
-    <div class="form-group row">
-      <label class="col-sm-3 col-form-label">Días</label>
-      <div class="col-sm-9">
-        <select multiple class="dias-select" name="horarios[${idx}][dias][]">${options}</select>
-      </div>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <label class="col-form-label mb-0">Días</label>
+      <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
+    </div>
+    <div class="form-group">
+      <select multiple class="dias-select" name="horarios[${idx}][dias][]">${options}</select>
     </div>
     <div class="blocks"></div>
     <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
-    <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
   `;
   container.appendChild(div);
   $(div).find('.dias-select').select2({width:'100%'});
