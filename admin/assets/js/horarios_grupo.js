@@ -16,7 +16,7 @@ function addGroup(){
     <div class="form-group row">
       <label class="col-sm-3 col-form-label">Días</label>
       <div class="col-sm-9">
-        <select multiple class="form-control dias-select" name="horarios[${idx}][dias][]">${options}</select>
+        <select multiple class="dias-select" name="horarios[${idx}][dias][]">${options}</select>
       </div>
     </div>
     <div class="blocks"></div>
@@ -24,6 +24,7 @@ function addGroup(){
     <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
   `;
   container.appendChild(div);
+  $(div).find('.dias-select').select2({width:'100%'});
   addBlock(div);
   updateDisabledDays();
 }
@@ -76,6 +77,7 @@ function updateDisabledDays(){
         opt.disabled = false;
       }
     });
+    $(sel).trigger('change.select2');
   });
 }
 
