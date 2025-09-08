@@ -249,7 +249,7 @@ if ( !empty($_POST)) {
   <div id="groups">
   <?php foreach($grupos as $i => $g): ?>
     <div class="group-row row mb-3">
-      <div class="group-block col-sm-11 border p-3" data-index="<?= $i ?>">
+      <div class="group-block col-sm-10 border p-3" data-index="<?= $i ?>">
         <div class="mb-2">
           <label class="col-form-label mb-0">Días</label>
         </div>
@@ -278,8 +278,8 @@ if ( !empty($_POST)) {
         </div>
         <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
       </div>
-      <div class="col-sm-1 d-flex align-items-center justify-content-center">
-        <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
+      <div class="col-sm-2 d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-danger btn-sm remove-group" title="Eliminar grupo"><i class="fa fa-trash"></i></button>
       </div>
     </div>
   <?php endforeach; ?>
