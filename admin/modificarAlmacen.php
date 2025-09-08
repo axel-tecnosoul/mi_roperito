@@ -249,15 +249,16 @@ if ( !empty($_POST)) {
   <div id="groups">
   <?php foreach($grupos as $i => $g): ?>
     <div class="group-block mb-3 border p-3" data-index="<?= $i ?>">
-      <div class="form-group row">
-        <label class="col-sm-3 col-form-label">Días</label>
-        <div class="col-sm-9">
-          <select multiple class="dias-select" name="horarios[<?= $i ?>][dias][]">
-            <?php for($d=0;$d<7;$d++): ?>
-              <option value="<?= $d ?>" <?php if(in_array($d,$g['dias'])) echo 'selected'; ?>><?= $diasSemana[$d] ?></option>
-            <?php endfor; ?>
-          </select>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="col-form-label mb-0">Días</label>
+        <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
+      </div>
+      <div class="form-group">
+        <select multiple class="dias-select" name="horarios[<?= $i ?>][dias][]">
+          <?php for($d=0;$d<7;$d++): ?>
+            <option value="<?= $d ?>" <?php if(in_array($d,$g['dias'])) echo 'selected'; ?>><?= $diasSemana[$d] ?></option>
+          <?php endfor; ?>
+        </select>
       </div>
       <div class="blocks">
         <?php foreach($g['inicio'] as $k=>$ini): $fin=$g['fin'][$k] ?? ''; ?>
@@ -276,7 +277,6 @@ if ( !empty($_POST)) {
         <?php endforeach; ?>
       </div>
       <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
-      <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
     </div>
   <?php endforeach; ?>
   </div>
