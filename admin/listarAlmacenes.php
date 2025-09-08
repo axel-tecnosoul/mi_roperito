@@ -88,7 +88,6 @@ function obtenerHorarios($pdo, $idAlmacen){
                             <th>Direccion</th>
                             <th>Tipo</th>
                             <th>Horarios</th>
-                            <th>Frec./Bloq.</th>
                             <th>Activo</th>
                             <th>Opciones</th>
                           </tr>
@@ -107,10 +106,8 @@ function obtenerHorarios($pdo, $idAlmacen){
                             echo '<td>'. $row[4] . '</td>';
                             $horarios = obtenerHorarios($pdo, $row[0]);
                             $horariosHtml = '';
-                            $freqHtml = '';
                             if(!empty($horarios)){
-                              $horariosHtml .= '<table class="table table-sm table-borderless mb-0"><tbody>';
-                              $freqHtml .= '<table class="table table-sm table-borderless mb-0"><tbody>';
+                              $horariosHtml .= '<table class="table table-sm table-borderless mb-0"><thead><tr><th>Día</th><th>Horario</th><th>Frecuencia</th><th>Bloqueo</th></tr></thead><tbody>';
                               foreach($horarios as $dia => $bloques){
                                 $rowspan = count($bloques);
                                 $first = true;
@@ -120,15 +117,15 @@ function obtenerHorarios($pdo, $idAlmacen){
                                     $horariosHtml .= '<td rowspan="'.$rowspan.'" class="align-middle">'.$dia.'</td>';
                                     $first = false;
                                   }
-                                  $horariosHtml .= '<td>'.$b['inicio'].'-'.$b['fin'].'</td></tr>';
-                                  $freqHtml .= '<tr><td>'.$b['frecuencia'].'m / '.$b['bloqueo'].'m</td></tr>';
+                                  $horariosHtml .= '<td>'.$b['inicio'].'-'.$b['fin'].'</td>';
+                                  $horariosHtml .= '<td>'.$b['frecuencia'].'m</td>';
+                                  $horariosHtml .= '<td>'.$b['bloqueo'].'m</td>';
+                                  $horariosHtml .= '</tr>';
                                 }
                               }
                               $horariosHtml .= '</tbody></table>';
-                              $freqHtml .= '</tbody></table>';
                             }
                             echo '<td>'.$horariosHtml.'</td>';
-                            echo '<td>'.$freqHtml.'</td>';
                             if ($row[5] == 1) {
                               echo '<td>Si</td>';
                             } else {
