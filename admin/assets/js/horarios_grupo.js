@@ -5,32 +5,39 @@ const diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','
 function addGroup(){
   const container = document.getElementById('groups');
   const idx = groupCounter++;
-  const div = document.createElement('div');
-  div.className = 'group-block mb-3 border p-3';
-  div.dataset.index = idx;
+  const row = document.createElement('div');
+  row.className = 'group-row row mb-3';
+
   let options = '';
   for(let i=0;i<diasSemana.length;i++){
     options += `<option value="${i}">${diasSemana[i]}</option>`;
   }
-  div.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <label class="col-form-label mb-0">Días</label>
+
+  row.innerHTML = `
+    <div class="group-block col-sm-11 border p-3" data-index="${idx}">
+      <div class="mb-2">
+        <label class="col-form-label mb-0">Días</label>
+      </div>
+      <div class="form-group">
+        <select multiple class="dias-select" name="horarios[${idx}][dias][]">${options}</select>
+      </div>
+      <div class="blocks"></div>
+      <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
+    </div>
+    <div class="col-sm-1 d-flex align-items-center justify-content-center">
       <button type="button" class="btn btn-danger btn-sm remove-group">Eliminar grupo</button>
     </div>
-    <div class="form-group">
-      <select multiple class="dias-select" name="horarios[${idx}][dias][]">${options}</select>
-    </div>
-    <div class="blocks"></div>
-    <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
   `;
-  container.appendChild(div);
-  $(div).find('.dias-select').select2({width:'100%'});
-  addBlock(div);
+
+  container.appendChild(row);
+  const block = row.querySelector('.group-block');
+  $(block).find('.dias-select').select2({width:'100%'});
+  addBlock(block);
   updateDisabledDays();
 }
 
-function removeGroup(group){
-  group.remove();
+function removeGroup(row){
+  row.remove();
   updateDisabledDays();
 }
 
@@ -86,7 +93,7 @@ document.addEventListener('click', function(e){
     addGroup();
   }
   if(e.target.classList.contains('remove-group')){
-    removeGroup(e.target.closest('.group-block'));
+    removeGroup(e.target.closest('.group-row'));
   }
   if(e.target.classList.contains('add-block')){
     addBlock(e.target.closest('.group-block'));
