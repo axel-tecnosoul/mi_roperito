@@ -65,10 +65,19 @@ foreach ($reservas as $res) {
 }
 
 $disponibles = [];
+$hoy = date('Y-m-d');
+$limite = new DateTime('+60 minutes');
 foreach ($slots as $slot) {
-    if (!isset($bloqueados[$slot['hora']])) {
-        $disponibles[] = $slot['hora'];
+    if (isset($bloqueados[$slot['hora']])) {
+        continue;
     }
+    if ($fecha === $hoy) {
+        $slotTime = DateTime::createFromFormat('H:i', $slot['hora']);
+        if ($slotTime < $limite) {
+            continue;
+        }
+    }
+    $disponibles[] = $slot['hora'];
 }
 
 Database::disconnect();
