@@ -17,7 +17,9 @@ function obtenerHorarios($pdo, $idAlmacen){
         $horarios = [];
         foreach($rows as $r){
                 $dia = $dias[$r['dia_semana']];
-                $horarios[$dia][] = $r['hora_inicio'].'-'.$r['hora_fin'].' ('.$r['frecuencia_minutos'].'m)';
+                $inicio = date('H:i', strtotime($r['hora_inicio']));
+                $fin = date('H:i', strtotime($r['hora_fin']));
+                $horarios[$dia][] = $inicio.'-'.$fin.' ('.$r['frecuencia_minutos'].'m)';
         }
         $partes = [];
         foreach($horarios as $dia => $rangos){
