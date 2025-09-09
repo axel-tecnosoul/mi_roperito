@@ -5,8 +5,15 @@ require('../admin/database.php');
 require('../admin/PHPMailer/class.phpmailer.php');
 require('../admin/PHPMailer/class.smtp.php');
 
+header('Content-Type: application/json');
+
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+function jsonResponse($success, $message) {
+    echo json_encode(['success' => $success, 'message' => $message]);
+    exit;
+}
 
 function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     $diaSemana = (int)date('N', strtotime($fecha)) - 1;
@@ -67,18 +74,58 @@ function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     return !isset($bloqueados[$hora]);
 }
 
+$fecha = $_POST['fecha'] ?? '';
+$hora  = $_POST['hora'] ?? '';
+$fechaSolicitada = $fecha;
+$horaSolicitada  = $hora;
+$idAlmacen = $_POST['id_almacen'] ?? '';
+$cantidad = $_POST['cantidad'] ?? '';
+$dni      = $_POST['dni'] ?? '';
+$nombre   = $_POST['nombre'] ?? '';
+$email    = $_POST['email'] ?? '';
+$telefono = $_POST['telefono'] ?? '';
+$hoy = new DateTime('today');
+$limite = new DateTime('+60 minutes');
+
+$fechaDT = DateTime::createFromFormat('Y-m-d', $fechaSolicitada);
+if (!$fechaDT || $fechaDT < $hoy) {
+    Database::disconnect();
+    jsonResponse(false, 'La fecha seleccionada no es válida.');
+}
+
+if ($fechaDT->format('Y-m-d') === $hoy->format('Y-m-d')) {
+    $horaDT = DateTime::createFromFormat('H:i', $horaSolicitada);
+    if (!$horaDT || $horaDT < $limite) {
+        Database::disconnect();
+        jsonResponse(false, 'La hora debe ser al menos 60 minutos posterior a la actual.');
+    }
+}
+
+$errorDatos = (!filter_var($email, FILTER_VALIDATE_EMAIL) ||
+               strlen($nombre) > 100 || strlen($dni) > 20 || strlen($telefono) > 20 ||
+               $nombre !== strip_tags($nombre) || $dni !== strip_tags($dni) || $telefono !== strip_tags($telefono));
+if ($errorDatos) {
+    Database::disconnect();
+    jsonResponse(false, 'Datos inválidos');
+}
+
 $pdo->beginTransaction();
-if(!turnoDisponible($pdo, $_POST['id_almacen'], $_POST['fecha'], $_POST['hora'])){
+if(!turnoDisponible($pdo, $idAlmacen, $fecha, $hora)){
     $pdo->rollBack();
     Database::disconnect();
-    echo 'Horario ocupado';
-    exit;
+    jsonResponse(false, 'Horario ocupado');
 }
 
 $sql = 'INSERT INTO `turnos`(`fecha_hora`,`id_almacen`, `cantidad`, `fecha`, `hora`, `dni`, `nombre`, `email`, `telefono`, `id_estado`) VALUES (now(),?,?,?,?,?,?,?,?,1)';
 $q = $pdo->prepare($sql);
-$q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
-$pdo->commit();
+try {
+    $q->execute([$idAlmacen,$cantidad,$fecha,$hora,$dni,$nombre,$email,$telefono]);
+    $pdo->commit();
+} catch (PDOException $e) {
+    $pdo->rollBack();
+    Database::disconnect();
+    jsonResponse(false, 'Error al generar turno');
+}
 
   //var_dump($_POST);
   
@@ -92,13 +139,6 @@ $pdo->commit();
 
 	//$sucursal =$_POST['id_almacen'];
   $sucursal =$almacen;
-	$cantidad =$_POST['cantidad'];
-	$fecha =$_POST['fecha'];
-	$hora =$_POST['hora'];
-	$nombre =$_POST["nombre"];
-	$email =$_POST["email"];
-	$telefono=$_POST["telefono"];
-	$dni = $_POST["dni"];
 	
 	$message = "
 	<html>
@@ -153,14 +193,12 @@ $pdo->commit();
 
   //SELECT * FROM `turnos` WHERE DATE(fecha_hora)>="2023-03-02" AND fecha_hora<"2023-03-28 16:01";
 	
-	//$smtpHost = "c1971287.ferozo.com";
+        //$smtpHost = "c1971287.ferozo.com";
   //$smtpHost = "miroperito.ar";
   //$smtpHost = "tecnosoul.com.ar";
-	$smtpUsuario = "avisos@miroperito.ar";
-	$smtpClave = "zR*eHJJ3zK";
-	$mail = new PHPMailer();
-	$mail->IsSMTP();
-	$mail->SMTPAuth = true;
+        $mail = new PHPMailer();
+        $mail->IsSMTP();
+        $mail->SMTPAuth = true;
   if($email=="axelbritzius@gmail.com"){
     $mail->SMTPDebug = 3;
   }
@@ -174,13 +212,14 @@ $pdo->commit();
 
 	$mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
-	$mail->Host = $smtpHost; 
-	$mail->Username = $smtpUsuario; 
-	$mail->Password = $smtpClave;
-	$mail->From = $email;
-	$mail->FromName = $nombre;
-	$mail->AddAddress("vende@miroperito.ar");
-	$mail->AddAddress($email);
+        $mail->Host = $smtpHost;
+        $mail->Username = $smtpUsuario;
+        $mail->Password = $smtpClave;
+        $mail->From = $fromEmail;
+        $mail->FromName = $fromName;
+        $mail->AddReplyTo($email, $nombre);
+        $mail->AddAddress("vende@miroperito.ar");
+        $mail->AddAddress($email);
 	$mensaje = $message;
 	$mail->Subject = "Solicitud de Turno MiRoperito"; 
 	$mensajeHtml = nl2br($mensaje);
@@ -314,7 +353,7 @@ $pdo->commit();
 
   $response=curl($url, $tipoPeticion, $ACCESS_TOKEN, $opcionales);*/
 
-  Database::disconnect();		
+  Database::disconnect();
 
-  header("Location: index.php");
+  jsonResponse(true, 'Turno generado correctamente.');
 ?>
