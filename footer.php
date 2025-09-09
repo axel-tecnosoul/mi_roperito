@@ -23,7 +23,7 @@
 						<ul class="tt-list">
 							<li><a href="terminos-condiciones.php" class="text-uppercase footer-enlaces">Términos y Condiciones</a></li>
 							<li><a href="preguntas-frecuentes.php" class="text-uppercase footer-enlaces">Preguntas Frecuentes</a></li>
-							<li><a href="../admin/loginProveedores.php" class="text-uppercase footer-enlaces">Mi Cuenta</a></li>
+							<li><a href="admin/loginProveedores.php" class="text-uppercase footer-enlaces">Mi Cuenta</a></li>
 							<li><a href="locales.php" class="text-uppercase footer-enlaces">Locales</a></li>
 							<li><a href="contacto.php" class="text-uppercase footer-enlaces">Contacto</a></li>
 							
