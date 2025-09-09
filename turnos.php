@@ -129,7 +129,6 @@ include('admin/database.php');
             <button type="submit" class="btn btn-light-blue">Solicitar Turno</button>
             -->
             <button type="submit" class="btn btn-light-blue" id="btn-submit" disabled>Solicitar Turno</button>
-            <div id="turno-message" class="mt-3"></div>
           </div>
                     </form>
         </div>
@@ -186,6 +185,21 @@ include('admin/database.php');
     </div>
   </div>
   <!-- FIN Modal aviso sabados o domingos -->
+
+  <!-- Modal de respuesta de turno -->
+  <div class="modal" id="turnoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p id="turno-message" class="mb-0"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- FIN Modal de respuesta de turno -->
 
 </section>
 <!-- Section: Contact v.1 -->
@@ -334,6 +348,8 @@ include('admin/database.php');
     $("#turnoForm").on("submit", function (e) {
       e.preventDefault();
       var $form = $(this);
+      var $submitBtn = $("#btn-submit");
+      $submitBtn.prop('disabled', true);
       $.ajax({
         url: $form.attr('action'),
         type: 'POST',
@@ -346,11 +362,15 @@ include('admin/database.php');
             $msg.removeClass('text-danger').addClass('text-success').text(res.message);
           } else {
             $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+            $submitBtn.prop('disabled', false);
           }
+          $('#turnoModal').modal('show');
           fetchHorarios();
         })
         .fail(function () {
           $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+          $('#turnoModal').modal('show');
+          $submitBtn.prop('disabled', false);
         });
     });
   });
