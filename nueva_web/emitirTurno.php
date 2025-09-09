@@ -5,8 +5,15 @@ require('../admin/database.php');
 require('../admin/PHPMailer/class.phpmailer.php');
 require('../admin/PHPMailer/class.smtp.php');
 
+header('Content-Type: application/json');
+
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+function jsonResponse($success, $message) {
+    echo json_encode(['success' => $success, 'message' => $message]);
+    exit;
+}
 
 function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     $diaSemana = (int)date('N', strtotime($fecha)) - 1;
@@ -67,18 +74,42 @@ function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     return !isset($bloqueados[$hora]);
 }
 
+$fechaSolicitada = $_POST['fecha'] ?? '';
+$horaSolicitada  = $_POST['hora'] ?? '';
+$hoy = new DateTime('today');
+$limite = new DateTime('+60 minutes');
+
+$fechaDT = DateTime::createFromFormat('Y-m-d', $fechaSolicitada);
+if (!$fechaDT || $fechaDT < $hoy) {
+    Database::disconnect();
+    jsonResponse(false, 'La fecha seleccionada no es válida.');
+}
+
+if ($fechaDT->format('Y-m-d') === $hoy->format('Y-m-d')) {
+    $horaDT = DateTime::createFromFormat('H:i', $horaSolicitada);
+    if (!$horaDT || $horaDT < $limite) {
+        Database::disconnect();
+        jsonResponse(false, 'La hora debe ser al menos 60 minutos posterior a la actual.');
+    }
+}
+
 $pdo->beginTransaction();
 if(!turnoDisponible($pdo, $_POST['id_almacen'], $_POST['fecha'], $_POST['hora'])){
     $pdo->rollBack();
     Database::disconnect();
-    echo 'Horario ocupado';
-    exit;
+    jsonResponse(false, 'Horario ocupado');
 }
 
 $sql = 'INSERT INTO `turnos`(`fecha_hora`,`id_almacen`, `cantidad`, `fecha`, `hora`, `dni`, `nombre`, `email`, `telefono`, `id_estado`) VALUES (now(),?,?,?,?,?,?,?,?,1)';
 $q = $pdo->prepare($sql);
-$q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
-$pdo->commit();
+try {
+    $q->execute([$_POST['id_almacen'],$_POST['cantidad'],$_POST['fecha'],$_POST['hora'],$_POST['dni'],$_POST['nombre'],$_POST['email'],$_POST['telefono']]);
+    $pdo->commit();
+} catch (PDOException $e) {
+    $pdo->rollBack();
+    Database::disconnect();
+    jsonResponse(false, 'Error al generar turno');
+}
 
   //var_dump($_POST);
   
@@ -314,7 +345,7 @@ $pdo->commit();
 
   $response=curl($url, $tipoPeticion, $ACCESS_TOKEN, $opcionales);*/
 
-  Database::disconnect();		
+  Database::disconnect();
 
-  header("Location: index.php");
+  jsonResponse(true, 'Turno generado correctamente.');
 ?>
