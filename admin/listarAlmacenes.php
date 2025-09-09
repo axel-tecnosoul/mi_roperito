@@ -134,7 +134,7 @@ function obtenerHorarios($pdo, $idAlmacen){
                                 $diasTexto = implode(', ', $grupo['dias']);
                                 $bloques = [];
                                 foreach($grupo['bloques'] as $b){
-                                  $bloques[] = $b['inicio'].'-'.$b['fin'];
+                                  $bloques[] = '<span style="text-wrap-mode: nowrap;">'.$b['inicio'].'-'.$b['fin'].'</span>';
                                 }
                                 $horariosHtml .= '<tr>';
                                 $horariosHtml .= '<td>'.$diasTexto.'</td>';

@@ -192,7 +192,10 @@ try {
 	$mail = new PHPMailer();
 	$mail->IsSMTP();
 	$mail->SMTPAuth = true;
-  if($email=="axelbritzius@gmail.com"){
+
+  $modoDebug = 0;
+
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     $mail->SMTPDebug = 3;
   }
 	/*$mail->Port = 465; 
@@ -220,7 +223,7 @@ try {
 		
 	$ok=$mail->Send();
 
-  if($email=="axelbritzius@gmail.com"){
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     var_dump($ok);
     die();
   }
