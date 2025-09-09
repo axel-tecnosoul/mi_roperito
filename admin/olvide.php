@@ -20,26 +20,28 @@ if(!empty($_POST)){
         $asunto="Recuperación de Contraseña";
         $cuerpo="Recibimos una solicitud para recuperar la contraseña de acceso al sistema de MiRoperito.";
         $envio=enviarMail($destinatarios, $asunto, $cuerpo);
-		$smtpHost = "";  //agregar
-		$smtpUsuario = "";  //agregar
-		$smtpClave = "";  //agregar
-		$mail = new PHPMailer();
-		$mail->IsSMTP();
-		$mail->SMTPAuth = true;
-		$mail->Port = 465; 
-		$mail->SMTPSecure = 'ssl';
-		$mail->IsHTML(true); 
-		$mail->CharSet = "utf-8";
-		$mail->Host = $smtpHost; 
-		$mail->Username = $smtpUsuario; 
-		$mail->Password = $smtpClave;
-		$mail->From = ""; //agregar
-		$mail->FromName = "MiRoperito";
-		$mail->AddAddress($row['email']); 
-		$mail->Subject = $asunto; 
-		$mensajeHtml = nl2br($cuerpo);
-		$mail->Body = "{$mensajeHtml} <br /><br />"; 
-		$mail->AltBody = "{$cuerpo} \n\n"; 
+                if (!filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
+                    Database::disconnect();
+                    die('Email inválido');
+                }
+                $mail = new PHPMailer();
+                $mail->IsSMTP();
+                $mail->SMTPAuth = true;
+                if($smtpSecure!=""){ $mail->SMTPSecure = $smtpSecure; }
+                $mail->Port = $smtpPort;
+                $mail->IsHTML(true);
+                $mail->CharSet = "utf-8";
+                $mail->Host = $smtpHost;
+                $mail->Username = $smtpUsuario;
+                $mail->Password = $smtpClave;
+                $mail->From = $fromEmail;
+                $mail->FromName = $fromName;
+                $mail->AddReplyTo($row['email'], $row['nombre'] ?? '');
+                $mail->AddAddress($row['email']);
+                $mail->Subject = $asunto;
+                $mensajeHtml = nl2br($cuerpo);
+                $mail->Body = "{$mensajeHtml} <br /><br />";
+                $mail->AltBody = "{$cuerpo} \n\n";
 			
 		//$mail->Send(); descomentar
         
