@@ -16,6 +16,9 @@
 			<li>
 				<a href="nosotros.php">Nosotros</a>
 			</li>
+			<li>
+				<a href="locales.php">Locales</a>
+			</li>
 		</ul>
 		<div class="mm-navbtn-names">
 			<div class="mm-closebtn">Cerrar</div>
@@ -45,9 +48,9 @@
 		<div class="container-fluid tt-top-line">
 			<div class="row">
 				<div class="tt-logo-container">
-					<!-- mobile logo -->
-					<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/Logo-Mi-roperito.png" alt=""></a>
-					<!-- /mobile logo -->
+					<!-- logo -->
+					<a class="tt-logo tt-logo-alignment mt-2 logo-index-mb" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
+					<!-- /logo -->
 				</div>
 			</div>
 		</div>
@@ -57,10 +60,10 @@
 	
 	<div class="tt-desktop-header">
 		<div class="container-fluid">
-			<div class="tt-header-holder">
-				<div class="tt-obj-logo  tt-position-absolute">
+			<div class="tt-header-holder" style="flex-direction: column!important;">
+				<div class="tt-obj-logo">
 					<!-- logo -->
-					<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/Logo-Mi-roperito.png" alt=""></a>
+					<a class="logo-index-dk" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
 					<!-- /logo -->
 				</div>
 				<div class="tt-obj-menu">
@@ -72,17 +75,24 @@
 									<nav>
 										<ul>
 											<li class="dropdown">
-												<a href="index.php"><span>Inicio</span></a>
+												<a href="index.php"><span>INICIO</span></a>
 											</li>
+											<p class="separador-violeta">I</p>
 											<li class="dropdown">
 												<!-- <a href="comprar.php"><span>Comprá</span></a> -->
-                        <a href="http://miroperito.prestotienda.com/"><span>Comprá</span></a>
+                        <a href="http://miroperito.prestotienda.com/"><span>COMPRÁ</span></a>
 											</li>
+											<p class="separador-verde">I</p>
 											<li class="dropdown">
-												<a href="vender.php"><span>Vendé</span></a>
+												<a href="vender.php"><span>VENDÉ</span></a>
 											</li>
+											<p class="separador-violeta">I</p>
 											<li class="dropdown">
-												<a href="nosotros.php"><span>Nosotros</span></a>
+												<a href="nosotros.php"><span>NOSOTROS</span></a>
+											</li>
+											<p class="separador-verde">I</p>
+											<li class="dropdown">
+												<a href="locales.php"><span>LOCALES</span></a>
 											</li>
 										</ul>
 									</nav>
@@ -102,7 +112,7 @@
 								</div>
 								<div class="tt-dropdown-inner">
 									<ul>
-									<li><a target="_blank" href="admin/loginProveedores.php"><i class="icon-f-76"></i>Ingresar</a></li>
+									<li><a target="_blank" href="../admin/loginProveedores.php"><i class="icon-f-76"></i>Ingresar</a></li>
 									</ul>
 								</div>
 							</div>
@@ -119,7 +129,9 @@
 			<div class="tt-header-row">
 				<div class="col-left col-12 col-lg-2">
 					<div class="tt-stuck-parent-logo">
-						<a class="tt-logo tt-logo-alignment" href="index.php"><img src="images/logo/Logo-Mi-roperito.png" alt=""></a>
+						
+						<a class="tt-logo tt-logo-alignment logo-index-nav" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
+						
 					</div>
 				</div>
 				<div class="col-center col-4 col-lg-8">

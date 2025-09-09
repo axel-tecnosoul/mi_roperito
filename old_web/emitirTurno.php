@@ -1,9 +1,9 @@
 <?php
-require('../admin/config.php');
-require('../admin/database.php');
+require('admin/config.php');
+require('admin/database.php');
 
-require('../admin/PHPMailer/class.phpmailer.php');
-require('../admin/PHPMailer/class.smtp.php');
+require('admin/PHPMailer/class.phpmailer.php');
+require('admin/PHPMailer/class.smtp.php');
 
 header('Content-Type: application/json');
 
@@ -196,10 +196,13 @@ try {
         //$smtpHost = "c1971287.ferozo.com";
   //$smtpHost = "miroperito.ar";
   //$smtpHost = "tecnosoul.com.ar";
-        $mail = new PHPMailer();
-        $mail->IsSMTP();
-        $mail->SMTPAuth = true;
-  if($email=="axelbritzius@gmail.com"){
+  $mail = new PHPMailer();
+  $mail->IsSMTP();
+  $mail->SMTPAuth = true;
+  
+  $modoDebug=0;
+  
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     $mail->SMTPDebug = 3;
   }
 	/*$mail->Port = 465; 
@@ -228,7 +231,7 @@ try {
 		
 	$ok=$mail->Send();
 
-  if($email=="axelbritzius@gmail.com"){
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     var_dump($ok);
     die();
   }

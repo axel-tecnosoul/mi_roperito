@@ -1,6 +1,6 @@
 <?php 
-    require("admin/config.php");
-	require("admin/database.php");
+    require("../admin/config.php");
+	require("../admin/database.php");
     
 	$pdo = Database::connect();
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -16,5 +16,5 @@
 
 		Database::disconnect();		
 	}
-	header("Location: index.php");
+	header("Location: ../nueva_web/index.php");
 ?>
