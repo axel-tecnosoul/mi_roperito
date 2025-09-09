@@ -56,14 +56,12 @@
 	</html>
 	";
 	
-	//$smtpHost = "c1971287.ferozo.com";
+        //$smtpHost = "c1971287.ferozo.com";
   //$smtpHost = "mail.miroperito.ar";
-	$smtpUsuario = "avisos@miroperito.ar";
-	$smtpClave = "zR*eHJJ3zK";
 
-	$mail = new PHPMailer();
-	$mail->IsSMTP();
-	$mail->SMTPAuth = true;
+        $mail = new PHPMailer();
+        $mail->IsSMTP();
+        $mail->SMTPAuth = true;
   $mail->SMTPDebug = 3;
   //$mail->SMTPDebug = SMTP::DEBUG_CLIENT;
 	
@@ -80,12 +78,13 @@
 	
   $mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
-	$mail->Host = $smtpHost; 
-	$mail->Username = $smtpUsuario; 
-	$mail->Password = $smtpClave;
-	$mail->From = "axelbritzius@gmail.com";
-	$mail->FromName = "Axel Britzius";
-	$mail->AddAddress("axelbritzius@gmail.com");
+        $mail->Host = $smtpHost;
+        $mail->Username = $smtpUsuario;
+        $mail->Password = $smtpClave;
+        $mail->From = $fromEmail;
+        $mail->FromName = $fromName;
+        $mail->AddReplyTo("axelbritzius@gmail.com", "Axel Britzius");
+        $mail->AddAddress("axelbritzius@gmail.com");
 	$mensaje = $message;
 	$mail->Subject = "Solicitud de Turno MiRoperito"; 
 	$mensajeHtml = nl2br($mensaje);

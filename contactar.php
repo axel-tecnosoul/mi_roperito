@@ -1,21 +1,27 @@
 <?php 
     require("admin/config.php");
-	require("admin/database.php");
-	
-	require("admin/PHPMailer/class.phpmailer.php");
-	require("admin/PHPMailer/class.smtp.php");
-    
-	$pdo = Database::connect();
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	
-	$sql = "INSERT INTO `contactos`(`fecha_hora`, `nombre`, `email`, `asunto`, `mensaje`) VALUES (now(),?,?,?,?)";
-	$q = $pdo->prepare($sql);
-	$q->execute(array($_POST['nombre'],$_POST['email'],$_POST['asunto'],$_POST['mensaje']));
+    require("admin/database.php");
 
-	$nombre =$_POST["nombre"];
-	$email =$_POST["email"];
-	$mensaje=$_POST["mensaje"];
-	$subject = $_POST["asunto"];
+    require("admin/PHPMailer/class.phpmailer.php");
+    require("admin/PHPMailer/class.smtp.php");
+
+    $nombre  = $_POST["nombre"] ?? '';
+    $email   = $_POST["email"] ?? '';
+    $mensaje = $_POST["mensaje"] ?? '';
+    $subject = $_POST["asunto"] ?? '';
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) ||
+        strlen($nombre) > 100 || strlen($subject) > 150 || strlen($mensaje) > 1000 ||
+        $nombre !== strip_tags($nombre) || $subject !== strip_tags($subject) || $mensaje !== strip_tags($mensaje)) {
+        header("Location: index.php");
+        exit;
+    }
+
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "INSERT INTO `contactos`(`fecha_hora`, `nombre`, `email`, `asunto`, `mensaje`) VALUES (now(),?,?,?,?)";
+    $q = $pdo->prepare($sql);
+    $q->execute(array($nombre,$email,$subject,$mensaje));
 	
 	$message = "
 	<html>
@@ -52,14 +58,9 @@
 	</html>
 	";
 	
-	$smtpHost = "c1971287.ferozo.com";
-	$smtpUsuario = "avisos@miroperito.ar";
-	$smtpClave = "zR*eHJJ3zK";
-	$mail = new PHPMailer();
-	$mail->IsSMTP();
-	$mail->SMTPAuth = true;
-	/*$mail->Port = 465; 
-	$mail->SMTPSecure = 'ssl';*/
+        $mail = new PHPMailer();
+        $mail->IsSMTP();
+        $mail->SMTPAuth = true;
 
   if($smtpSecure!=""){
     $mail->SMTPSecure = $smtpSecure;
@@ -68,12 +69,13 @@
   
 	$mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
-	$mail->Host = $smtpHost; 
-	$mail->Username = $smtpUsuario; 
-	$mail->Password = $smtpClave;
-	$mail->From = $email;
-	$mail->FromName = $nombre;
-	$mail->AddAddress("vende@miroperito.ar");
+        $mail->Host = $smtpHost;
+        $mail->Username = $smtpUsuario;
+        $mail->Password = $smtpClave;
+        $mail->From = $fromEmail;
+        $mail->FromName = $fromName;
+        $mail->AddReplyTo($email, $nombre);
+        $mail->AddAddress("vende@miroperito.ar");
 	$mensaje = $message;
 	$mail->Subject = "Formulario de Contacto MiRoperito"; 
 	$mensajeHtml = nl2br($mensaje);
