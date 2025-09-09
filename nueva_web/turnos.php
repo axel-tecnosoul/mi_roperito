@@ -50,7 +50,7 @@ include('../admin/database.php');
         <div class="card-body">
           <!-- Header -->
           
-          <form id="" class="" method="post" action="emitirTurno.php">
+          <form id="turnoForm" class="" method="post" action="emitirTurno.php">
 									
           <!-- Body -->
             <div class="md-form">
@@ -181,6 +181,21 @@ include('../admin/database.php');
     </div>
   </div>
   <!-- FIN Modal aviso sabados o domingos -->
+
+  <!-- Modal de respuesta de turno -->
+  <div class="modal" id="turnoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p id="turno-message" class="mb-0"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- FIN Modal de respuesta de turno -->
 </section>
 
 <footer id="">
@@ -241,8 +256,9 @@ include('../admin/database.php');
           var todayStr = new Date().toISOString().split('T')[0];
           if (fecha === todayStr) {
             var now = new Date();
-            var currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-            data = data.filter(function (h) { return h >= currentTime; });
+            now.setMinutes(now.getMinutes() + 60);
+            var limitTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+            data = data.filter(function (h) { return h >= limitTime; });
           }
           $hora.empty();
           if (data.length) {
@@ -280,6 +296,35 @@ include('../admin/database.php');
       });
 
       fetchHorarios();
+
+      $("#turnoForm").on("submit", function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $submitBtn = $("#btn-submit");
+        $submitBtn.prop('disabled', true);
+        $.ajax({
+          url: $form.attr('action'),
+          type: 'POST',
+          data: $form.serialize(),
+          dataType: 'json'
+        })
+          .done(function (res) {
+            var $msg = $('#turno-message');
+            if (res.success) {
+              $msg.removeClass('text-danger').addClass('text-success').text(res.message);
+            } else {
+              $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+              $submitBtn.prop('disabled', false);
+            }
+            $('#turnoModal').modal('show');
+            fetchHorarios();
+          })
+          .fail(function () {
+            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+            $('#turnoModal').modal('show');
+            $submitBtn.prop('disabled', false);
+          });
+      });
     });
   </script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
