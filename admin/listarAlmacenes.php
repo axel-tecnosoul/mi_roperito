@@ -4,24 +4,46 @@ if(empty($_SESSION['user']['id_perfil'])){
         header("Location: index.php");
         die("Redirecting to index.php");
 }
-// Devuelve un arreglo con los horarios del almacén agrupados por día
+// Devuelve un arreglo con los horarios agrupados por grupos de días
 function obtenerHorarios($pdo, $idAlmacen){
         $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
         $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
         $q = $pdo->prepare($sql);
         $q->execute([$idAlmacen]);
         $rows = $q->fetchAll(PDO::FETCH_ASSOC);
-        $horarios = [];
+
+        $diaHorarios = [];
         foreach($rows as $r){
-                $dia = $dias[$r['dia_semana']];
-                $horarios[$dia][] = [
+                $d = (int)$r['dia_semana'];
+                $diaHorarios[$d]['bloques'][] = [
                         'inicio' => date('H:i', strtotime($r['hora_inicio'])),
-                        'fin' => date('H:i', strtotime($r['hora_fin'])),
-                        'frecuencia' => $r['frecuencia_minutos'],
-                        'bloqueo' => $r['bloqueo_minutos']
+                        'fin' => date('H:i', strtotime($r['hora_fin']))
+                ];
+                $diaHorarios[$d]['frecuencia'] = $r['frecuencia_minutos'];
+                $diaHorarios[$d]['bloqueo'] = $r['bloqueo_minutos'];
+        }
+
+        $grupos = [];
+        $usados = [];
+        foreach($diaHorarios as $d => $info){
+                if(isset($usados[$d])) continue;
+                $grupoDias = [$dias[$d]];
+                $usados[$d] = true;
+                foreach($diaHorarios as $d2 => $info2){
+                        if($d2 === $d || isset($usados[$d2])) continue;
+                        if($info2['bloques'] == $info['bloques'] && $info2['frecuencia'] == $info['frecuencia'] && $info2['bloqueo'] == $info['bloqueo']){
+                                $grupoDias[] = $dias[$d2];
+                                $usados[$d2] = true;
+                        }
+                }
+                $grupos[] = [
+                        'dias' => $grupoDias,
+                        'bloques' => $info['bloques'],
+                        'frecuencia' => $info['frecuencia'],
+                        'bloqueo' => $info['bloqueo']
                 ];
         }
-        return $horarios;
+        return $grupos;
 }
 ?>
 <!DOCTYPE html>
@@ -107,21 +129,19 @@ function obtenerHorarios($pdo, $idAlmacen){
                             $horarios = obtenerHorarios($pdo, $row[0]);
                             $horariosHtml = '';
                             if(!empty($horarios)){
-                              $horariosHtml .= '<table class="table table-sm table-borderless mb-0"><thead><tr><th>Día</th><th>Horario</th><th>Frecuencia</th><th>Bloqueo</th></tr></thead><tbody>';
-                              foreach($horarios as $dia => $bloques){
-                                $rowspan = count($bloques);
-                                $first = true;
-                                foreach($bloques as $b){
-                                  $horariosHtml .= '<tr>';
-                                  if($first){
-                                    $horariosHtml .= '<td rowspan="'.$rowspan.'" class="align-middle">'.$dia.'</td>';
-                                    $first = false;
-                                  }
-                                  $horariosHtml .= '<td>'.$b['inicio'].'-'.$b['fin'].'</td>';
-                                  $horariosHtml .= '<td>'.$b['frecuencia'].'m</td>';
-                                  $horariosHtml .= '<td>'.$b['bloqueo'].'m</td>';
-                                  $horariosHtml .= '</tr>';
+                              $horariosHtml .= '<table class="table table-sm table-borderless mb-0"><thead><tr><th>Días</th><th>Horario</th><th>Frecuencia</th><th>Bloqueo</th></tr></thead><tbody>';
+                              foreach($horarios as $grupo){
+                                $diasTexto = implode(', ', $grupo['dias']);
+                                $bloques = [];
+                                foreach($grupo['bloques'] as $b){
+                                  $bloques[] = $b['inicio'].'-'.$b['fin'];
                                 }
+                                $horariosHtml .= '<tr>';
+                                $horariosHtml .= '<td>'.$diasTexto.'</td>';
+                                $horariosHtml .= '<td>'.implode('<br>', $bloques).'</td>';
+                                $horariosHtml .= '<td>'.$grupo['frecuencia'].'m</td>';
+                                $horariosHtml .= '<td>'.$grupo['bloqueo'].'m</td>';
+                                $horariosHtml .= '</tr>';
                               }
                               $horariosHtml .= '</tbody></table>';
                             }
