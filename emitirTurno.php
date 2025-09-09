@@ -1,9 +1,9 @@
 <?php
-require('../admin/config.php');
-require('../admin/database.php');
+require('admin/config.php');
+require('admin/database.php');
 
-require('../admin/PHPMailer/class.phpmailer.php');
-require('../admin/PHPMailer/class.smtp.php');
+require('admin/PHPMailer/class.phpmailer.php');
+require('admin/PHPMailer/class.smtp.php');
 
 header('Content-Type: application/json');
 

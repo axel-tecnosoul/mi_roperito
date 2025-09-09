@@ -112,7 +112,7 @@
 								</div>
 								<div class="tt-dropdown-inner">
 									<ul>
-									<li><a target="_blank" href="../admin/loginProveedores.php"><i class="icon-f-76"></i>Ingresar</a></li>
+									<li><a target="_blank" href="admin/loginProveedores.php"><i class="icon-f-76"></i>Ingresar</a></li>
 									</ul>
 								</div>
 							</div>
