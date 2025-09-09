@@ -1,6 +1,6 @@
 <?php
-require("../admin/config.php");
-include('../admin/database.php');
+require("admin/config.php");
+include('admin/database.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,6 +53,7 @@ include('../admin/database.php');
           <form id="turnoForm" class="" method="post" action="emitirTurno.php">
 									
           <!-- Body -->
+           <!-- <h5><u>Atención! No estamos recibiendo prendas por el momento en la sucursal de Nuñez.</u></h5> -->
             <div class="md-form">
               <label for="form-suc">Sucursal</label>
               <select name="id_almacen" id="id_almacen" class="form-control" required="required">
@@ -79,24 +80,24 @@ include('../admin/database.php');
               <option value="36 a 50 prendas">36 a 50 prendas</option>
               <option value="51 a 70 prendas">51 a 70 prendas</option>
               <option value="71 a 85 prendas">71 a 85 prendas</option>
-              <option value="Más de 86 prendas">Más de 86 prendas</option>
-			      </select>
-            
-           </div><?php
-          $hoy=date("Y-m-d");?>
+          <option value="Más de 86 prendas">Más de 86 prendas</option>
+                              </select>
+
+          </div><?php
+          $hoy=date("Y-m-d");
+          // Código anterior para la hora actual
+          // $hora_ahora=date("H:i",strtotime(date("H:i")));
+          ?>
                       <div class="md-form">
             <label for="form-fec">Fecha</label>
-            <!-- Línea original:
-            <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="2023-08-15">
-            -->
             <input type="date" name="fecha" id="form-fec" class="form-control" required="required" min="<?=$hoy?>" value="<?=$hoy?>">
           </div>
                       <?php
-          // Código original del campo hora:
+          // Código anterior del campo hora:
           /*
           <div class="md-form">
             <label for="form-hora">Hora</label>
-            <input type="time" name="hora" id="form-hora" class="form-control" min="11:00" max="18:30" required="required">
+            <input type="time" name="hora" id="form-hora" class="form-control" min="<?=$hora_ahora?>" max="18:30" required="required" value="<?=$hora_ahora?>">
           </div>
           */
           ?>
@@ -106,7 +107,7 @@ include('../admin/database.php');
               <option value="">Seleccione un horario</option>
             </select>
           </div>
-		      <div class="md-form">
+                      <div class="md-form">
             <label for="form-dni">DNI</label>
             <input type="text" name="dni" id="form-dni" class="form-control" required="required">
           </div>
@@ -125,18 +126,21 @@ include('../admin/database.php');
 		      <br>
           <div class="text-center">
             <!-- Botón original:
-            <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;">Solicitar Turno</button>
+            <button type="submit" class="btn btn-light-blue">Solicitar Turno</button>
             -->
-            <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;" id="btn-submit" disabled>Solicitar Turno</button>
+            <button type="submit" class="btn btn-light-blue" id="btn-submit" disabled>Solicitar Turno</button>
           </div>
-		    </form>
+                    </form>
         </div>
       </div>
       <!-- Form with header -->
 
     </div>
-    <!-- Grid column -->  
+    <!-- Grid column -->
+
+    
   </div>
+  <!-- Grid row -->
 
   <div class="modal" id="modalNoRecibimosPrendas" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -196,8 +200,31 @@ include('../admin/database.php');
     </div>
   </div>
   <!-- FIN Modal de respuesta de turno -->
-</section>
 
+</section>
+<!-- Section: Contact v.1 -->
+			<br>
+			<br>
+			<br>
+			<br>
+			<?php include("testimonios.php"); ?>
+				
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+				
+			<hr class="style13">
+			<br>
+			<br>
+			<br>
+			<br>
+			<?php include("suscribite.php"); ?>
+<br>
+<br>
+<br>
 <footer id="">
 	<?php include("footer.php"); ?>
 </footer>
@@ -209,124 +236,145 @@ include('../admin/database.php');
 <script src="separate-include/portfolio/portfolio.js"></script>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
-  <script>
-    /* Código anterior:
-    $(document).ready(function () {
-      $("#id_almacen").on("change",function(){
-        if(this.value==4 || this.value==6 || this.value==7){
-          $("#modalNoRecibimosPrendas").modal("show");
-          if(this.value==6){
-            $("#form-hora").attr("max","17:30");
-          }else{
-            $("#form-hora").attr("max","18:30");
-          }
-          //$("#id_almacen").val("")
-        }
-      })
-
-      document.getElementById("form-fec").addEventListener("change", function() {
-        var selectedDate = new Date(this.value);
-        var dayOfWeek = selectedDate.getDay();
-        console.log(dayOfWeek);
-        if (dayOfWeek === 5 || dayOfWeek === 6) {
-          console.log("La fecha seleccionada es un sábado o domingo.");
-          $("#modalFinesDeSemana").modal("show")
-          this.value="";
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+<script>
+  /* Código anterior:
+  $(document).ready(function () {
+    $("#id_almacen").on("change", function () {
+      if (this.value == 4 || this.value == 6 || this.value == 7) {
+        $("#modalNoRecibimosPrendas").modal("show");
+        if (this.value == 6) {
+          $("#form-hora").attr("max", "17:30");
         } else {
-          console.log("La fecha seleccionada NO es un sábado ni domingo.");
+          $("#form-hora").attr("max", "18:30");
         }
-      });
-
+      }
     });
-    */
-    $(document).ready(function () {
-      function fetchHorarios() {
-        var idAlmacen = $("#id_almacen").val();
-        var fecha = $("#form-fec").val();
-        var $hora = $("#form-hora");
-        var $submit = $("#btn-submit");
-        if (!idAlmacen || !fecha) {
-          $hora.empty().append('<option value="">Seleccione un horario</option>');
-          $hora.prop('disabled', true);
-          $submit.prop('disabled', true);
-          return;
-        }
-        $.getJSON('../obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
-          var todayStr = new Date().toISOString().split('T')[0];
-          if (fecha === todayStr) {
-            var now = new Date();
-            now.setMinutes(now.getMinutes() + 60);
-            var limitTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-            data = data.filter(function (h) { return h >= limitTime; });
-          }
-          $hora.empty();
-          if (data.length) {
-            $hora.append('<option value="">Seleccione...</option>');
-            data.forEach(function (h) {
-              $hora.append('<option value="' + h + '">' + h + '</option>');
-            });
-            $hora.prop('disabled', false);
-            $submit.prop('disabled', false);
-          } else {
-            $hora.append('<option value="">Sin horarios disponibles</option>');
-            $hora.prop('disabled', true);
-            $submit.prop('disabled', true);
-          }
-        });
+
+    $(document).submit(function (e) {
+      e.preventDefault();
+      alert("El formulario ha sido enviado correctamente.");
+    });
+
+    document.getElementById("form-fec").addEventListener("change", function () {
+      var selectedDate = new Date(this.value);
+      var today = new Date();
+      var dayOfWeek = selectedDate.getDay();
+
+      if (dayOfWeek === 5 || dayOfWeek === 6) {
+        console.log("La fecha seleccionada es un sábado o domingo.");
+        $("#modalFinesDeSemana").modal("show");
+        this.value = "";
+      } else {
+        console.log("La fecha seleccionada NO es un sábado ni domingo.");
       }
 
-      $("#id_almacen").on("change", function () {
-        if (this.value == 4 || this.value == 6 || this.value == 7) {
-          $("#modalNoRecibimosPrendas").modal("show");
-        }
-        fetchHorarios();
-      });
+      if (selectedDate.toDateString() === today.toDateString()) {
+        var currentHour = today.getHours();
+        var currentMinutes = today.getMinutes();
+        var formattedTime =
+          (currentHour < 10 ? "0" : "") +
+          currentHour +
+          ":" +
+          (currentMinutes < 10 ? "0" : "") +
+          currentMinutes;
 
-      $("#form-fec").on("change", function () {
-        var selectedDate = new Date(this.value);
-        var dayOfWeek = selectedDate.getDay();
-        if (dayOfWeek === 5 || dayOfWeek === 6) {
-          $("#modalFinesDeSemana").modal("show");
-          this.value = "";
-          fetchHorarios();
-          return;
-        }
-        fetchHorarios();
-      });
-
-      fetchHorarios();
-
-      $("#turnoForm").on("submit", function (e) {
-        e.preventDefault();
-        var $form = $(this);
-        var $submitBtn = $("#btn-submit");
-        $submitBtn.prop('disabled', true);
-        $.ajax({
-          url: $form.attr('action'),
-          type: 'POST',
-          data: $form.serialize(),
-          dataType: 'json'
-        })
-          .done(function (res) {
-            var $msg = $('#turno-message');
-            if (res.success) {
-              $msg.removeClass('text-danger').addClass('text-success').text(res.message);
-            } else {
-              $msg.removeClass('text-success').addClass('text-danger').text(res.message);
-              $submitBtn.prop('disabled', false);
-            }
-            $('#turnoModal').modal('show');
-            fetchHorarios();
-          })
-          .fail(function () {
-            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
-            $('#turnoModal').modal('show');
-            $submitBtn.prop('disabled', false);
-          });
-      });
+        var formHora = document.getElementById("form-hora");
+        formHora.setAttribute("min", formattedTime);
+        console.log("Horario mínimo ajustado a: " + formattedTime);
+      } else {
+        document.getElementById("form-hora").setAttribute("min", "11:00");
+      }
     });
-  </script>
+  });
+  */
+  $(document).ready(function () {
+    function fetchHorarios() {
+      var idAlmacen = $("#id_almacen").val();
+      var fecha = $("#form-fec").val();
+      var $hora = $("#form-hora");
+      var $submit = $("#btn-submit");
+      if (!idAlmacen || !fecha) {
+        $hora.empty().append('<option value="">Seleccione un horario</option>');
+        $hora.prop('disabled', true);
+        $submit.prop('disabled', true);
+        return;
+      }
+      $.getJSON('obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
+        var todayStr = new Date().toISOString().split('T')[0];
+        if (fecha === todayStr) {
+          var now = new Date();
+          now.setMinutes(now.getMinutes() + 60);
+          var limitTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+          data = data.filter(function (h) { return h >= limitTime; });
+        }
+        $hora.empty();
+        if (data.length) {
+          $hora.append('<option value="">Seleccione...</option>');
+          data.forEach(function (h) {
+            $hora.append('<option value="' + h + '">' + h + '</option>');
+          });
+          $hora.prop('disabled', false);
+          $submit.prop('disabled', false);
+        } else {
+          $hora.append('<option value="">Sin horarios disponibles</option>');
+          $hora.prop('disabled', true);
+          $submit.prop('disabled', true);
+        }
+      });
+    }
+
+    $("#id_almacen").on("change", function () {
+      if (this.value == 4 || this.value == 6 || this.value == 7) {
+        $("#modalNoRecibimosPrendas").modal("show");
+      }
+      fetchHorarios();
+    });
+
+    $("#form-fec").on("change", function () {
+      var selectedDate = new Date(this.value);
+      var dayOfWeek = selectedDate.getDay();
+      if (dayOfWeek === 5 || dayOfWeek === 6) {
+        $("#modalFinesDeSemana").modal("show");
+        this.value = "";
+        fetchHorarios();
+        return;
+      }
+      fetchHorarios();
+    });
+
+    fetchHorarios();
+
+    $("#turnoForm").on("submit", function (e) {
+      e.preventDefault();
+      var $form = $(this);
+      var $submitBtn = $("#btn-submit");
+      $submitBtn.prop('disabled', true);
+      $.ajax({
+        url: $form.attr('action'),
+        type: 'POST',
+        data: $form.serialize(),
+        dataType: 'json'
+      })
+        .done(function (res) {
+          var $msg = $('#turno-message');
+          if (res.success) {
+            $msg.removeClass('text-danger').addClass('text-success').text(res.message);
+          } else {
+            $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+            $submitBtn.prop('disabled', false);
+          }
+          $('#turnoModal').modal('show');
+          fetchHorarios();
+        })
+        .fail(function () {
+          $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+          $('#turnoModal').modal('show');
+          $submitBtn.prop('disabled', false);
+        });
+    });
+  });
+</script>
 <a href="#" class="tt-back-to-top">Volver al inicio</a>
 </body>
 </html>
