@@ -14,7 +14,7 @@
 				
 				<div class="col-sm-12 contenedor-carrusel">
 					<div id="testimonial-slider" class="owl-carousel carrusel"><?php
-						include '../admin/database.php';
+						include 'admin/database.php';
 						$pdo = Database::connect();
 						$sql = "SELECT id, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 1"; 
 
