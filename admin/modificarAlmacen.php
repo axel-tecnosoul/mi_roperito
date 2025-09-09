@@ -279,7 +279,7 @@ if ( !empty($_POST)) {
         <button type="button" class="btn btn-secondary btn-sm add-block">Agregar bloque</button>
       </div>
       <div class="col-sm-2 d-flex align-items-center justify-content-center">
-        <button type="button" class="btn btn-danger btn-sm remove-group" title="Eliminar grupo"><i class="fa fa-trash"></i></button>
+        <button type="button" class="btn btn-danger btn-sm remove-group" title="Eliminar grupo"><i class="fa fa-trash"></i> Eliminar grupo de dias</button>
       </div>
     </div>
   <?php endforeach; ?>
