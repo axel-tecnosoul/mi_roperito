@@ -31,7 +31,7 @@
 									sizes="1200w" 
 									srcset="images/Home/WEBP/banner-descuento1200px.webp 1200w" 
 									type="image/webp">
-								<img loading="lazy" decoding="async" src="images/Home/JPG/banner-descuento1200px.jpg" lazyalt="imagen" width="1200" height="300">
+								<img loading="lazy" decoding="async" src="images/Home/JPG/banner-descuento1200px.jpg" alt="imagen" width="1200" height="300">
 							</picture>
 						</div>
 					</div>
