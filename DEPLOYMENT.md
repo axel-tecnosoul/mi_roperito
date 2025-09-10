@@ -27,3 +27,28 @@ RECAPTCHA_SECRET_KEY=<your secret key>
 ```
 
 The `.env` file is ignored by Git and should never be committed. Keep it secure.
+
+## Local development
+
+To test reCAPTCHA locally, set `APP_ENV=development` and provide development keys:
+
+- `RECAPTCHA_SITE_KEY_DEV` – site key for local testing.
+- `RECAPTCHA_SECRET_KEY_DEV` – secret key for local testing.
+
+These can be supplied as environment variables:
+
+```bash
+export APP_ENV=development
+export RECAPTCHA_SITE_KEY_DEV="<your dev site key>"
+export RECAPTCHA_SECRET_KEY_DEV="<your dev secret key>"
+```
+
+Or through additional entries in `.env`:
+
+```env
+APP_ENV=development
+RECAPTCHA_SITE_KEY_DEV=<your dev site key>
+RECAPTCHA_SECRET_KEY_DEV=<your dev secret key>
+```
+
+When `APP_ENV` is set to `development`, the application will automatically use the development keys; otherwise the production keys are used.
