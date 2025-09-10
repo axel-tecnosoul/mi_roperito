@@ -56,7 +56,7 @@ require 'database.php';?>
                     foreach ($pdo->query($sql) as $row) {
                       echo '<div class="swiper-slide">';	
                       echo '<picture>';
-                      echo '<img loading="lazy" decoding="async" src="../nueva_web/images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
+                      echo '<img loading="lazy" decoding="async" src="../images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
                       echo '</picture>';
                       echo '</div>';
                     }
@@ -79,7 +79,7 @@ require 'database.php';?>
                   <div class="row">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
-                      <img src="../nueva_web/images/Banners/Proveedores/dashboardProveedor.jpeg" alt="Imagen Dashboard Proveedor" class="img-fluid">
+                      <img src="../images/Banners/Proveedores/dashboardProveedor.jpeg" alt="Imagen Dashboard Proveedor" class="img-fluid">
                     </div>
                     <div class="col-md-3"></div>
                   </div>

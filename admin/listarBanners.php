@@ -237,7 +237,7 @@ if(empty($_SESSION['user'])) {
               var $modalImagen = $('#modalImagen' + modalID.substring(11));
 
              
-              var rutaBase = seccion === 1 ? '../nueva_web/images/Banners/Home/' : '../nueva_web/images/Banners/Proveedores/';
+              var rutaBase = seccion === 1 ? '../images/Banners/Home/' : '../images/Banners/Proveedores/';
 
               var imagenCompletaURL = rutaBase + imagenURL;
 
