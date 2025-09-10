@@ -1,19 +1,15 @@
 <?php
-$smtpHost = "hosting3.tecnosoul.com.ar";
-$smtpSecure = "";
-$smtpPort = 25;
-
-// SMTP configuration loaded from environment variables with fallbacks
-$smtpHost = getenv('SMTP_HOST') ?: $smtpHost;
-$smtpPort = getenv('SMTP_PORT') ?: $smtpPort;
-$smtpSecure = getenv('SMTP_SECURE') ?: $smtpSecure;
-$smtpUsuario = getenv('SMTP_USER') ?: 'avisos@miroperito.ar';
-$smtpClave = getenv('SMTP_PASS') ?: '';
-$fromEmail = getenv('SMTP_FROM') ?: 'avisos@miroperito.ar';
-$fromName  = getenv('SMTP_FROM_NAME') ?: 'MiRoperito';
-
 $envPath = dirname(__DIR__) . '/.env';
 $env = file_exists($envPath) ? parse_ini_file($envPath) : [];
+
+// SMTP configuration loaded from environment variables with .env fallbacks
+$smtpHost    = getenv('SMTP_HOST') ?: ($env['SMTP_HOST'] ?? 'hosting3.tecnosoul.com.ar');
+$smtpSecure  = getenv('SMTP_SECURE') ?: ($env['SMTP_SECURE'] ?? '');
+$smtpPort    = getenv('SMTP_PORT') ?: ($env['SMTP_PORT'] ?? 25);
+$smtpUsuario = getenv('SMTP_USER') ?: ($env['SMTP_USER'] ?? 'avisos@miroperito.ar');
+$smtpClave   = getenv('SMTP_PASS') ?: ($env['SMTP_PASS'] ?? '');
+$fromEmail   = getenv('SMTP_FROM') ?: ($env['SMTP_FROM'] ?? 'avisos@miroperito.ar');
+$fromName    = getenv('SMTP_FROM_NAME') ?: ($env['SMTP_FROM_NAME'] ?? 'MiRoperito');
 
 // Environment selection
 $appEnv = getenv('APP_ENV') ?: ($env['APP_ENV'] ?? null);
@@ -49,4 +45,4 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC); 
 header('Content-Type: text/html; charset=utf-8');
 date_default_timezone_set('America/Argentina/Buenos_Aires');
-session_start(); 
+session_start();
