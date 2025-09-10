@@ -252,7 +252,7 @@ include('admin/database.php');
           $submit.prop('disabled', true);
           return;
         }
-        $.getJSON('../obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
+        $.getJSON('obtenerHorarios.php', { id_almacen: idAlmacen, fecha: fecha }, function (data) {
           var todayStr = new Date().toISOString().split('T')[0];
           if (fecha === todayStr) {
             var now = new Date();
