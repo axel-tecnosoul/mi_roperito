@@ -40,22 +40,22 @@
             <form id="" class="" method="post" action="contactar.php">			
               <!-- Body -->
               <div class="md-form">
-                <input type="text" name="nombre" id="form-name" class="form-control" required="required">
                 <label for="form-name">Nombre</label>
+                <input type="text" name="nombre" id="form-name" class="form-control" required="required">
               </div>
 
               <div class="md-form">
-                <input type="email" name="email" id="form-email" class="form-control" required="required">
                 <label for="form-email">E-mail</label>
+                <input type="email" name="email" id="form-email" class="form-control" required="required">
               </div>
 
               <div class="md-form">
-                <input type="text" name="asunto" id="form-Subject" class="form-control" required="required">
                 <label for="form-Subject">Asunto</label>
+                <input type="text" name="asunto" id="form-Subject" class="form-control" required="required">
               </div>
               <div class="md-form">
-                <textarea id="form-text" name="mensaje" class="form-control md-textarea" rows="3" required="required"></textarea>
                 <label for="form-text">Mensaje</label>
+                <textarea id="form-text" name="mensaje" class="form-control md-textarea" rows="3" required="required"></textarea>
               </div>
 
               <div class="g-recaptcha" data-sitekey="<?php echo $recaptchaSiteKey; ?>"></div>
