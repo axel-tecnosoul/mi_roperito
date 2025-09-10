@@ -17,6 +17,21 @@
         exit;
     }
 
+    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+    $recaptchaValid = false;
+    if ($recaptchaResponse && !empty($recaptchaSecretKey)) {
+        $verifyResponse = file_get_contents(
+            'https://www.google.com/recaptcha/api/siteverify?secret=' .
+            urlencode($recaptchaSecretKey) . '&response=' . urlencode($recaptchaResponse)
+        );
+        $responseData = json_decode($verifyResponse, true);
+        $recaptchaValid = $responseData['success'] ?? false;
+    }
+    if (!$recaptchaValid) {
+        echo 'Error: reCAPTCHA inválido.';
+        exit;
+    }
+
     $pdo = Database::connect();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $sql = "INSERT INTO `contactos`(`fecha_hora`, `nombre`, `email`, `asunto`, `mensaje`) VALUES (now(),?,?,?,?)";

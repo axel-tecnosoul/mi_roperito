@@ -5,7 +5,8 @@ include('admin/database.php');
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<?php include("head.php"); ?>
+        <?php include("head.php"); ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     #modalNoRecibimosPrendas .btn:hover {
       background: #191919;
@@ -51,7 +52,7 @@ include('admin/database.php');
           <!-- Header -->
           
           <form id="turnoForm" class="" method="post" action="emitirTurno.php">
-									
+
           <!-- Body -->
             <div class="md-form">
               <label for="form-suc">Sucursal</label>
@@ -122,7 +123,8 @@ include('admin/database.php');
             <label for="form-tel">Teléfono</label>
             <input type="text" name="telefono" id="form-tel" class="form-control" required="required">
           </div>
-		      <br>
+                      <div class="g-recaptcha" data-sitekey="<?= htmlspecialchars($recaptchaSiteKey) ?>"></div>
+                      <br>
           <div class="text-center">
             <!-- Botón original:
             <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;">Solicitar Turno</button>
@@ -301,6 +303,11 @@ include('admin/database.php');
         e.preventDefault();
         var $form = $(this);
         var $submitBtn = $("#btn-submit");
+        if (grecaptcha.getResponse() === '') {
+          $('#turno-message').removeClass('text-success').addClass('text-danger').text('Por favor verifica que no eres un robot.');
+          $('#turnoModal').modal('show');
+          return;
+        }
         $submitBtn.prop('disabled', true);
         $.ajax({
           url: $form.attr('action'),
