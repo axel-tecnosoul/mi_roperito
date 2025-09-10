@@ -1,4 +1,3 @@
-<meta http-equiv="refresh" content="1000;url=index.php" />
 	
 	<!-- tt-mobile menu -->
 	<nav class="panel-menu mobile-main-menu">
