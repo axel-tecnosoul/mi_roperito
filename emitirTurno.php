@@ -193,13 +193,16 @@ try {
 
   //SELECT * FROM `turnos` WHERE DATE(fecha_hora)>="2023-03-02" AND fecha_hora<"2023-03-28 16:01";
 	
-        //$smtpHost = "c1971287.ferozo.com";
+  //$smtpHost = "c1971287.ferozo.com";
   //$smtpHost = "miroperito.ar";
   //$smtpHost = "tecnosoul.com.ar";
-        $mail = new PHPMailer();
-        $mail->IsSMTP();
-        $mail->SMTPAuth = true;
-  if($email=="axelbritzius@gmail.com"){
+  $mail = new PHPMailer();
+  $mail->IsSMTP();
+  $mail->SMTPAuth = true;
+
+  $modoDebug = 0;
+  
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     $mail->SMTPDebug = 3;
   }
 	/*$mail->Port = 465; 
@@ -212,14 +215,14 @@ try {
 
 	$mail->IsHTML(true); 
 	$mail->CharSet = "utf-8";
-        $mail->Host = $smtpHost;
-        $mail->Username = $smtpUsuario;
-        $mail->Password = $smtpClave;
-        $mail->From = $fromEmail;
-        $mail->FromName = $fromName;
-        $mail->AddReplyTo($email, $nombre);
-        $mail->AddAddress("vende@miroperito.ar");
-        $mail->AddAddress($email);
+  $mail->Host = $smtpHost;
+  $mail->Username = $smtpUsuario;
+  $mail->Password = $smtpClave;
+  $mail->From = $fromEmail;
+  $mail->FromName = $fromName;
+  $mail->AddReplyTo($email, $nombre);
+  $mail->AddAddress("vende@miroperito.ar");
+  $mail->AddAddress($email);
 	$mensaje = $message;
 	$mail->Subject = "Solicitud de Turno MiRoperito"; 
 	$mensajeHtml = nl2br($mensaje);
@@ -228,7 +231,7 @@ try {
 		
 	$ok=$mail->Send();
 
-  if($email=="axelbritzius@gmail.com"){
+  if($modoDebug==1 and $email=="axelbritzius@gmail.com"){
     var_dump($ok);
     die();
   }
