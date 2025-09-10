@@ -6,7 +6,7 @@ include('admin/database.php');
 <html lang="en">
 <head>
         <?php include("head.php"); ?>
-        <script src="https://www.google.com/recaptcha/api.js?render=<?= htmlspecialchars($recaptchaSiteKey) ?>"></script>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     #modalNoRecibimosPrendas .btn:hover {
       background: #191919;
@@ -52,7 +52,6 @@ include('admin/database.php');
           <!-- Header -->
           
           <form id="turnoForm" class="" method="post" action="emitirTurno.php">
-            <input type="hidden" name="recaptcha_token" id="recaptchaToken">
 
           <!-- Body -->
             <div class="md-form">
@@ -124,7 +123,8 @@ include('admin/database.php');
             <label for="form-tel">Teléfono</label>
             <input type="text" name="telefono" id="form-tel" class="form-control" required="required">
           </div>
-		      <br>
+                      <div class="g-recaptcha" data-sitekey="<?= htmlspecialchars($recaptchaSiteKey) ?>"></div>
+                      <br>
           <div class="text-center">
             <!-- Botón original:
             <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;">Solicitar Turno</button>
@@ -303,38 +303,34 @@ include('admin/database.php');
         e.preventDefault();
         var $form = $(this);
         var $submitBtn = $("#btn-submit");
+        if (grecaptcha.getResponse() === '') {
+          $('#turno-message').removeClass('text-success').addClass('text-danger').text('Por favor verifica que no eres un robot.');
+          $('#turnoModal').modal('show');
+          return;
+        }
         $submitBtn.prop('disabled', true);
-        grecaptcha.ready(function () {
-          grecaptcha.execute('<?= htmlspecialchars($recaptchaSiteKey, ENT_QUOTES) ?>', { action: 'turno' }).then(function (token) {
-            $('#recaptchaToken').val(token);
-            $.ajax({
-              url: $form.attr('action'),
-              type: 'POST',
-              data: $form.serialize(),
-              dataType: 'json'
-            })
-              .done(function (res) {
-                var $msg = $('#turno-message');
-                if (res.success) {
-                  $msg.removeClass('text-danger').addClass('text-success').text(res.message);
-                } else {
-                  $msg.removeClass('text-success').addClass('text-danger').text(res.message);
-                  $submitBtn.prop('disabled', false);
-                }
-                $('#turnoModal').modal('show');
-                fetchHorarios();
-              })
-              .fail(function () {
-                $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
-                $('#turnoModal').modal('show');
-                $submitBtn.prop('disabled', false);
-              });
-          }, function () {
-            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al verificar reCAPTCHA.');
+        $.ajax({
+          url: $form.attr('action'),
+          type: 'POST',
+          data: $form.serialize(),
+          dataType: 'json'
+        })
+          .done(function (res) {
+            var $msg = $('#turno-message');
+            if (res.success) {
+              $msg.removeClass('text-danger').addClass('text-success').text(res.message);
+            } else {
+              $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+              $submitBtn.prop('disabled', false);
+            }
+            $('#turnoModal').modal('show');
+            fetchHorarios();
+          })
+          .fail(function () {
+            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
             $('#turnoModal').modal('show');
             $submitBtn.prop('disabled', false);
           });
-        });
       });
     });
   </script>
