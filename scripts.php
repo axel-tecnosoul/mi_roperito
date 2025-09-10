@@ -1,6 +1,7 @@
 <script src="js/img.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script defer src="js/bundle.js"></script>
+<script defer src="js/suscribir.js"></script>
 
 <script defer src="separate-include/single-product/single-product.js"></script>
 <script src="separate-include/portfolio/portfolio.js"></script>

@@ -1,21 +1,35 @@
 <?php
-require("admin/config.php");
-require("admin/database.php");
+require('admin/config.php');
+require('admin/database.php');
 
-$pdo = Database::connect();
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+header('Content-Type: application/json');
 
-$sql = "SELECT `id` from suscripciones where email = ?";
-$q = $pdo->prepare($sql);
-$q->execute(array($_POST['email']));
-$data = $q->fetch(PDO::FETCH_ASSOC);
-if (empty($data)) {
-    $sql = "INSERT INTO `suscripciones`(`email`, `fecha_hora`) VALUES (?,now())";
-    $q = $pdo->prepare($sql);
-    $q->execute(array($_POST['email']));
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
+    $email = trim($_POST['email']);
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $pdo = Database::connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    Database::disconnect();
+        $sql = 'SELECT `id` from suscripciones where email = ?';
+        $q = $pdo->prepare($sql);
+        $q->execute([$email]);
+        $data = $q->fetch(PDO::FETCH_ASSOC);
+
+        if (empty($data)) {
+            $sql = 'INSERT INTO `suscripciones`(`email`, `fecha_hora`) VALUES (?,now())';
+            $q = $pdo->prepare($sql);
+            $q->execute([$email]);
+            Database::disconnect();
+            echo json_encode(['status' => 'success', 'message' => 'Suscripción realizada correctamente.']);
+        } else {
+            Database::disconnect();
+            echo json_encode(['status' => 'error', 'message' => 'El email ya está suscripto.']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Email inválido.']);
+    }
+    exit;
 }
-header("Location: index.php");
-?>
 
+echo json_encode(['status' => 'error', 'message' => 'Solicitud inválida.']);
+?>
