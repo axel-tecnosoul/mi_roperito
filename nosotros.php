@@ -26,7 +26,7 @@
 				<div class="banner">
 					<div class="banner-contenido">
 						<div class="banner-img">
-							<img src="images/logo/banner-vende-btn.png" alt="Imagen Logo vende">
+							<img src="images/logo/banner-vende-btn.png" alt="Banner botón vende">
 						</div>
 						<div class="banner-descripcion">
 							<div class="banner-descripcion-titulo">
@@ -80,7 +80,7 @@
 					<div class="locales-nosotros">
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-1"></div>
-							<img src="images/nosotros/pin_magenta.png" alt="imagen pin magenta" class="pin pin-magenta">
+							<img src="images/nosotros/pin_magenta.png" alt="Pin magenta ubicación" class="pin pin-magenta">
 							<div class="contenido-locales">
 								<h4>Villa Ballester:</h4>
 								<p>de lunes a sábados de 10 a 20 hs.</p>
@@ -89,7 +89,7 @@
 						</div>
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-2"></div>
-							<img src="images/nosotros/pin_verde.png" alt="imagen pin verde" class="pin pin-verde">
+							<img src="images/nosotros/pin_verde.png" alt="Pin verde ubicación" class="pin pin-verde">
 							<div class="contenido-locales">
 								<h4>San Isidro:</h4>
 								<p>de lunes a sábados de 11 a 19 hs.</p>
@@ -99,7 +99,7 @@
 						</div>
 						<div class="locales">
 							<div class="imagen-local-nosotros iln-3"></div>
-							<img src="images/nosotros/pin_magenta.png" alt="imagen pin magenta" class="pin pin-magenta2">
+							<img src="images/nosotros/pin_magenta.png" alt="Pin magenta ubicación" class="pin pin-magenta2">
 							<div class="contenido-locales">
 								<h4>Núñez:</h4>
 								<p>de lunes a sábados de 10 a 20 hs.</p>
@@ -122,9 +122,9 @@
 					</div>
 					<div class="tienda-online-imagen">
 						<div class="online-imagen centrar">
-							<img src="images/nosotros/PC.png" alt="">
+							<img src="images/nosotros/PC.png" alt="Ilustración computadora">
 							<div class="btn-tienda-online">
-								<img src="images/nosotros/flecha.png" alt="">
+								<img src="images/nosotros/flecha.png" alt="Ícono flecha">
 								<a href="http://miroperito.prestotienda.com/" target="_blank" class="button btn-tienda-boton" >ENTRAR</a>
 							</div>
 						</div>
