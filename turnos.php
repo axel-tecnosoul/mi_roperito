@@ -5,7 +5,8 @@ include('admin/database.php');
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<?php include("head.php"); ?>
+        <?php include("head.php"); ?>
+        <script src="https://www.google.com/recaptcha/api.js?render=<?= htmlspecialchars($recaptchaSiteKey) ?>"></script>
   <style>
     #modalNoRecibimosPrendas .btn:hover {
       background: #191919;
@@ -51,7 +52,8 @@ include('admin/database.php');
           <!-- Header -->
           
           <form id="turnoForm" class="" method="post" action="emitirTurno.php">
-									
+            <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+
           <!-- Body -->
             <div class="md-form">
               <label for="form-suc">Sucursal</label>
@@ -302,28 +304,37 @@ include('admin/database.php');
         var $form = $(this);
         var $submitBtn = $("#btn-submit");
         $submitBtn.prop('disabled', true);
-        $.ajax({
-          url: $form.attr('action'),
-          type: 'POST',
-          data: $form.serialize(),
-          dataType: 'json'
-        })
-          .done(function (res) {
-            var $msg = $('#turno-message');
-            if (res.success) {
-              $msg.removeClass('text-danger').addClass('text-success').text(res.message);
-            } else {
-              $msg.removeClass('text-success').addClass('text-danger').text(res.message);
-              $submitBtn.prop('disabled', false);
-            }
-            $('#turnoModal').modal('show');
-            fetchHorarios();
-          })
-          .fail(function () {
-            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+        grecaptcha.ready(function () {
+          grecaptcha.execute('<?= htmlspecialchars($recaptchaSiteKey, ENT_QUOTES) ?>', { action: 'turno' }).then(function (token) {
+            $('#recaptchaToken').val(token);
+            $.ajax({
+              url: $form.attr('action'),
+              type: 'POST',
+              data: $form.serialize(),
+              dataType: 'json'
+            })
+              .done(function (res) {
+                var $msg = $('#turno-message');
+                if (res.success) {
+                  $msg.removeClass('text-danger').addClass('text-success').text(res.message);
+                } else {
+                  $msg.removeClass('text-success').addClass('text-danger').text(res.message);
+                  $submitBtn.prop('disabled', false);
+                }
+                $('#turnoModal').modal('show');
+                fetchHorarios();
+              })
+              .fail(function () {
+                $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+                $('#turnoModal').modal('show');
+                $submitBtn.prop('disabled', false);
+              });
+          }, function () {
+            $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al verificar reCAPTCHA.');
             $('#turnoModal').modal('show');
             $submitBtn.prop('disabled', false);
           });
+        });
       });
     });
   </script>
