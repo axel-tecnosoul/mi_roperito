@@ -5,6 +5,8 @@
     require_once __DIR__ . "/admin/PHPMailer/class.phpmailer.php";
     require_once __DIR__ . "/admin/PHPMailer/class.smtp.php";
 
+    header('Content-Type: application/json');
+
     $nombre  = trim($_POST["nombre"] ?? '');
     $email   = trim($_POST["email"] ?? '');
     $mensaje = trim($_POST["mensaje"] ?? '');
@@ -13,7 +15,7 @@
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) ||
         strlen($nombre) > 100 || strlen($subject) > 150 || strlen($mensaje) > 1000 ||
         $nombre !== strip_tags($nombre) || $subject !== strip_tags($subject) || $mensaje !== strip_tags($mensaje)) {
-        header("Location: index.php");
+        echo json_encode(['success' => false, 'message' => 'Datos inválidos.']);
         exit;
     }
 
@@ -28,7 +30,7 @@
         $recaptchaValid = $responseData['success'] ?? false;
     }
     if (!$recaptchaValid) {
-        echo 'Error: reCAPTCHA inválido.';
+        echo json_encode(['success' => false, 'message' => 'Error: reCAPTCHA inválido.']);
         exit;
     }
 
@@ -99,8 +101,8 @@
 		
 	$mail->Send();
 
-	Database::disconnect();		
-	
-	header("Location: index.php");
+        Database::disconnect();
+
+        echo json_encode(['success' => true, 'message' => 'Mensaje enviado correctamente.']);
         exit;
 ?>
