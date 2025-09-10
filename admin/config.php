@@ -9,7 +9,16 @@ $fromEmail = getenv('SMTP_FROM') ?: 'avisos@miroperito.ar';
 $fromName  = getenv('SMTP_FROM_NAME') ?: 'MiRoperito';
 
 // reCAPTCHA keys for client (site) and server (secret)
-$recaptchaSiteKey   = getenv('RECAPTCHA_SITE_KEY') ?: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
-$recaptchaSecretKey = getenv('RECAPTCHA_SECRET_KEY') ?: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+$recaptchaSiteKey   = getenv('RECAPTCHA_SITE_KEY');
+$recaptchaSecretKey = getenv('RECAPTCHA_SECRET_KEY');
+
+if (!$recaptchaSiteKey || !$recaptchaSecretKey) {
+    $envPath = dirname(__DIR__) . '/.env';
+    if (file_exists($envPath)) {
+        $env = parse_ini_file($envPath);
+        $recaptchaSiteKey   = $recaptchaSiteKey   ?: ($env['RECAPTCHA_SITE_KEY'] ?? null);
+        $recaptchaSecretKey = $recaptchaSecretKey ?: ($env['RECAPTCHA_SECRET_KEY'] ?? null);
+    }
+}
 
 ?>
