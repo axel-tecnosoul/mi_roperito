@@ -17,7 +17,7 @@ if ( !empty($_POST)) {
 
   //Subir el archivo JPG
   if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-    $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
+    $carpetaDestino = '../images/Banners/' . $seccion;
     $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
 
     if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . $nombreArchivoJPG)) {

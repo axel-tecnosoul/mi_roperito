@@ -35,7 +35,7 @@
 			$seccion = "Proveedores";
 		}
 		// Construir la ruta completa de la imagen
-		$ruta_imagen = '../nueva_web/images/Banners/'. $seccion . '/' . $imagen_nombre;
+		$ruta_imagen = '../images/Banners/'. $seccion . '/' . $imagen_nombre;
 
 		// Verificar si la imagen existe en el sistema de archivos y eliminarla
 		if (file_exists($ruta_imagen)) {

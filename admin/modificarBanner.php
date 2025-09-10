@@ -46,8 +46,8 @@ if (!empty($_POST)) {
 
     if ($seccion != $seccionActual) {
       // Mueve la imagen de la carpeta de la sección actual a la nueva sección
-      $rutaImagenActual = '../nueva_web/images/Banners/' . $seccionActual . '/' . $nombreArchivoJPGActual;
-      $rutaImagenNueva = '../nueva_web/images/Banners/' . $seccion . '/' . $nombreArchivoJPGActual;
+      $rutaImagenActual = '../images/Banners/' . $seccionActual . '/' . $nombreArchivoJPGActual;
+      $rutaImagenNueva = '../images/Banners/' . $seccion . '/' . $nombreArchivoJPGActual;
 
       if (file_exists($rutaImagenActual)) {
         rename($rutaImagenActual, $rutaImagenNueva);
@@ -57,7 +57,7 @@ if (!empty($_POST)) {
 
   // Verifica si se ha enviado una nueva imagen
   if (isset($_FILES['imagen-banner-jpg']) && $_FILES['imagen-banner-jpg']['error'] === UPLOAD_ERR_OK) {
-      $carpetaDestino = '../nueva_web/images/Banners/' . $seccion;
+      $carpetaDestino = '../images/Banners/' . $seccion;
       $nombreArchivoJPG = uniqid() . '-' . $_FILES['imagen-banner-jpg']['name'];
 
       if (move_uploaded_file($_FILES['imagen-banner-jpg']['tmp_name'], $carpetaDestino . '/' . $nombreArchivoJPG)) {
@@ -152,7 +152,7 @@ if (!empty($_POST)) {
                                     $seccion = "Proveedores";
                                 }?>
 
-                                <img src="../nueva_web/images/Banners/<?= $seccion ?>/<?= $data['url-jpg'] ?>" alt="Imagen Banner" style="display: block; max-width: 200px; max-height: 250px; object-fit: cover;">
+                                <img src="../images/Banners/<?= $seccion ?>/<?= $data['url-jpg'] ?>" alt="Imagen Banner" style="display: block; max-width: 200px; max-height: 250px; object-fit: cover;">
                       
                                 <label style="display: block; margin-top: 10px;"><?= $data['url-jpg']; ?></label>
                             </div>
