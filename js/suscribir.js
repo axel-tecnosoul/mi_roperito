@@ -2,6 +2,12 @@ $(function() {
     $('#subscriptionForm').on('submit', function(e) {
         e.preventDefault();
         var $form = $(this);
+        if (typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) {
+            $('#subscriptionModalBody').text('Por favor, completá el reCAPTCHA.');
+            $('#subscriptionModal').modal('show');
+            return;
+        }
+
         $('#subscriptionLoader').show();
         $.ajax({
             url: $form.attr('action'),
@@ -13,6 +19,9 @@ $(function() {
             $('#subscriptionModal').modal('show');
             if (resp.status === 'success') {
                 $form[0].reset();
+                if (typeof grecaptcha !== 'undefined') {
+                    grecaptcha.reset();
+                }
             }
         }).fail(function() {
             $('#subscriptionModalBody').text('No se pudo procesar la solicitud.');
