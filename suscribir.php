@@ -12,7 +12,7 @@ if (
     $recaptchaToken = $_POST['g-recaptcha-response'];
     $recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
     $recaptchaResp = file_get_contents(
-        $recaptchaUrl . '?secret=' . urlencode($recaptchaSecret) .
+        $recaptchaUrl . '?secret=' . urlencode($recaptchaSecretKey) .
         '&response=' . urlencode($recaptchaToken) .
         '&remoteip=' . urlencode($ip)
     );
