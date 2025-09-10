@@ -8,17 +8,21 @@ $smtpClave = getenv('SMTP_PASS') ?: '';
 $fromEmail = getenv('SMTP_FROM') ?: 'avisos@miroperito.ar';
 $fromName  = getenv('SMTP_FROM_NAME') ?: 'MiRoperito';
 
-// reCAPTCHA keys for client (site) and server (secret)
-$recaptchaSiteKey   = getenv('RECAPTCHA_SITE_KEY');
-$recaptchaSecretKey = getenv('RECAPTCHA_SECRET_KEY');
+$envPath = dirname(__DIR__) . '/.env';
+$env = file_exists($envPath) ? parse_ini_file($envPath) : [];
 
-if (!$recaptchaSiteKey || !$recaptchaSecretKey) {
-    $envPath = dirname(__DIR__) . '/.env';
-    if (file_exists($envPath)) {
-        $env = parse_ini_file($envPath);
-        $recaptchaSiteKey   = $recaptchaSiteKey   ?: ($env['RECAPTCHA_SITE_KEY'] ?? null);
-        $recaptchaSecretKey = $recaptchaSecretKey ?: ($env['RECAPTCHA_SECRET_KEY'] ?? null);
-    }
+// Environment selection
+$appEnv = getenv('APP_ENV') ?: ($env['APP_ENV'] ?? null);
+
+// reCAPTCHA keys for client (site) and server (secret)
+$recaptchaSiteKey     = getenv('RECAPTCHA_SITE_KEY')     ?: ($env['RECAPTCHA_SITE_KEY']     ?? null);
+$recaptchaSecretKey   = getenv('RECAPTCHA_SECRET_KEY')   ?: ($env['RECAPTCHA_SECRET_KEY']   ?? null);
+$recaptchaSiteKeyDev  = getenv('RECAPTCHA_SITE_KEY_DEV') ?: ($env['RECAPTCHA_SITE_KEY_DEV'] ?? null);
+$recaptchaSecretKeyDev= getenv('RECAPTCHA_SECRET_KEY_DEV') ?: ($env['RECAPTCHA_SECRET_KEY_DEV'] ?? null);
+
+if ($appEnv === 'development') {
+    $recaptchaSiteKey   = $recaptchaSiteKeyDev   ?: $recaptchaSiteKey;
+    $recaptchaSecretKey = $recaptchaSecretKeyDev ?: $recaptchaSecretKey;
 }
 
 ?>
