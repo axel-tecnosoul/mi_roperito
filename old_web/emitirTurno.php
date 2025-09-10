@@ -130,9 +130,9 @@ try {
   //var_dump($_POST);
   
 
-  $sqlZon = "SELECT almacen,direccion FROM almacenes WHERE id = ".$_POST['id_almacen'];
+  $sqlZon = "SELECT almacen,direccion FROM almacenes WHERE id = ?";
   $q = $pdo->prepare($sqlZon);
-  $q->execute();
+  $q->execute([$idAlmacen]);
   $fila = $q->fetch(PDO::FETCH_ASSOC);
   $almacen=$fila['almacen'];
   $direccion=$fila['direccion'];
@@ -246,9 +246,9 @@ try {
   //recordatorio_turno: Hola! Desde MiRoperito queremos recordarte acerca del turno que tenés reservado para hoy a las {{hora}}hs en {{direccion}}, {{almacen}}. Si no podés asistir a tu turno y deseas cancelarlo, responde CANCELAR. Muchas gracias!
 
   /*$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sqlZon = "SELECT almacen,direccion FROM almacenes WHERE id = $sucursal";
+  $sqlZon = "SELECT almacen,direccion FROM almacenes WHERE id = ?";
   $q = $pdo->prepare($sqlZon);
-  $q->execute();
+  $q->execute([$sucursal]);
   $fila = $q->fetch(PDO::FETCH_ASSOC);
   $almacen=$fila['almacen'];*/
 
