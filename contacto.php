@@ -1,7 +1,9 @@
+<?php require_once __DIR__ . "/admin/config.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<?php include("head.php"); ?>
+        <?php include("head.php"); ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <div id="loader-wrapper">
@@ -56,6 +58,7 @@
                 <label for="form-text">Mensaje</label>
               </div>
 
+              <div class="g-recaptcha" data-sitekey="<?php echo $recaptchaSiteKey; ?>"></div>
               <div class="text-center">
                 <button type="submit" class="btn btn-light-blue">Envíar</button>
               </div>
