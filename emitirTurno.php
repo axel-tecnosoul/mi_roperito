@@ -74,6 +74,48 @@ function turnoDisponible($pdo, $idAlmacen, $fecha, $hora){
     return !isset($bloqueados[$hora]);
 }
 
+function rateLimited($ip, $limit = 5, $windowSeconds = 60) {
+    $file = sys_get_temp_dir() . '/turno_requests.log';
+    $now = time();
+    $entries = [];
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data)) {
+            $entries = $data;
+        }
+    }
+    // Remove old entries
+    $entries = array_filter($entries, function ($entry) use ($now, $windowSeconds) {
+        return ($entry['time'] ?? 0) >= ($now - $windowSeconds);
+    });
+    $count = 0;
+    foreach ($entries as $entry) {
+        if (($entry['ip'] ?? '') === $ip) {
+            $count++;
+        }
+    }
+    // Log current request
+    $entries[] = ['ip' => $ip, 'time' => $now];
+    file_put_contents($file, json_encode($entries));
+    return $count >= $limit;
+}
+
+function verifyRecaptcha($token, $secret, $ip) {
+    if (!$token || !$secret) {
+        return false;
+    }
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+    $data = http_build_query(['secret' => $secret, 'response' => $token, 'remoteip' => $ip]);
+    $opts = ['http' => ['method' => 'POST', 'header' => 'Content-type: application/x-www-form-urlencoded', 'content' => $data]];
+    $context = stream_context_create($opts);
+    $response = file_get_contents($url, false, $context);
+    if (!$response) {
+        return false;
+    }
+    $result = json_decode($response, true);
+    return $result['success'] ?? false;
+}
+
 $fecha = $_POST['fecha'] ?? '';
 $hora  = $_POST['hora'] ?? '';
 $fechaSolicitada = $fecha;
@@ -84,6 +126,19 @@ $dni      = $_POST['dni'] ?? '';
 $nombre   = $_POST['nombre'] ?? '';
 $email    = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
+
+$recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+if (rateLimited($ip)) {
+    Database::disconnect();
+    jsonResponse(false, 'Demasiadas solicitudes desde esta IP. Intente nuevamente más tarde.');
+}
+
+if (!verifyRecaptcha($recaptchaResponse, $recaptchaSecretKey, $ip)) {
+    Database::disconnect();
+    jsonResponse(false, 'Verificación de reCAPTCHA fallida.');
+}
 $hoy = new DateTime('today');
 $limite = new DateTime('+60 minutes');
 
