@@ -11,7 +11,7 @@
                                                                         <form id="subscriptionForm" class="form-inline form-default form-subscribite" method="post" action="suscribir.php">
                                                                                 <div class="form-group">
                                                                                         <input type="email" name="email" class="form-control form-subscribite-input" placeholder="Ingresá tu email" required="required" style="">
-                                                                                        <div class="g-recaptcha" data-sitekey="<?php echo $recaptchaSite; ?>"></div>
+                                                                                         <div class="g-recaptcha" data-sitekey="<?php echo $recaptchaSiteKey; ?>"></div>
                                                                                         <button type="submit" class="btn btn-lg">Suscribite!</button>
                                                                                 </div>
                                                                         </form>
