@@ -1,3 +1,5 @@
+<?php require('admin/config.php'); ?>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <section>
                                 <div class="container-indent">
                                         <div class="container contenedor-subscribite">
@@ -9,6 +11,7 @@
                                                                         <form id="subscriptionForm" class="form-inline form-default form-subscribite" method="post" action="suscribir.php">
                                                                                 <div class="form-group">
                                                                                         <input type="email" name="email" class="form-control form-subscribite-input" placeholder="Ingresá tu email" required="required" style="">
+                                                                                        <div class="g-recaptcha" data-sitekey="<?php echo $recaptchaSite; ?>"></div>
                                                                                         <button type="submit" class="btn btn-lg">Suscribite!</button>
                                                                                 </div>
                                                                         </form>

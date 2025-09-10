@@ -8,11 +8,8 @@ $smtpClave = getenv('SMTP_PASS') ?: '';
 $fromEmail = getenv('SMTP_FROM') ?: 'avisos@miroperito.ar';
 $fromName  = getenv('SMTP_FROM_NAME') ?: 'MiRoperito';
 
-// reCAPTCHA keys; respect values already defined and fall back to environment variables
-if (!isset($recaptchaSiteKey)) {
-    $recaptchaSiteKey = getenv('RECAPTCHA_SITE_KEY') ?: '';
-}
-if (!isset($recaptchaSecret)) {
-    $recaptchaSecret = getenv('RECAPTCHA_SECRET') ?: '';
-}
+// reCAPTCHA keys for client (site) and server (secret)
+$recaptchaSiteKey   = getenv('RECAPTCHA_SITE_KEY') ?: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+$recaptchaSecretKey = getenv('RECAPTCHA_SECRET_KEY') ?: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+
 ?>
