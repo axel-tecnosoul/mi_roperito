@@ -56,7 +56,7 @@ require 'database.php';?>
                     foreach ($pdo->query($sql) as $row) {
                       echo '<div class="swiper-slide">';	
                       echo '<picture>';
-                      echo '<img loading="lazy" decoding="async" src="../images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="imagen" width="100%" height="100%">';
+                      echo '<img loading="lazy" decoding="async" src="../images/Banners/Proveedores/' . $row['url-jpg'] . '" alt="Banner proveedores" width="100%" height="100%">';
                       echo '</picture>';
                       echo '</div>';
                     }
