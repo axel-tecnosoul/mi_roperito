@@ -23,7 +23,7 @@
 
 							echo '<div class="testimonial custom-styles">';	
 							echo '<picture>';
-							echo '<img loading="lazy" decoding="async" src="images/Banners/Home/' . $nombreImagenJPG . '" alt="imagen" width="400" height="500">';
+							echo '<img loading="lazy" decoding="async" src="images/Banners/Home/' . $nombreImagenJPG . '" alt="Banner testimonio" width="400" height="500">';
 							echo '</picture>';
 							echo '</div>';
 						}
