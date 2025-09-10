@@ -134,7 +134,7 @@ if (rateLimited($ip)) {
     jsonResponse(false, 'Demasiadas solicitudes desde esta IP. Intente nuevamente más tarde.');
 }
 
-if (!verifyRecaptcha($recaptchaToken, $recaptchaSecret, $ip)) {
+if (!verifyRecaptcha($recaptchaToken, $recaptchaSecretKey, $ip)) {
     Database::disconnect();
     jsonResponse(false, 'Verificación de reCAPTCHA fallida.');
 }
