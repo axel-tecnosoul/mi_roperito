@@ -25,18 +25,11 @@ if ($appEnv === 'development') {
     $recaptchaSecretKey = $recaptchaSecretKeyDev ?: $recaptchaSecretKey;
 }
 
-// These variables define the connection information for your MySQL database
-//produccion
-/*$host = "localhost"; 
-$username = "miroperito";
-$password = "C9EpKlN8MTILc4Y";
-$dbname = "miroperito";*/
-
-//desarrollo
-$host = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mi_roperito";
+// Database configuration loaded from environment variables with .env fallbacks
+$host     = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
+$username = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
+$password = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
+$dbname   = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'mi_roperito');
 
 $options = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'); 
 try { $db = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8", $username, $password, $options); } 

@@ -2,6 +2,26 @@
 
 The application requires Google reCAPTCHA credentials.
 
+## Configure database connection
+
+Set the database connection variables on the server or in a `.env` file located at the project root:
+
+- `DB_HOST` – database host
+- `DB_USER` – database user
+- `DB_PASS` – database password
+- `DB_NAME` – database name
+
+Example using environment variables:
+
+```bash
+export DB_HOST="localhost"
+export DB_USER="miroperito"
+export DB_PASS="secret"
+export DB_NAME="mi_roperito"
+```
+
+Ensure these variables are available to the web server process.
+
 ## Configure reCAPTCHA keys
 
 Set the following environment variables on the production server or provide them in a `.env` file located at the project root:
