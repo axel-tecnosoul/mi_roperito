@@ -1,39 +1,37 @@
 <?php 
-    require("config.php"); 
-	require 'database.php';
-    $submitted_username = ''; 
-    if(!empty($_POST)){ 
-        $query = "SELECT `id`, `usuario`, `clave`, `activo`, `id_perfil`, `id_almacen` FROM `usuarios` WHERE activo = 1 and usuario = :user"; 
-        $query_params = array(':user' => $_POST['user']); 
-        
-        try{ 
-            $stmt = $db->prepare($query); 
-            $result = $stmt->execute($query_params); 
-        } 
-        catch(PDOException $ex){ die("Failed to run query: " . $ex->getMessage()); } 
-        $login_ok = false; 
-        $row = $stmt->fetch(); 
-        if($row){ 
-            $check_pass = $_POST['pass']; 
-            if($check_pass === $row['clave']){
-                $login_ok = true;
-            } 
-        } 
-
-        if($login_ok){ 
-            unset($row['clave']); 
-            $_SESSION['user'] = $row;  
-			
-			header("Location: dashboard.php"); 
-            die("Redirecting to: dashboard.php"); 
-			
-        } 
-        else{ 
-            print("Usuario o Contraseña incorrecto!"); 
-            $submitted_username = htmlentities($_POST['user'], ENT_QUOTES, 'UTF-8'); 
-        } 
+require("config.php");
+require 'database.php';
+$submitted_username = ''; 
+if(!empty($_POST)){ 
+  $query = "SELECT `id`, `usuario`, `clave`, `activo`, `id_perfil`, `id_almacen` FROM `usuarios` WHERE activo = 1 and usuario = :user"; 
+  $query_params = array(':user' => $_POST['user']); 
+  
+  try{ 
+    $stmt = $db->prepare($query); 
+    $result = $stmt->execute($query_params); 
+  } 
+  catch(PDOException $ex){ die("Failed to run query: " . $ex->getMessage()); } 
+  $login_ok = false; 
+  $row = $stmt->fetch(); 
+  if($row){ 
+    $check_pass = $_POST['pass']; 
+    if($check_pass === $row['clave']){
+      $login_ok = true;
     } 
-?>
+  } 
+
+  if($login_ok){ 
+    unset($row['clave']); 
+    $_SESSION['user'] = $row;  
+			
+		header("Location: dashboard.php"); 
+    die("Redirecting to: dashboard.php"); 
+			
+  }else{ 
+    print("Usuario o Contraseña incorrecto!"); 
+    $submitted_username = htmlentities($_POST['user'], ENT_QUOTES, 'UTF-8'); 
+  } 
+} ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
