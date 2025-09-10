@@ -37,7 +37,7 @@
             <div class="form-header blue accent-1">
               <h3 class="mt-2"><i class="fas fa-envelope"></i> Escribinos!</h3>
             </div>
-            <form id="" class="" method="post" action="contactar.php">			
+            <form id="contactForm" class="" method="post" action="contactar.php">
               <!-- Body -->
               <div class="md-form">
                 <label for="form-name">Nombre</label>
@@ -121,6 +121,18 @@
         </div>
       </div><!-- Grid column -->
     </div><!-- Grid row -->
+    <div class="modal" id="contact-message" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p id="contact-message-text" class="mb-0"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section><!-- Section: Contact v.1 -->
 
 	<?php include("testimonios.php"); ?>
@@ -132,5 +144,6 @@
   </footer>
 
   <?php include("scripts.php"); ?>
+  <script defer src="js/contacto.js"></script>
 </body>
 </html>
