@@ -1,8 +1,8 @@
 	<meta charset="utf-8">
 	<title><?php include("title.php"); ?></title>
-	<meta name="keywords" content="HTML5 Template">
-	<meta name="description" content="Wokiee - Responsive HTML5 Template">
-	<meta name="author" content="wokiee">
+        <meta name="keywords" content="Mi Roperito, moda circular, ropa de marca, tienda de ropa usada, economía sustentable">
+        <meta name="description" content="Mi Roperito promueve la moda circular extendiendo la vida de prendas de marca mediante una tienda online sustentable.">
+        <meta name="author" content="Mi Roperito">
 	<link rel="shortcut icon" href="favicon.ico">
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
