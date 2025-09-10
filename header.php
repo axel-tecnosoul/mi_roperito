@@ -48,7 +48,7 @@
 			<div class="row">
 				<div class="tt-logo-container">
 					<!-- logo -->
-					<a class="tt-logo tt-logo-alignment mt-2 logo-index-mb" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
+					<a class="tt-logo tt-logo-alignment mt-2 logo-index-mb" href="index.php"><img src="images/logo/logo-nuevom.png" alt="Logo Mi Roperito"></a>
 					<!-- /logo -->
 				</div>
 			</div>
@@ -62,7 +62,7 @@
 			<div class="tt-header-holder" style="flex-direction: column!important;">
 				<div class="tt-obj-logo">
 					<!-- logo -->
-					<a class="logo-index-dk" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
+					<a class="logo-index-dk" href="index.php"><img src="images/logo/logo-nuevom.png" alt="Logo Mi Roperito"></a>
 					<!-- /logo -->
 				</div>
 				<div class="tt-obj-menu">
@@ -129,7 +129,7 @@
 				<div class="col-left col-12 col-lg-2">
 					<div class="tt-stuck-parent-logo">
 						
-						<a class="tt-logo tt-logo-alignment logo-index-nav" href="index.php"><img src="images/logo/logo-nuevom.png" alt=""></a>
+						<a class="tt-logo tt-logo-alignment logo-index-nav" href="index.php"><img src="images/logo/logo-nuevom.png" alt="Logo Mi Roperito"></a>
 						
 					</div>
 				</div>

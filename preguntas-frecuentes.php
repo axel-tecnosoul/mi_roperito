@@ -24,7 +24,7 @@
 					<div class="banner">
 						<div class="banner-contenido">
 							<div class="banner-img">
-								<img src="images/logo/banner-vende-btn.png" alt="Imagen Logo vende">
+								<img src="images/logo/banner-vende-btn.png" alt="Banner botón vende">
 							</div>
 							<div class="banner-descripcion">
 								<div class="banner-descripcion-titulo">
