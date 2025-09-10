@@ -13,10 +13,10 @@
 				</div>
 				
 				<div class="col-sm-12 contenedor-carrusel">
-					<div id="testimonial-slider" class="owl-carousel carrusel"><?php
-						include 'admin/database.php';
-						$pdo = Database::connect();
-						$sql = "SELECT id, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 1"; 
+                                        <div id="testimonial-slider" class="owl-carousel carrusel"><?php
+                                                require_once __DIR__ . '/admin/database.php';
+                                                $pdo = Database::connect();
+                                                $sql = "SELECT id, seccion,`url-jpg`, activo FROM banners WHERE activo = 1 AND seccion = 1";
 
 						foreach ($pdo->query($sql) as $row) {
 							$nombreImagenJPG = $row['url-jpg'];
@@ -28,11 +28,11 @@
 							echo '</div>';
 						}
 
-						Database::disconnect();?>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-1"></div>
-	</div>		
+                                               Database::disconnect();?>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                <div class="col-1"></div>
+        </div>
 </section>
