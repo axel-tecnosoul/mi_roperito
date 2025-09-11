@@ -129,7 +129,7 @@ include('admin/database.php');
             <!-- Botón original:
             <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;">Solicitar Turno</button>
             -->
-            <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;" id="btn-submit" disabled>Solicitar Turno</button>
+            <button type="submit" class="btn btn-lg" style="height:70px; font-size:35px;" id="btn-submit">Solicitar Turno</button>
           </div>
 		    </form>
         </div>
@@ -250,7 +250,7 @@ include('admin/database.php');
         var $submit = $("#btn-submit");
         if (!idAlmacen || !fecha) {
           $hora.empty().append('<option value="">Seleccione un horario</option>');
-          $hora.prop('disabled', true);
+          $hora.prop('disabled', true).text('Procesando…');
           $submit.prop('disabled', true);
           return;
         }
@@ -303,12 +303,13 @@ include('admin/database.php');
         e.preventDefault();
         var $form = $(this);
         var $submitBtn = $("#btn-submit");
+        var originalText = $submitBtn.text();
         if (grecaptcha.getResponse() === '') {
           $('#turno-message').removeClass('text-success').addClass('text-danger').text('Por favor verifica que no eres un robot.');
           $('#turnoModal').modal('show');
           return;
         }
-        $submitBtn.prop('disabled', true);
+        $submitBtn.prop('disabled', true).text('Procesando…');
         $.ajax({
           url: $form.attr('action'),
           type: 'POST',
@@ -323,13 +324,14 @@ include('admin/database.php');
               $msg.removeClass('text-success').addClass('text-danger').text(res.message);
               $submitBtn.prop('disabled', false);
             }
+            $submitBtn.text(originalText);
             $('#turnoModal').modal('show');
             fetchHorarios();
           })
           .fail(function () {
             $('#turno-message').removeClass('text-success').addClass('text-danger').text('Error al procesar la solicitud.');
+            $submitBtn.prop('disabled', false).text(originalText);
             $('#turnoModal').modal('show');
-            $submitBtn.prop('disabled', false);
           });
       });
     });
