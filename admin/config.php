@@ -20,16 +20,21 @@ $recaptchaSecretKey   = getenv('RECAPTCHA_SECRET_KEY')   ?: ($env['RECAPTCHA_SEC
 $recaptchaSiteKeyDev  = getenv('RECAPTCHA_SITE_KEY_DEV') ?: ($env['RECAPTCHA_SITE_KEY_DEV'] ?? null);
 $recaptchaSecretKeyDev= getenv('RECAPTCHA_SECRET_KEY_DEV') ?: ($env['RECAPTCHA_SECRET_KEY_DEV'] ?? null);
 
+// Database configuration loaded from environment variables with .env fallbacks
+$host     = $env['DB_HOST'];
+$username = $env['DB_USER'];
+$password = $env['DB_PASS'];
+$dbname   = $env['DB_NAME'];
+
 if ($appEnv === 'development') {
     $recaptchaSiteKey   = $recaptchaSiteKeyDev   ?: $recaptchaSiteKey;
     $recaptchaSecretKey = $recaptchaSecretKeyDev ?: $recaptchaSecretKey;
+    // For development, you might want to use different DB credentials
+    $host     = 'localhost';
+    $username = 'root';
+    $password = '';
+    $dbname   = 'mi_roperito';
 }
-
-// Database configuration loaded from environment variables with .env fallbacks
-$host     = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
-$username = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
-$password = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
-$dbname   = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'mi_roperito');
 
 $options = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'); 
 try { $db = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8", $username, $password, $options); } 

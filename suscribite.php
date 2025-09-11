@@ -1,4 +1,3 @@
-<?php require('admin/config.php'); ?>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <section>
   <div class="container-indent">
