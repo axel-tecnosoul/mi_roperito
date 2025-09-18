@@ -474,7 +474,7 @@ img {
 @media (min-width: 1270px){ 
     .locales-nosotros{
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
         width: 1270px;
         margin-bottom: 60px;
@@ -493,7 +493,8 @@ img {
     background-repeat: no-repeat;
     background-size: 162%;
     width: 100%;
-    height: 400px;
+    /*height: 400px;*/
+    height: 800px;
 }
 .notavif.notwebp .imagen-local-nosotros.iln-1{/* Clase del snippet img.js .notavif .notwebp*/
     background-image: url("../images/locales/nosotros/JPG/LocalBallester.jpg");
@@ -525,6 +526,19 @@ img {
     background-position: -16px -6px;
     background-size: 103%;
 }
+
+/*@media (min-width: 576px) {
+    .imagen-local-nosotros {
+        height: 461px;
+    }
+}*/
+
+@media (max-width: 719px){
+  .imagen-local-nosotros {
+    height: 461px;
+  }
+}
+
 
 .locales h4{
     font-family: 'Gotham-Black', sans-serif;
@@ -719,7 +733,7 @@ img {
 .pin {
     height: 50px;
     position: absolute;
-    top: 451px;
+    top: 851px;
     margin-left: 28px;
 }
 
@@ -731,17 +745,33 @@ img {
     top: 1525px;
 }
 
+@media (max-width: 719px){
+  .pin-verde {
+    top: 1115px;
+  }
+  .pin-magenta {
+    top: 485px;
+  }
+}
+
+@media (max-width: 576px){
+  .pin-verde {
+    top: 1100px;
+  }
+}
+
 @media (min-width: 720px){ 
     .pin {
         height: 60px;
     }
 
     .pin-magenta {
-        top: 461px;
+        /*top: 861px;*/
+        top: 841px;
     }
 
     .pin-verde {
-        top: 990px;
+        top: 1790px;
     }
 
     .pin-magenta2 {
@@ -753,10 +783,24 @@ img {
 @media (min-width: 964px){ 
     .pin {
         height: 70px;
-        top: 451px;
+        /*top: 851px;*/
         margin-left: 28px;
     }
+    .pin.pin-verde {
+        top: 1790px;
+    }
 }
+
+@media (min-width: 1270px){
+  .pin.pin-verde { top: 851px; }
+}
+
+
+/*@media (min-width: 964px) and (max-width: 1271px){ 
+    .pin-verde {
+        top: 851px;
+    }
+}*/
 
 .contenido-locales.custom-styles .btn{ /*.custom-styles para aumentar la especificidad de CSS.*/
     height: 40px!important;

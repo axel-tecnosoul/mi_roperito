@@ -87,6 +87,14 @@
             <a class="btn-floating blue accent-1">
               <i class="fas fa-map-marker-alt"></i>
             </a>
+            <p><a target="_blank" href="https://goo.gl/maps/AirnWpSpJSyQsVUJ6">Nuñez</a></p>
+            <p class="mb-md-0">Crisólogo Larralde 1970</p>
+          </div>
+
+          <!-- <div class="col">
+            <a class="btn-floating blue accent-1">
+              <i class="fas fa-map-marker-alt"></i>
+            </a>
             <p><a target="_blank" href="https://goo.gl/maps/QxwvCPqcKCkMEGVm8">San Isidro</a></p>
             <p class="mb-md-0">Av. Fondo de la Legua 425</p>
           </div>
@@ -97,7 +105,7 @@
             </a>
             <p><a target="_blank" href="https://goo.gl/maps/8b3dKr9Vce7Ve9Lk8">Martinez</a></p>
             <p class="mb-md-0">Parana 3922</p>
-          </div>
+          </div> -->
 
           <div class="col">
             <a class="btn-floating blue accent-1">
@@ -111,12 +119,14 @@
             <a class="btn-floating blue accent-1">
               <i class="fas fa-envelope"></i>
             </a>
-            <p>ballester@miroperito.ar</p>
+            <!-- <p>ballester@miroperito.ar</p>
             <p class="mb-0">sanisidro@miroperito.ar</p>
             <p class="mb-0">martinez@miroperito.ar</p>
             <p class="mb-0">proveedoras@miroperito.ar</p>
             <p class="mb-0">vende@miroperito.ar</p>
-            <p class="mb-0">devoluciones@miroperito.ar</p>
+            <p class="mb-0">devoluciones@miroperito.ar</p> -->
+            <p>Ballester: miroperitooficial@gmail.com</p>
+            <p class="mb-0">Nuñez: nunez@gmail.com</p>
           </div>
         </div>
       </div><!-- Grid column -->

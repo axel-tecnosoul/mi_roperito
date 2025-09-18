@@ -1,3 +1,4 @@
+<?php require('admin/config.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,13 +92,12 @@
 							<div class="imagen-local-nosotros iln-2"></div>
 							<img src="images/nosotros/pin_verde.png" alt="Pin verde ubicación" class="pin pin-verde">
 							<div class="contenido-locales">
-								<h4>San Isidro:</h4>
-								<p>de lunes a sábados de 11 a 19 hs.</p>
-								<p>Av. Fondo de la Legua 425</p>
-								<p>(Boulogne Sur)</p>
+								<h4>Núñez:</h4>
+								<p>de lunes a sábados de 10 a 20 hs.</p>
+								<p>Crisólogo Larralde 1970</p>
 							</div>
 						</div>
-						<div class="locales">
+						<!-- <div class="locales">
 							<div class="imagen-local-nosotros iln-3"></div>
 							<img src="images/nosotros/pin_magenta.png" alt="Pin magenta ubicación" class="pin pin-magenta2">
 							<div class="contenido-locales">
@@ -105,7 +105,7 @@
 								<p>de lunes a sábados de 10 a 20 hs.</p>
 								<p>Crisólogo Larralde 1970</p>
 							</div>
-						</div>
+						</div> -->
 					</div>
 				</div>
 			</div>

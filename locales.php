@@ -1,3 +1,4 @@
+<?php require('admin/config.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,17 +66,18 @@
 						<div class="imagen-locales iln-2"></div>
 						<div class="contenido-descripcion-btn">
 							<div class="contenido-locales-descripcion">
-								<h3>San Isidro</h3>
+								<h3>Nuñez</h3>
 								<p><span>DIAS:</span> de lunes a sábados</p>
-								<p><span>HORARIOS:</span> de 11 a 19 hs.</p>
-								<p><span>DIRECCIÓN:</span> AV. Fondo de la Legua 425</p>
-								<p>(Boulogne Sur)</p>
+								<p><span>HORARIOS:</span> de 10 a 20 hs.</p>
+								<p><span>DIRECCIÓN:</span> Crisólogo Larralde 1970</p>
+								<br>
 							</div>
-							<a href="https://goo.gl/maps/o6o3nw287iZWcP74A" target="_blank" class="btn">Como llegar</a>
+							<a href="https://goo.gl/maps/AirnWpSpJSyQsVUJ6" target="_blank" class="btn">Como llegar</a>
+              <!-- <a href="https://goo.gl/maps/o6o3nw287iZWcP74A" target="_blank" class="btn">Como llegar</a> -->
 						</div>
 					</div>
 
-					<div class="contenido-locales custom-styles">
+					<!-- <div class="contenido-locales custom-styles">
 						<div class="imagen-locales iln-3"></div>
 						<div class="contenido-descripcion-btn">
 							<div class="contenido-locales-descripcion">
@@ -87,7 +89,7 @@
 							</div>
 							<a href="https://goo.gl/maps/AirnWpSpJSyQsVUJ6" target="_blank" class="btn">Como llegar</a>
 						</div>
-					</div>
+					</div> -->
 
 					<div class="contenido-locales">
 						<div class="contenido-locales-img">
