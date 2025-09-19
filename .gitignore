@@ -4,4 +4,6 @@ nueva_web/images/Banners
 save_log.txt
 miroperitodb.sql
 .env
+.env_production
+.env_development
 backup/
