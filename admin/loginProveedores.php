@@ -106,9 +106,9 @@ if(!empty($_POST)){
                         <div class="form-group form-row mt-3 mb-0">
 						  <a href="#" onclick="document.flogin.submit()" class="btn btn-primary btn-block">Ingresar</a>
                         </div>
-						<div class="form-group form-row mt-3 mb-0">
+						<!-- <div class="form-group form-row mt-3 mb-0">
 						  <a href="nuevoProveedor.php">Aún no tenés usuario? Registrate</a>
-						</div>
+						</div> -->
                       </form>
                     </div>
                   </div>

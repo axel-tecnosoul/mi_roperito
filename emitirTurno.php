@@ -192,10 +192,15 @@ try {
   $almacen=$fila['almacen'];
   $direccion=$fila['direccion'];
 
+  $emailSucursal="miroperitooficial@gmail.com";
+  if($idAlmacen==7){//nuñez
+    //$emailSucursal="";
+  }
+
 	//$sucursal =$_POST['id_almacen'];
   $sucursal =$almacen;
 	
-	$message = "
+	/*$message = "
 	<html>
 	<head>
 	<title>Solicitud de Turno MiRoperito</title>
@@ -244,13 +249,83 @@ try {
 	</table>
 	</body>
 	</html>
-	";
+	";*/
+
+  $message = "
+  <html lang='es'>
+  <head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='Content-Language' content='es'>
+    <title>Solicitud de Turno MiRoperito</title>
+  </head>
+  <body style='margin:0; padding:20px; background-color:#f0f0f0; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#333; line-height:1.3;'>
+    <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+      <tr>
+        <td align='center'>
+          <table width='600' border='0' cellspacing='0' cellpadding='0' style='background:#ffffff; border:1px solid #dfdfdf; border-radius:6px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>
+
+            <!-- Logo -->
+            <tr>
+              <td align='center' style='padding:0;'>
+                <img src='https://miroperito.ar/images/logo/Logo-Mi-roperito.png' alt='Mi Roperito' style='width:100%; max-width:300px; display:block;'>
+              </td>
+            </tr>
+
+            <!-- Datos -->
+            <tr>
+              <td>
+                <table width='100%' border='0' cellspacing='0' cellpadding='6' style='border-top:1px solid #dfdfdf; font-size:13px; line-height:1.3;'>
+                  <tr>
+                    <td width='30%' align='right' style='font-weight:bold; padding:4px;'>Sucursal:</td>
+                    <td style='padding:4px;'>".$sucursal."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>Cantidad:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".$cantidad."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>Fecha:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".date("d/m/Y", strtotime($fecha))."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>Hora:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".$hora."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>DNI:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".$dni."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>Nombre:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".$nombre."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; padding:4px;'>E-Mail:</td>
+                    <td style='border-top:1px solid #eee; padding:4px;'>".$email."</td>
+                  </tr>
+                  <tr>
+                    <td align='right' style='font-weight:bold; border-top:1px solid #eee; border-bottom:1px solid #eee; padding:4px;'>Teléfono:</td>
+                    <td style='border-top:1px solid #eee; border-bottom:1px solid #eee; padding:4px;'>".$telefono."</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  ";
+
 
   //SELECT * FROM `turnos` WHERE DATE(fecha_hora)>="2023-03-02" AND fecha_hora<"2023-03-28 16:01";
 	
   //$smtpHost = "c1971287.ferozo.com";
   //$smtpHost = "miroperito.ar";
   //$smtpHost = "tecnosoul.com.ar";
+
   $mail = new PHPMailer();
   $mail->IsSMTP();
   $mail->SMTPAuth = true;
@@ -276,7 +351,8 @@ try {
   $mail->From = $fromEmail;
   $mail->FromName = $fromName;
   $mail->AddReplyTo($email, $nombre);
-  $mail->AddAddress("vende@miroperito.ar");
+  //$mail->AddAddress("vende@miroperito.ar");
+  $mail->AddAddress($emailSucursal);
   $mail->AddAddress($email);
 	$mensaje = $message;
 	$mail->Subject = "Solicitud de Turno MiRoperito"; 
