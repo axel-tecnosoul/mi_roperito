@@ -199,57 +199,6 @@ try {
 
 	//$sucursal =$_POST['id_almacen'];
   $sucursal =$almacen;
-	
-	/*$message = "
-	<html>
-	<head>
-	<title>Solicitud de Turno MiRoperito</title>
-	</head>
-	<body>
-	<table width='50%' border='0' align='center' cellpadding='0' cellspacing='0'>
-	<tr>
-	<td colspan='2' align='center' valign='top'><img style=' margin-top: 15px;max-width: 100%; ' src='https://miroperito.ar/images/logo/Logo-Mi-roperito.png' ></td>
-	</tr>
-	<tr>
-	<td width='50%' align='right'>&nbsp;</td>
-	<td align='left'>&nbsp;</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Sucursal:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$sucursal."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Cantidad:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$cantidad."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Fecha:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$fecha."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Hora:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$hora."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>DNI:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$dni."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Nombre:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$nombre."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>E-Mail:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$email."</td>
-	</tr>
-	<tr>
-	<td align='right' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 5px 7px 0;'>Teléfono:</td>
-	<td align='left' valign='top' style='border-top:1px solid #dfdfdf; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; padding:7px 0 7px 5px;'>".$telefono."</td>
-	</tr>
-	</table>
-	</body>
-	</html>
-	";*/
 
   $message = "
   <html lang='es'>
