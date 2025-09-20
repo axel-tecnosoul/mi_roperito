@@ -6,4 +6,5 @@ miroperitodb.sql
 .env
 .env_production
 .env_development
+.env*
 backup/

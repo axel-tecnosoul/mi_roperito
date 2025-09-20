@@ -42,7 +42,7 @@ $q->execute(array($nombre,$email,$subject,$mensaje));
 
 $emailSucursal="miroperitooficial@gmail.com";
 if($idAlmacen==7){//nuñez
-  //$emailSucursal="";
+  $emailSucursal="miroperitonunez@gmail.com";
 }
 
 /*$message = "

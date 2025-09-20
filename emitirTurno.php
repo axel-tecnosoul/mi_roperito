@@ -194,7 +194,7 @@ try {
 
   $emailSucursal="miroperitooficial@gmail.com";
   if($idAlmacen==7){//nuñez
-    //$emailSucursal="";
+    $emailSucursal="miroperitonunez@gmail.com";
   }
 
 	//$sucursal =$_POST['id_almacen'];
