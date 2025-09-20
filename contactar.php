@@ -11,6 +11,7 @@ $nombre  = trim($_POST["nombre"] ?? '');
 $email   = trim($_POST["email"] ?? '');
 $mensaje = trim($_POST["mensaje"] ?? '');
 $subject = trim($_POST["asunto"] ?? '');
+$idAlmacen = trim($_POST["id_almacen"] ?? '');
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) ||
 strlen($nombre) > 100 || strlen($subject) > 150 || strlen($mensaje) > 1000 ||
@@ -36,9 +37,9 @@ if (!$recaptchaValid) {
 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = "INSERT INTO `contactos`(`fecha_hora`, `nombre`, `email`, `asunto`, `mensaje`) VALUES (now(),?,?,?,?)";
+$sql = "INSERT INTO contactos (fecha_hora, nombre, email, asunto, mensaje, id_almacen) VALUES (now(),?,?,?,?,?)";
 $q = $pdo->prepare($sql);
-$q->execute(array($nombre,$email,$subject,$mensaje));
+$q->execute(array($nombre,$email,$subject,$mensaje,$idAlmacen));
 
 $emailSucursal="miroperitooficial@gmail.com";
 if($idAlmacen==7){//nuñez

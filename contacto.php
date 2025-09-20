@@ -1,9 +1,11 @@
-<?php require_once __DIR__ . "/admin/config.php"; ?>
+<?php
+require("admin/config.php");
+include('admin/database.php');?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <?php include("head.php"); ?>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <?php include("head.php"); ?>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <div id="loader-wrapper">
@@ -39,6 +41,23 @@
             </div>
             <form id="contactForm" class="" method="post" action="contactar.php">
               <!-- Body -->
+               <div class="md-form">
+                <label for="form-suc">Sucursal</label>
+                <select name="id_almacen" id="id_almacen" class="form-control" required="required">
+                  <option value="">Seleccione...</option><?php
+                  $pdo = Database::connect();
+                  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                  $sqlZon = "SELECT id, almacen FROM almacenes WHERE id_tipo=1 AND activo = 1 and id!=5";
+                  $q = $pdo->prepare($sqlZon);
+                  $q->execute();
+                  while ($fila = $q->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<option value='".$fila['id']."'";
+                    echo ">".$fila['almacen']."</option>";
+                  }
+                  Database::disconnect();?>
+                </select>
+              </div>
+
               <div class="md-form">
                 <label for="form-name">Nombre</label>
                 <input type="text" name="nombre" id="form-name" class="form-control" required="required">
@@ -125,8 +144,8 @@
             <p class="mb-0">proveedoras@miroperito.ar</p>
             <p class="mb-0">vende@miroperito.ar</p>
             <p class="mb-0">devoluciones@miroperito.ar</p> -->
-            <p>Ballester: miroperitooficial@gmail.com</p>
-            <p class="mb-0">Nuñez: nunez@gmail.com</p>
+            <p>miroperitooficial@gmail.com</p>
+            <p class="mb-0">miroperitonunez@gmail.com</p>
           </div>
         </div>
       </div><!-- Grid column -->

@@ -65,7 +65,8 @@ if(empty($_SESSION['user']))
                         <thead>
                           <tr>
 						  <th>ID</th>
-						  <th>Nombre</th>
+						  <th>Almacen</th>
+              <th>Nombre</th>
 						  <th>E-Mail</th>
 						  <th>Asunto</th>
 						  <th>Mensaje</th>
@@ -77,11 +78,12 @@ if(empty($_SESSION['user']))
                           <?php 
 							include 'database.php';
 							$pdo = Database::connect();
-							$sql = " SELECT `id`, date_format(`fecha_hora`,'%d/%m/%Y %H:%i'), `nombre`, `email`, `asunto`, `mensaje` FROM `contactos` WHERE 1 ";
+							$sql = " SELECT c.id, date_format(c.fecha_hora,'%d/%m/%Y %H:%i'), c.nombre, c.email, c.asunto, c.mensaje, a.almacen AS almacen FROM contactos c LEFT JOIN almacenes a ON c.id_almacen = a.id WHERE 1 ";
 							
 							foreach ($pdo->query($sql) as $row) {
 								echo '<tr>';
 								echo '<td>'. $row[0] . '</td>';
+                echo '<td>'. $row[6] . '</td>';
 								echo '<td>'. $row[2] . '</td>';
 								echo '<td>'. $row[3] . '</td>';
 								echo '<td>'. $row[4] . '</td>';
