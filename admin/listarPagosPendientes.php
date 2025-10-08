@@ -37,7 +37,7 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
 }
 $id_almacen=0;
 $filtroAlmacen="";
-if(isset($_GET["a"]) and $_GET["a"]!=0){
+if(isset($_GET["a"]) and $_GET["a"]>0){
   $id_almacen=$_GET["a"];
   $filtroAlmacen=" AND a.id=".$id_almacen;
 }
@@ -445,7 +445,12 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         let desde=$("#desde").val();
         let hasta=$("#hasta").val();
         let id_proveedor=$("#id_proveedor").val();
-        let id_almacen=$("#id_almacen").val();
+        let select_almacen=$("#id_almacen").val();
+        let id_almacen=0;
+        if(select_almacen!=undefined){
+          id_almacen=select_almacen;
+        }
+        //alert(id_almacen);
         window.location.href="listarPagosPendientes.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
       }
 

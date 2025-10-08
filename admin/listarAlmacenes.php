@@ -1,51 +1,50 @@
 <?php 
 session_start();
 if(empty($_SESSION['user']['id_perfil'])){
-        header("Location: index.php");
-        die("Redirecting to index.php");
+  header("Location: index.php");
+  die("Redirecting to index.php");
 }
 // Devuelve un arreglo con los horarios agrupados por grupos de días
 function obtenerHorarios($pdo, $idAlmacen){
-        $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-        $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
-        $q = $pdo->prepare($sql);
-        $q->execute([$idAlmacen]);
-        $rows = $q->fetchAll(PDO::FETCH_ASSOC);
+  $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  $sql = "SELECT dia_semana,hora_inicio,hora_fin,frecuencia_minutos,bloqueo_minutos FROM almacenes_horarios WHERE id_almacen = ? ORDER BY dia_semana,hora_inicio";
+  $q = $pdo->prepare($sql);
+  $q->execute([$idAlmacen]);
+  $rows = $q->fetchAll(PDO::FETCH_ASSOC);
 
-        $diaHorarios = [];
-        foreach($rows as $r){
-                $d = (int)$r['dia_semana'];
-                $diaHorarios[$d]['bloques'][] = [
-                        'inicio' => date('H:i', strtotime($r['hora_inicio'])),
-                        'fin' => date('H:i', strtotime($r['hora_fin']))
-                ];
-                $diaHorarios[$d]['frecuencia'] = $r['frecuencia_minutos'];
-                $diaHorarios[$d]['bloqueo'] = $r['bloqueo_minutos'];
-        }
+  $diaHorarios = [];
+  foreach($rows as $r){
+    $d = (int)$r['dia_semana'];
+    $diaHorarios[$d]['bloques'][] = [
+      'inicio' => date('H:i', strtotime($r['hora_inicio'])),
+      'fin' => date('H:i', strtotime($r['hora_fin']))
+    ];
+    $diaHorarios[$d]['frecuencia'] = $r['frecuencia_minutos'];
+    $diaHorarios[$d]['bloqueo'] = $r['bloqueo_minutos'];
+  }
 
-        $grupos = [];
-        $usados = [];
-        foreach($diaHorarios as $d => $info){
-                if(isset($usados[$d])) continue;
-                $grupoDias = [$dias[$d]];
-                $usados[$d] = true;
-                foreach($diaHorarios as $d2 => $info2){
-                        if($d2 === $d || isset($usados[$d2])) continue;
-                        if($info2['bloques'] == $info['bloques'] && $info2['frecuencia'] == $info['frecuencia'] && $info2['bloqueo'] == $info['bloqueo']){
-                                $grupoDias[] = $dias[$d2];
-                                $usados[$d2] = true;
-                        }
-                }
-                $grupos[] = [
-                        'dias' => $grupoDias,
-                        'bloques' => $info['bloques'],
-                        'frecuencia' => $info['frecuencia'],
-                        'bloqueo' => $info['bloqueo']
-                ];
-        }
-        return $grupos;
-}
-?>
+  $grupos = [];
+  $usados = [];
+  foreach($diaHorarios as $d => $info){
+    if(isset($usados[$d])) continue;
+    $grupoDias = [$dias[$d]];
+    $usados[$d] = true;
+    foreach($diaHorarios as $d2 => $info2){
+      if($d2 === $d || isset($usados[$d2])) continue;
+      if($info2['bloques'] == $info['bloques'] && $info2['frecuencia'] == $info['frecuencia'] && $info2['bloqueo'] == $info['bloqueo']){
+        $grupoDias[] = $dias[$d2];
+        $usados[$d2] = true;
+      }
+    }
+    $grupos[] = [
+      'dias' => $grupoDias,
+      'bloques' => $info['bloques'],
+      'frecuencia' => $info['frecuencia'],
+      'bloqueo' => $info['bloqueo']
+    ];
+  }
+  return $grupos;
+}?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -176,31 +175,27 @@ function obtenerHorarios($pdo, $idAlmacen){
         <!-- footer start-->
         <?php include("footer.php"); ?>
       </div>
-    </div>
-	<?php 
-	$pdo = Database::connect();
-	$sql = " SELECT `id`, `almacen`, `activo` FROM `almacenes` WHERE 1 ";
-	foreach ($pdo->query($sql) as $row) {
-	?>
-	<div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
-			<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-		  </div>
-		  <div class="modal-body">¿Está seguro que desea eliminar el almacen?</div>
-		  <div class="modal-footer">
-			<a href="eliminarAlmacen.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
-			<a onclick="document.location.href='listarAlmacenes.php'" class="btn btn-light">Volver</a>
-		  </div>
-		</div>
-	  </div>
-	</div>
-	<?php 
-	}
-	Database::disconnect();
-	?>
+    </div><?php
+    $pdo = Database::connect();
+    $sql = " SELECT `id`, `almacen`, `activo` FROM `almacenes` WHERE 1 ";
+    foreach ($pdo->query($sql) as $row) {?>
+      <div class="modal fade" id="eliminarModal_<?php echo $row[0];?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">¿Está seguro que desea eliminar el almacen?</div>
+          <div class="modal-footer">
+          <a href="eliminarAlmacen.php?id=<?php echo $row[0];?>" class="btn btn-primary">Eliminar</a>
+          <a onclick="document.location.href='listarAlmacenes.php'" class="btn btn-light">Volver</a>
+          </div>
+        </div>
+        </div>
+      </div><?php 
+	  }
+	  Database::disconnect();?>
     <!-- latest jquery-->
     <script src="assets/js/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap js-->
