@@ -541,53 +541,57 @@ if ( !empty($_POST)) {
 
   $aProductosDevolver=[];
 
-  $id_lista_ventas = implode(',', $aVentas); // Convertimos el array de IDs en una cadena separada por comas
-  $sql = "SELECT vd.cantidad as cantidad_producto, vd.subtotal, p.codigo, p.descripcion, p.precio, v.fecha_hora, v.id_almacen, v.id_descuento_aplicado, d.descripcion AS descuento_aplicado, fp.forma_pago FROM ventas_detalle vd INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN ventas v ON vd.id_venta=v.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE vd.id IN ($id_lista_ventas) ";
-  $q = $pdo->prepare($sql);
-  $q->execute();
-  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
-  foreach ($devoluciones as $data) { 
-    $descuentos_aplicados = '';
-    if ($data["id_descuento_aplicado"] == NULL || $data["id_descuento_aplicado"] == 0) {
-      //$descuentos_aplicados = 'Sin descuentos aplicados';
-    } else {
-      $descuentos_aplicados = $data["descuento_aplicado"];
+  if(count($aVentas)>0){
+    $id_lista_ventas = implode(',', $aVentas); // Convertimos el array de IDs en una cadena separada por comas
+    $sql = "SELECT vd.cantidad as cantidad_producto, vd.subtotal, p.codigo, p.descripcion, p.precio, v.fecha_hora, v.id_almacen, v.id_descuento_aplicado, d.descripcion AS descuento_aplicado, fp.forma_pago FROM ventas_detalle vd INNER JOIN productos p ON p.id = vd.id_producto INNER JOIN ventas v ON vd.id_venta=v.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE vd.id IN ($id_lista_ventas) ";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($devoluciones as $data) { 
+      $descuentos_aplicados = '';
+      if ($data["id_descuento_aplicado"] == NULL || $data["id_descuento_aplicado"] == 0) {
+        //$descuentos_aplicados = 'Sin descuentos aplicados';
+      } else {
+        $descuentos_aplicados = $data["descuento_aplicado"];
+      }
+      
+      $aProductosDevolver[]=[
+        "fecha_hora" => $data["fecha_hora"],
+        "producto" => "(" . $data["codigo"] . ") " . $data["descripcion"],
+        "precio" => $data["precio"],
+        "subtotal" => $data["subtotal"],
+        "cantidad_producto" => $data["cantidad_producto"],
+        "forma_pago" => $data["forma_pago"],
+        "descuentos_aplicados" => $descuentos_aplicados,
+      ];
     }
-    
-    $aProductosDevolver[]=[
-      "fecha_hora" => $data["fecha_hora"],
-      "producto" => "(" . $data["codigo"] . ") " . $data["descripcion"],
-      "precio" => $data["precio"],
-      "subtotal" => $data["subtotal"],
-      "cantidad_producto" => $data["cantidad_producto"],
-      "forma_pago" => $data["forma_pago"],
-      "descuentos_aplicados" => $descuentos_aplicados,
-    ];
   }
 
-  $id_lista_canjes = implode(',', $aCanjes); // Convertimos el array de IDs en una cadena separada por comas
-  $sql = "SELECT cd.cantidad as cantidad_producto, cd.subtotal, p.codigo, p.descripcion, p.precio, c.fecha_hora, c.id_almacen, c.id_descuento_aplicado, d.descripcion AS descuento_aplicado FROM canjes_detalle cd INNER JOIN productos p ON p.id = cd.id_producto INNER JOIN canjes c ON cd.id_canje=c.id LEFT JOIN descuentos d ON d.id = c.id_descuento_aplicado INNER JOIN usuarios u ON c.id_usuario=u.id WHERE cd.id IN ($id_lista_canjes) ";
-  $q = $pdo->prepare($sql);
-  $q->execute();
-  $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
-  //var_dump($devoluciones);
-  foreach ($devoluciones as $data) {
-    $descuentos_aplicados = '';
-    if ($data["id_descuento_aplicado"] == NULL || $data["id_descuento_aplicado"] == 0) {
-      //$descuentos_aplicados = 'Sin descuentos aplicados';
-    } else {
-      $descuentos_aplicados = $data["descuento_aplicado"];
+  if(count($aCanjes)>0){
+    $id_lista_canjes = implode(',', $aCanjes); // Convertimos el array de IDs en una cadena separada por comas
+    $sql = "SELECT cd.cantidad as cantidad_producto, cd.subtotal, p.codigo, p.descripcion, p.precio, c.fecha_hora, c.id_almacen, c.id_descuento_aplicado, d.descripcion AS descuento_aplicado FROM canjes_detalle cd INNER JOIN productos p ON p.id = cd.id_producto INNER JOIN canjes c ON cd.id_canje=c.id LEFT JOIN descuentos d ON d.id = c.id_descuento_aplicado INNER JOIN usuarios u ON c.id_usuario=u.id WHERE cd.id IN ($id_lista_canjes) ";
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $devoluciones = $q->fetchAll(PDO::FETCH_ASSOC);
+    //var_dump($devoluciones);
+    foreach ($devoluciones as $data) {
+      $descuentos_aplicados = '';
+      if ($data["id_descuento_aplicado"] == NULL || $data["id_descuento_aplicado"] == 0) {
+        //$descuentos_aplicados = 'Sin descuentos aplicados';
+      } else {
+        $descuentos_aplicados = $data["descuento_aplicado"];
+      }
+      
+      $aProductosDevolver[]=[
+        "fecha_hora" => $data["fecha_hora"],
+        "producto" => "(" . $data["codigo"] . ") " . $data["descripcion"],
+        "precio" => $data["precio"],
+        "subtotal" => $data["subtotal"],
+        "cantidad_producto" => $data["cantidad_producto"],
+        "forma_pago" => "Canje",
+        "descuentos_aplicados" => $descuentos_aplicados,
+      ];
     }
-    
-    $aProductosDevolver[]=[
-      "fecha_hora" => $data["fecha_hora"],
-      "producto" => "(" . $data["codigo"] . ") " . $data["descripcion"],
-      "precio" => $data["precio"],
-      "subtotal" => $data["subtotal"],
-      "cantidad_producto" => $data["cantidad_producto"],
-      "forma_pago" => "Canje",
-      "descuentos_aplicados" => $descuentos_aplicados,
-    ];
   }
   /*$sql = "SELECT v.id AS id_venta, v.fecha_hora, v.id_almacen, v.id_descuento_aplicado, d.descripcion AS descuento_aplicado, fp.forma_pago FROM ventas v INNER JOIN ventas_detalle vd ON vd.id_venta = v.id LEFT JOIN descuentos d ON d.id = v.id_descuento_aplicado LEFT JOIN forma_pago fp ON v.id_forma_pago = fp.id INNER JOIN usuarios u ON v.id_usuario=u.id WHERE vd.id IN ($id_lista_ventas) "; // Utilizamos la cláusula WHERE IN para buscar los detalles de varias ventas al mismo tiempo
   //echo $sql;
