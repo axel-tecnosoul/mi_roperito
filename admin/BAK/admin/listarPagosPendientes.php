@@ -37,7 +37,7 @@ if(isset($_GET["p"]) and $_GET["p"]!=0){
 }
 $id_almacen=0;
 $filtroAlmacen="";
-if(isset($_GET["a"]) and $_GET["a"]!=0){
+if(isset($_GET["a"]) and $_GET["a"]>0){
   $id_almacen=$_GET["a"];
   $filtroAlmacen=" AND a.id=".$id_almacen;
 }
@@ -224,7 +224,7 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
                           $pdo = Database::connect();
                           //$sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join almacenes a on a.id = v.id_almacen inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join forma_pago fp on fp.id = v.id_forma_pago WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           //$sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND v.id_venta_cbte_relacionado IS NULL AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
-                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor, v.tipo_comprobante, v.estado FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND de.id_devolucion IS NULL $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
+                          $sql = " SELECT vd.id AS id_detalle_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora, p.codigo, c.categoria, p.descripcion, vd.cantidad, vd.precio, vd.subtotal, m.modalidad, vd.pagado, pr.nombre, pr.apellido, v.id_forma_pago, fp.forma_pago, v.id AS id_venta,vd.deuda_proveedor, v.tipo_comprobante, v.estado FROM ventas_detalle vd inner join ventas v on v.id = vd.id_venta inner join productos p on p.id = vd.id_producto inner join categorias c on c.id = p.id_categoria inner join modalidades m on m.id = vd.id_modalidad inner join proveedores pr on pr.id = p.id_proveedor inner join almacenes a on a.id = pr.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle=vd.id WHERE v.anulada = 0 and vd.id_modalidad = 40 and vd.pagado = 0 AND de.id_devolucion IS NULL AND pr.activo = 1 $filtroDesde $filtroHasta $filtroProveedor $filtroAlmacen";
                           //echo $sql;
                           if ($_SESSION['user']['id_perfil'] == 2) {
                             $sql .= " and a.id = ".$_SESSION['user']['id_almacen']; 
@@ -445,7 +445,12 @@ if(isset($_GET["a"]) and $_GET["a"]!=0){
         let desde=$("#desde").val();
         let hasta=$("#hasta").val();
         let id_proveedor=$("#id_proveedor").val();
-        let id_almacen=$("#id_almacen").val();
+        let select_almacen=$("#id_almacen").val();
+        let id_almacen=0;
+        if(select_almacen!=undefined){
+          id_almacen=select_almacen;
+        }
+        //alert(id_almacen);
         window.location.href="listarPagosPendientes.php?d="+desde+"&h="+hasta+"&p="+id_proveedor+"&a="+id_almacen
       }
 
