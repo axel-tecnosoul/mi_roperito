@@ -26,10 +26,10 @@ if ( !empty($_POST)) {
   $freqGlobal = isset($_POST['frecuencia_minutos']) ? (int)$_POST['frecuencia_minutos'] : 0;
   $bloqGlobal = isset($_POST['bloqueo_minutos']) ? (int)$_POST['bloqueo_minutos'] : 0;
   if ($freqGlobal <= 0 || $freqGlobal % 5 !== 0) {
-    $errores[] = 'Frecuencia inválida';
+    $errores[] = 'La frecuencia debe ser un número positivo múltiplo de 5 minutos. Ejemplos: 5, 10, 15, 20, 30, etc.';
   }
   if ($bloqGlobal < $freqGlobal) {
-    $errores[] = 'Bloqueo inválido';
+    $errores[] = 'El bloqueo debe ser mayor o igual a la frecuencia. Si la frecuencia es ' . $freqGlobal . ' minutos, el bloqueo debe ser al menos ' . $freqGlobal . ' minutos.';
   }
   $diasUsados = [];
   if (!empty($_POST['horarios'])) {
@@ -234,15 +234,23 @@ if ( !empty($_POST)) {
                             </div>
 
   <h5 class="schedule-title">Configuración de horarios</h5>
+  
+  <!-- Explicación del sistema -->
+  <div class="alert alert-info mb-3">
+    <h6><i class="fa fa-info-circle"></i> ¿Cómo funcionan la frecuencia y el bloqueo?</h6>
+    <p class="mb-2"><strong>Frecuencia:</strong> Define cada cuántos minutos se puede asignar un turno. Ej: con frecuencia de 15 min, los turnos serán a las 9:00, 9:15, 9:30, etc.</p>
+    <p class="mb-0"><strong>Bloqueo:</strong> Tiempo total bloqueado alrededor de cada turno reservado (antes y después). Debe ser ≥ frecuencia para evitar solapamientos. Ej: si alguien reserva a las 9:00 con bloqueo de 20 min, se bloquean turnos desde 8:40 hasta 9:20.</p>
+  </div>
+
   <div class="form-group row">
     <label class="col-sm-3 col-form-label">
       Frecuencia (min)
-      <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Intervalo entre turnos (múltiplos de 5 minutos)"></i>
+      <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Intervalo entre turnos posibles. Debe ser múltiplo de 5. Ej: 15 min = turnos cada 15 minutos (9:00, 9:15, 9:30...)"></i>
     </label>
     <div class="col-sm-3"><input type="number" step="5" name="frecuencia_minutos" class="form-control" value="<?= $freqGlobal ?>"></div>
     <label class="col-sm-3 col-form-label">
       Bloqueo (min)
-      <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Minutos adicionales bloqueados tras un turno reservado"></i>
+      <i class="fa fa-info-circle ml-1" data-toggle="tooltip" data-placement="top" title="Tiempo total bloqueado cuando se reserva un turno (antes y después). Debe ser mayor o igual a la frecuencia para evitar conflictos entre turnos."></i>
     </label>
     <div class="col-sm-3"><input type="number" name="bloqueo_minutos" class="form-control" value="<?= $bloqGlobal ?>"></div>
   </div>
