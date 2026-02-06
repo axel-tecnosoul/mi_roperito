@@ -62,14 +62,14 @@ foreach ($pdo->query($sql) as $row) {
 
 }
 
-$sql2 = "SELECT id_proveedor,total FROM canjes WHERE id = ?";
+$sql2 = "SELECT id_proveedor,credito_usado FROM canjes WHERE id = ?";
 $q2 = $pdo->prepare($sql2);
 $q2->execute(array($id));
 $data = $q2->fetch(PDO::FETCH_ASSOC);
 if (!empty($data)) {
   $sql = "UPDATE proveedores set credito = credito + ? where id = ?";
   $q = $pdo->prepare($sql);
-  $q->execute(array($data["total"],$data["id_proveedor"]));
+  $q->execute(array($data["credito_usado"],$data["id_proveedor"]));
 }
 
 Database::disconnect();
