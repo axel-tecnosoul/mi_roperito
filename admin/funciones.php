@@ -209,3 +209,379 @@ function get_codigo_producto($pdo, $inicial_almacen){
   
   return $codigo;
 }
+
+/**
+ * ========================================
+ * SISTEMA DE VENCIMIENTO DE PAGOS
+ * ========================================
+ */
+
+/**
+ * Genera la query base para ventas con todos los JOINs necesarios
+ * @param string $select_clause What to SELECT (e.g., "COUNT(*) as total, SUM(...)")
+ * @param string $where_extra Additional WHERE conditions
+ * @return string Query SQL completa
+ */
+function generarQueryVentas($select_clause, $where_extra = '') {
+    $query = "
+        SELECT $select_clause
+        FROM ventas_detalle vd 
+        INNER JOIN ventas v ON v.id = vd.id_venta 
+        INNER JOIN productos p ON p.id = vd.id_producto 
+        INNER JOIN categorias c ON c.id = p.id_categoria 
+        INNER JOIN modalidades m ON m.id = vd.id_modalidad 
+        INNER JOIN proveedores pr ON pr.id = p.id_proveedor 
+        INNER JOIN almacenes a ON a.id = pr.id_almacen 
+        INNER JOIN forma_pago fp ON fp.id = v.id_forma_pago 
+        LEFT JOIN devoluciones_detalle de ON de.id_venta_detalle = vd.id 
+        WHERE v.anulada = 0 
+        AND vd.id_modalidad = 40 
+        AND vd.pagado = 0 
+        AND de.id_devolucion IS NULL 
+        AND pr.activo = 1
+        $where_extra
+    ";
+    return $query;
+}
+
+/**
+ * Genera la query base para canjes con todos los JOINs necesarios
+ * @param string $select_clause What to SELECT (e.g., "COUNT(*) as total, SUM(...)")
+ * @param string $where_extra Additional WHERE conditions  
+ * @return string Query SQL completa
+ */
+function generarQueryCanjes($select_clause, $where_extra = '') {
+    $query = "
+        SELECT $select_clause
+        FROM canjes_detalle cd 
+        INNER JOIN canjes c ON c.id = cd.id_canje 
+        INNER JOIN productos p ON p.id = cd.id_producto 
+        INNER JOIN categorias c2 ON c2.id = p.id_categoria 
+        INNER JOIN modalidades m ON m.id = cd.id_modalidad 
+        INNER JOIN proveedores pr ON pr.id = p.id_proveedor 
+        INNER JOIN almacenes a ON a.id = pr.id_almacen 
+        LEFT JOIN forma_pago fp ON fp.id = cd.id_forma_pago 
+        LEFT JOIN devoluciones_detalle de ON de.id_canje_detalle = cd.id 
+        WHERE c.anulado = 0 
+        AND cd.id_modalidad = 40 
+        AND cd.pagado = 0 
+        AND de.id_devolucion IS NULL 
+        $where_extra
+    ";
+    return $query;
+}
+
+/**
+ * Obtiene los meses configurados para vencimiento de pagos desde parámetros
+ * @return int Número de meses del parámetro ID 10
+ * @throws Exception Si no encuentra el parámetro o es inválido
+ */
+function obtenerMesesVencimientoPagos() {
+    require_once 'database.php';
+    
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    try {
+        $sql = "SELECT valor FROM parametros WHERE id = 10"; // meses_vencimiento_pagos_proveedores
+        $q = $pdo->prepare($sql);
+        $q->execute();
+        $data = $q->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$data) {
+            throw new Exception("Parámetro de meses de vencimiento no encontrado (ID 10)");
+        }
+        
+        $meses_vencimiento = (int)$data['valor'];
+        
+        if ($meses_vencimiento <= 0) {
+            throw new Exception("Parámetro de meses debe ser mayor a 0");
+        }
+        
+        return $meses_vencimiento;
+    } finally {
+        Database::disconnect();
+    }
+}
+
+/**
+ * Calcula la fecha límite para vencimiento según lógica mensual completa
+ * Consulta automáticamente los meses desde parámetros si no se especifican
+ * 
+ * @param int|null $meses_vencimiento Meses a descontar (opcional, si no se pasa consulta BD)
+ * @param string|null $fecha_base Fecha base para cálculo (opcional, por defecto fecha actual)
+ * @return array ['fecha_limite' => 'Y-m-d', 'primer_dia_pendiente' => 'Y-m-d', 'meses' => int]
+ */
+function calcularFechaLimiteVencimiento($meses_vencimiento = null, $fecha_base = null) {
+    if ($meses_vencimiento === null) {
+        $meses_vencimiento = obtenerMesesVencimientoPagos();
+    }
+    
+    // Usar fecha base personalizada o fecha actual del sistema
+    $fecha_actual = $fecha_base ? new DateTime($fecha_base) : new DateTime();
+    
+    // PASO 1: Determinar el "mes efectivo" usando lógica de semanas completas
+    // Si estamos en los últimos días del mes + primeros días del siguiente,
+    // se considera que seguimos en el mes anterior hasta completar la semana
+    
+    $fecha_para_calculo = clone $fecha_actual;
+    
+    // Obtener el primer día del mes actual
+    $primer_dia_mes = new DateTime($fecha_actual->format('Y-m-01'));
+    $dia_semana_primer_dia = $primer_dia_mes->format('N'); // 1=lunes, 7=domingo
+    
+    // Si estamos en los primeros días del mes Y no hemos completado la primera semana,
+    // consideramos que efectivamente seguimos en el mes anterior
+    $dia_actual = $fecha_actual->format('j'); // día del mes (1-31)
+    
+    if ($dia_actual <= 7 && $dia_semana_primer_dia != 1) {
+        // Estamos en los primeros días del mes y el mes no empezó en lunes
+        // Verificar si aún pertenecemos a la semana del mes anterior
+        $dias_desde_lunes = $fecha_actual->format('N') - 1; // 0=lunes, 6=domingo
+        $ultimo_lunes = clone $fecha_actual;
+        $ultimo_lunes->sub(new DateInterval("P{$dias_desde_lunes}D"));
+        
+        // Si el último lunes fue del mes anterior, entonces seguimos en el mes anterior
+        if ($ultimo_lunes->format('m') != $fecha_actual->format('m')) {
+            $fecha_para_calculo->sub(new DateInterval('P1M'));
+        }
+    }
+    
+    // PASO 2: Aplicar lógica normal de meses completos desde el "mes efectivo"
+    // Retroceder los meses configurados desde el mes efectivo
+    $fecha_mes_limite = clone $fecha_para_calculo;
+    $fecha_mes_limite->sub(new DateInterval("P{$meses_vencimiento}M"));
+    
+    // Obtener el MES ANTERIOR al mes límite (para vencer meses completos)
+    $fecha_mes_limite->sub(new DateInterval('P1M'));
+    
+    // Fecha límite = Último día del mes a vencer (VENCIMIENTO POR MES COMPLETO)
+    $fecha_limite = $fecha_mes_limite->format('Y-m-t'); // 't' = último día del mes
+    
+    // Primer día que sigue pendiente
+    $fecha_siguiente_mes = new DateTime($fecha_limite);
+    $fecha_siguiente_mes->add(new DateInterval('P1D'));
+    $primer_dia_pendiente = $fecha_siguiente_mes->format('Y-m-d');
+    
+    return [
+        'fecha_limite' => $fecha_limite,
+        'primer_dia_pendiente' => $primer_dia_pendiente,
+        'meses' => $meses_vencimiento
+    ];
+}
+
+/**
+ * Obtiene los IDs específicos de registros que se vencerían hasta una fecha límite
+ * Esta función garantiza consistencia: los mismos registros evaluados son los que se actualizan
+ * 
+ * @param string $fecha_limite Fecha límite en formato Y-m-d
+ * @return array ['ventas_ids' => [id1, id2, ...], 'canjes_ids' => [id1, id2, ...]]
+ */
+function obtenerIdsRegistrosVencidos($fecha_limite) {
+    require_once 'database.php';
+    
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    try {
+        // OBTENER IDs de VENTAS que se vencerían
+        $sql_ventas_ids = generarQueryVentas(
+            "vd.id",
+            "AND DATE(v.fecha_venta) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_ventas_ids);
+        $q->execute([$fecha_limite]);
+        $ventas_ids = $q->fetchAll(PDO::FETCH_COLUMN);
+        
+        // OBTENER IDs de CANJES que se vencerían
+        $sql_canjes_ids = generarQueryCanjes(
+            "cd.id",
+            "AND DATE(c.fecha_canje) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_canjes_ids);
+        $q->execute([$fecha_limite]);
+        $canjes_ids = $q->fetchAll(PDO::FETCH_COLUMN);
+        
+        return [
+            'ventas_ids' => $ventas_ids,
+            'canjes_ids' => $canjes_ids
+        ];
+    } finally {
+        Database::disconnect();
+    }
+}
+
+/**
+ * Obtiene los pagos (ventas y canjes) que se vencerían hasta una fecha límite
+ * Esta función es para SIMULACIÓN - no hace cambios en la BD
+ * 
+ * @param string $fecha_limite Fecha límite en formato Y-m-d
+ * @return array ['ventas' => [...], 'canjes' => [...], 'totales' => [...]]
+ */
+function obtenerPagosVencidos($fecha_limite) {
+    require_once 'database.php';
+    
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    try {
+        // VENTAS: Usar query base reutilizable
+        $sql_ventas = generarQueryVentas(
+            "COUNT(*) as total, SUM(CASE WHEN v.tipo_comprobante = 'NCB' THEN vd.deuda_proveedor * -1 ELSE vd.deuda_proveedor END) as monto_total",
+            "AND DATE(v.fecha_venta) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_ventas);
+        $q->execute([$fecha_limite]);
+        $result_ventas = $q->fetch(PDO::FETCH_ASSOC);
+        
+        // CANJES: Usar query base reutilizable
+        $sql_canjes = generarQueryCanjes(
+            "COUNT(*) as total, SUM(cd.deuda_proveedor) as monto_total",
+            "AND DATE(c.fecha_canje) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_canjes);
+        $q->execute([$fecha_limite]);
+        $result_canjes = $q->fetch(PDO::FETCH_ASSOC);
+        
+        return [
+            'ventas' => $result_ventas,
+            'canjes' => $result_canjes,
+            'totales' => [
+                'total_registros' => $result_ventas['total'] + $result_canjes['total'],
+                'total_monto' => $result_ventas['monto_total'] + $result_canjes['monto_total']
+            ]
+        ];
+    } finally {
+        Database::disconnect();
+    }
+}
+
+/**
+ * Marca como vencidos (pagado=2) los pagos pendientes hasta la fecha límite
+ * Usa exactamente los mismos IDs que se evaluaron en la simulación para garantizar consistencia
+ * 
+ * @param string $fecha_limite Fecha límite en formato Y-m-d
+ * @return array ['ventas_actualizadas' => int, 'canjes_actualizados' => int, 'monto_total_vencido' => float]
+ * @throws Exception Si hay error en la transacción
+ */
+function marcarPagosVencidos($fecha_limite) {
+    require_once 'database.php';
+    
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    $pdo->beginTransaction();
+    
+    try {
+        // 1. Obtener el monto total que se va a vencer (para log)
+        $pagos_a_vencer = obtenerPagosVencidos($fecha_limite);
+        $monto_total = $pagos_a_vencer['totales']['total_monto'];
+        
+        // 2. Obtener IDs exactos de los registros que se van a vencer
+        $ids_vencidos = obtenerIdsRegistrosVencidos($fecha_limite);
+        
+        // 3. Obtener fecha actual UNA SOLA VEZ para ambos updates
+        $fecha_vencimiento = date('Y-m-d H:i:s');
+        
+        $ventas_actualizadas = 0;
+        $canjes_actualizados = 0;
+        
+        // 4. Marcar VENTAS como vencidas usando IDs específicos (con fecha_hora_pago)
+        if (!empty($ids_vencidos['ventas_ids'])) {
+            $placeholders_ventas = str_repeat('?,', count($ids_vencidos['ventas_ids']) - 1) . '?';
+            $sql_ventas = "UPDATE ventas_detalle SET pagado = 2, fecha_hora_pago = ? WHERE id IN ($placeholders_ventas)";
+            
+            $params_ventas = array_merge([$fecha_vencimiento], $ids_vencidos['ventas_ids']);
+            $q = $pdo->prepare($sql_ventas);
+            $q->execute($params_ventas);
+            $ventas_actualizadas = $q->rowCount();
+        }
+        
+        // 5. Marcar CANJES como vencidos usando IDs específicos (con fecha_hora_pago)
+        if (!empty($ids_vencidos['canjes_ids'])) {
+            $placeholders_canjes = str_repeat('?,', count($ids_vencidos['canjes_ids']) - 1) . '?';
+            $sql_canjes = "UPDATE canjes_detalle SET pagado = 2, fecha_hora_pago = ? WHERE id IN ($placeholders_canjes)";
+            
+            $params_canjes = array_merge([$fecha_vencimiento], $ids_vencidos['canjes_ids']);
+            $q = $pdo->prepare($sql_canjes);
+            $q->execute($params_canjes);
+            $canjes_actualizados = $q->rowCount();
+        }
+        
+        $pdo->commit();
+        
+        return [
+            'ventas_actualizadas' => $ventas_actualizadas,
+            'canjes_actualizados' => $canjes_actualizados,
+            'monto_total_vencido' => $monto_total
+        ];
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    } finally {
+        Database::disconnect();
+    }
+}
+
+/**
+ * Obtiene los pagos pendientes visibles en la interfaz (para comparar con test)
+ * Usa la misma lógica de fecha que listarPagosPendientes.php
+ * 
+ * @param string|null $fecha_hasta Fecha hasta para filtrar (opcional, calcula automáticamente)
+ * @return array ['ventas' => [...], 'canjes' => [...], 'totales' => [...]]
+ */
+function obtenerPagosPendientesInterfaz($fecha_hasta = null) {
+    require_once 'database.php';
+    
+    if ($fecha_hasta === null) {
+        // Calcular fecha límite igual que en listarPagosPendientes.php
+        $dia = (int)date("d");
+        $meses_descontar = 1;
+        if($dia <= 5) {
+            $meses_descontar = 2;
+        }
+        $fecha_hasta = date("Y-m-t", strtotime(date("Y-m-01") . " -$meses_descontar month"));
+    }
+    
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    try {
+        // VENTAS: Usar query base reutilizable
+        $sql_ventas = generarQueryVentas(
+            "COUNT(*) as total, SUM(CASE WHEN v.tipo_comprobante = 'NCB' THEN vd.deuda_proveedor * -1 ELSE vd.deuda_proveedor END) as monto_total",
+            "AND DATE(v.fecha_venta) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_ventas);
+        $q->execute([$fecha_hasta]);
+        $result_ventas = $q->fetch(PDO::FETCH_ASSOC);
+        
+        // CANJES: Usar query base reutilizable
+        $sql_canjes = generarQueryCanjes(
+            "COUNT(*) as total, SUM(cd.deuda_proveedor) as monto_total",
+            "AND DATE(c.fecha_canje) <= ?"
+        );
+        
+        $q = $pdo->prepare($sql_canjes);
+        $q->execute([$fecha_hasta]);
+        $result_canjes = $q->fetch(PDO::FETCH_ASSOC);
+        
+        return [
+            'ventas' => $result_ventas,
+            'canjes' => $result_canjes,
+            'totales' => [
+                'total_registros' => $result_ventas['total'] + $result_canjes['total'],
+                'total_monto' => $result_ventas['monto_total'] + $result_canjes['monto_total']
+            ],
+            'fecha_hasta_usada' => $fecha_hasta
+        ];
+    } finally {
+        Database::disconnect();
+    }
+}

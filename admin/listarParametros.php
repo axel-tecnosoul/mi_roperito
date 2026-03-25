@@ -68,7 +68,7 @@ if(empty($_SESSION['user'])) {
                         <tbody><?php
                           include 'database.php';
                           $pdo = Database::connect();
-                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8,9) ";
+                          $sql = " SELECT id, parametro, valor FROM parametros WHERE id IN (6,8,9,10) ";
                           
                           foreach ($pdo->query($sql) as $row) {?>
                               <tr>
@@ -87,6 +87,10 @@ if(empty($_SESSION['user'])) {
                                   if($row[0]==8){?>
                                     <!-- Ajustar el porcentaje a descontar por pagos que no son en efectivo a las ventas/canjes no liquidadas -->
                                     <a href="ajustarPorcentajeDescuentoLiquidaciones.php" title="Ajustar el porcentaje a descontar en liquidadciones pendientes a proveedoras" style="vertical-align: sub;font-size: large;"><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></a><?php
+                                  }
+                                  if($row[0]==10){?>
+                                    <!-- Test de vencimiento de pagos pendientes -->
+                                    <a href="testVencimientoPagos.php" target="_blank" title="Test: Simular marcado de pagos vencidos (sin hacer cambios reales)" style="vertical-align: sub;font-size: large;"><i class="fa fa-flask fa-lg" aria-hidden="true"></i></a><?php
                                   }?>
                                 </td>
                               </tr><?php

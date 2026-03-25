@@ -1,0 +1,12 @@
+[2026-03-25 14:49:01] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-09-30 (meses completos). Pendientes desde 2025-10-01. Parámetro: 5 meses
+[2026-03-25 14:49:02] Pagos marcados como vencidos: 1906 ventas, 96 canjes. Monto total: $11,205,008.32 (>5 meses)
+[2026-03-25 15:10:27] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-09-30 (meses completos). Pendientes desde 2025-10-01. Parámetro: 5 meses
+[2026-03-25 15:10:28] Pagos marcados como vencidos: 1906 ventas, 96 canjes. Monto total: $11,205,008.32 (>5 meses)
+[2026-03-25 15:13:08] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-09-30 (meses completos). Pendientes desde 2025-10-01. Parámetro: 5 meses
+[2026-03-25 15:13:09] Pagos marcados como vencidos: 1906 ventas, 96 canjes. Monto total: $11,205,008.32 (>5 meses)
+[2026-03-25 15:13:26] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-09-30 (meses completos). Pendientes desde 2025-10-01. Parámetro: 5 meses
+[2026-03-25 15:13:26] Pagos marcados como vencidos: 0 ventas, 0 canjes. Monto total: $0.00 (>5 meses)
+[2026-03-25 15:15:06] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-08-31 (meses completos). Pendientes desde 2025-09-01. Parámetro: 6 meses
+[2026-03-25 15:15:06] Pagos marcados como vencidos: 1371 ventas, 74 canjes. Monto total: $6,971,926.32 (>6 meses)
+[2026-03-25 15:19:39] VENCIMIENTO MENSUAL: Venciendo pagos hasta 2025-08-31 (meses completos). Pendientes desde 2025-09-01. Parámetro: 6 meses
+[2026-03-25 15:19:39] Pagos marcados como vencidos: 1371 ventas, 74 canjes. Monto total: $6,971,926.32 (>6 meses)

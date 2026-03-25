@@ -148,6 +148,8 @@ Database::disconnect();
                       echo '<td>'. $row['modalidad'] . '</td>';
                       if ($row['pagado'] == 1) {
                         echo '<td>Si</td>';	
+                      } elseif ($row['pagado'] == 2) {
+                        echo '<td class="text-warning">Vencido</td>';	
                       } else {
                         echo '<td>No</td>';	
                       }
@@ -192,6 +194,8 @@ Database::disconnect();
                       $pagado="No";
                       if ($row['pagado'] == 1) {
                         $pagado="Si";
+                      } elseif ($row['pagado'] == 2) {
+                        $pagado="Vencido";
                       }
                       $id_devolucion="";
                       if ($row['id_devolucion'] != NULL) {

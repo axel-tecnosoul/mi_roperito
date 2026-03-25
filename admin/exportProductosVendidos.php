@@ -46,6 +46,8 @@ include 'database.php';?>
                 $pagado="No";
                 if($row["pagado"] == 1){
 									$pagado="Si";
+                }elseif($row["pagado"] == 2){
+                  $pagado="Vencido";
 								}
                 $aProductosVendidos[]=[
                   "operacion" => "Venta",
@@ -88,6 +90,8 @@ include 'database.php';?>
                 $pagado="No";
                 if($row["pagado"] == 1){
 									$pagado="Si";
+                }elseif($row["pagado"] == 2){
+                  $pagado="Vencido";
 								}
 
                 $aProductosVendidos[]=[

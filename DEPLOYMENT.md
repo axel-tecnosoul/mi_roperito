@@ -48,6 +48,53 @@ RECAPTCHA_SECRET_KEY=<your secret key>
 
 The `.env` file is ignored by Git and should never be committed. Keep it secure.
 
+## Configure CRON Job for Payment Expiration
+
+Set up automated payment expiration processing:
+
+```bash
+# Execute weekly on Mondays at 2:00 AM (RECOMMENDED)
+0 2 * * 1 /usr/bin/php /path/to/htdocs/MiRoperito/admin/cronVencimientoPagosPendientes.php
+
+# Alternative: Monthly on 1st day at 2:00 AM
+0 2 1 * * /usr/bin/php /path/to/htdocs/MiRoperito/admin/cronVencimientoPagosPendientes.php
+```
+
+**Note**: 
+- Weekly execution provides better responsiveness for "complete weeks" logic
+- Logs are automatically generated at `admin/log_pagos_vencidos.txt`
+- Requires parameter ID 10 configured in database (see README_vencimiento_pagos.md)
+
+## Sistema de Pagos Vencidos (pagado=2)
+
+### Implementación completada ✅
+- **Estado:** `pagado=2` agregado para pagos vencidos
+- **Automatización:** CRON configurable (mensual o semanal)  
+- **Lógica:** Vencimientos por meses completos
+- **Configuración:** Parámetro ID 10 en tabla `parametros` (meses)
+- **Interfaces:** Actualizadas para mostrar "Vencido"
+
+### Archivos modificados:
+1. `cronVencimientoPagosPendientes.php` - Script de vencimiento automático
+2. `listarPagosPendientes.php` - Filtros para estado vencido  
+3. `ajaxProductosVendidos.php` - Display estado vencido
+4. `cardVerVenta.php` - Display estado vencido
+5. Múltiples interfaces - Soporte pagado=2
+
+### Configuración CRON:
+```bash
+# Mensualmente (recomendado)
+0 2 1 * * /usr/bin/php /path/to/admin/cronVencimientoPagosPendientes.php
+
+# O semanalmente
+0 2 * * 1 /usr/bin/php /path/to/admin/cronVencimientoPagosPendientes.php
+```
+
+### Parámetros:
+- ID 10 en tabla `parametros`: Meses para vencimiento (default: 6)
+- Los pagos se vencen por meses completos
+- Ejemplo: hoy 24/03/2026 con 6 meses vence hasta 31/08/2025
+
 ## Local development
 
 To test reCAPTCHA locally, set `APP_ENV=development` and provide development keys:

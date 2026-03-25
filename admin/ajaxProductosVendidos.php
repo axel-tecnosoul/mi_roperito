@@ -54,6 +54,8 @@ if($mostrarVentas==1 or $mostrarAmbos==1){
     $total_deuda = 0;
     if($row["pagado"] == 1){
       $pagado = "Si";
+    }elseif($row["pagado"] == 2){
+      $pagado = "Vencido";
     }else{
       $pagado = "No";
     }
@@ -100,6 +102,8 @@ if($mostrarCanjes==1 or $mostrarAmbos==1){
     $pagado = "";
     if($row["pagado"] == 1){
       $pagado = "Si";
+    }elseif($row["pagado"] == 2){
+      $pagado = "Vencido";
     }else{
       $pagado = "No";
     }
