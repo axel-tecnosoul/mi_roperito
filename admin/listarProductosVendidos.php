@@ -5,9 +5,10 @@ if(empty($_SESSION['user']['id_perfil'])){
 	die("Redirecting to index.php"); 
 }
 
-//$desde=date("Y-m-d");
+$hoy=date("Y-m-d");
 //$desde = date("Y-m-d", strtotime("last month"));
-$desde = "2024-01-01";
+//$desde = "2024-01-01";
+$desde = date("Y-m-d", strtotime($hoy." -1 year"));
 $filtroDesde="";
 if(isset($_GET["d"]) and $_GET["d"]!=""){
   $desde=$_GET["d"];

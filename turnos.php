@@ -139,7 +139,7 @@ include('admin/database.php');?>
         <div class="modal-body">
           <!-- <p>A partir del día lunes 31 de Julio ya no se reciben prendas de invierno. Gracias</p> -->
           <!-- <p>No estamos tomando mas prendas en esta sucural. Por favor sepa disculparnos. Gracias</p> -->
-          <p>Solo estamos tomando prendas Primavera/Verano. Muchas gracias</p>
+          <p>Solo tomamos prendas de temporada. Muchas gracias</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
