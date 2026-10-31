@@ -1,5 +1,76 @@
 <?php
 
+function obtenerFechaCorteCaja() {
+  // Corte de prueba; puede programarse una fecha futura sin adelantar su aplicación.
+  return '2026-11-01';
+}
+
+function estaVigenteCorteCaja(?DateTimeImmutable $ahora = null) {
+  if ($ahora === null) {
+    $ahora = new DateTimeImmutable('now');
+  }
+
+  $fechaActual = $ahora->setTimezone(new DateTimeZone('America/Argentina/Buenos_Aires'))->format('Y-m-d');
+  return $fechaActual >= obtenerFechaCorteCaja();
+}
+
+function obtenerAlmacenCorteCaja() {
+  return 4; // Villa Ballester.
+}
+
+function crearFiltroCorteCaja($columnaFecha) {
+  // Todas las consultas de caja vinculan el almacén de la operación mediante a.id.
+  return 'AND (:corte_vigente = 0 OR a.id <> :almacen_corte OR DATE(' . $columnaFecha . ') >= :fecha_corte)';
+}
+
+function obtenerFechaFiltroCaja($valor, $predeterminado) {
+  if ($valor === null || $valor === '') {
+    return $predeterminado;
+  }
+
+  if (!is_string($valor) || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $valor)) {
+    throw new InvalidArgumentException('La fecha debe tener el formato AAAA-MM-DD.');
+  }
+
+  $fecha = DateTimeImmutable::createFromFormat('!Y-m-d', $valor);
+  if (!$fecha || $fecha->format('Y-m-d') !== $valor) {
+    throw new InvalidArgumentException('La fecha no es válida.');
+  }
+
+  return $valor;
+}
+
+function obtenerIdsFiltroCaja($valor) {
+  if ($valor === null || $valor === '' || $valor === 'null') {
+    return '';
+  }
+
+  if (!is_string($valor) || !preg_match('/^\d+(,\d+)*$/D', $valor)) {
+    throw new InvalidArgumentException('El filtro debe contener identificadores numéricos.');
+  }
+
+  return implode(',', array_map('intval', explode(',', $valor)));
+}
+
+function crearFiltroIdsCaja($ids, $columna, $prefijo, &$parametros) {
+  if ($ids === '') {
+    return '';
+  }
+
+  $marcadores = [];
+  foreach (explode(',', $ids) as $indice => $id) {
+    $marcador = ':' . $prefijo . $indice;
+    $marcadores[] = $marcador;
+    $parametros[$marcador] = (int) $id;
+  }
+
+  return 'AND ' . $columna . ' IN (' . implode(',', $marcadores) . ')';
+}
+
+function escaparHtml($valor) {
+  return htmlspecialchars($valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 function get_nombre_comprobante($tipo_comprobante){
   switch ($tipo_comprobante) {
     case 'R':

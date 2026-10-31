@@ -8,3 +8,4 @@ miroperitodb.sql
 .env_development
 .env*
 backup/
+tests/

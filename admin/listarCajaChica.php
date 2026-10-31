@@ -4,7 +4,14 @@ if(empty($_SESSION['user']['id_perfil'])){
 	header("Location: index.php");
 	die("Redirecting to index.php"); 
 }
-include 'database.php';?>
+include 'database.php';
+require_once 'funciones.php';
+$fechaCorteCaja = obtenerFechaCorteCaja();
+$corteVigente = estaVigenteCorteCaja();
+$fechaDesdeCaja = date('Y-m-d');
+if ($corteVigente && $_SESSION['user']['id_perfil'] != 1 && (int) ($_SESSION['user']['id_almacen'] ?? 0) === obtenerAlmacenCorteCaja()) {
+  $fechaDesdeCaja = $fechaCorteCaja;
+} ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -91,8 +98,10 @@ include 'database.php';?>
                     <div class="row">
                       <table class="table">
                         <tr>
-                          <td class="text-right border-0 p-1">Desde: </td>
-                          <td class="border-0 p-1"><input type="date" name="desde" id="desde" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td class="text-right border-0 p-1"><label for="desde">Desde:</label></td>
+                          <td class="border-0 p-1">
+                            <input type="date" name="desde" id="desde" data-corte-vigente="<?=(int) $corteVigente?>" data-fecha-corte="<?=escaparHtml($fechaCorteCaja)?>" data-almacen-corte="<?=obtenerAlmacenCorteCaja()?>" value="<?=escaparHtml($fechaDesdeCaja)?>" class="form-control form-control-sm filtraTabla">
+                          </td>
                           <td rowspan="2" style="vertical-align: middle;" class="border-0 p-1">
                             <label for="id_tipo_motivo">Tipo de motivo:</label>
                             <select name="id_tipo_motivo" id="id_tipo_motivo" class="form-control form-control-sm selectpicker" data-style="multiselect" data-selected-text-format="count > 1" data-actions-box="true" data-live-search="true" multiple><?php
@@ -166,8 +175,10 @@ include 'database.php';?>
                           </td>
                         </tr>
                         <tr>
-                          <td class="text-right border-0 p-1">Hasta: </td>
-                          <td class="border-0 p-1"><input type="date" name="hasta" id="hasta" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla"></td>
+                          <td class="text-right border-0 p-1"><label for="hasta">Hasta:</label></td>
+                          <td class="border-0 p-1">
+                            <input type="date" name="hasta" id="hasta" value="<?=date("Y-m-d")?>" class="form-control form-control-sm filtraTabla">
+                          </td>
                         </tr>
                       </table>
                     </div>
@@ -405,14 +416,24 @@ include 'database.php';?>
       });
 
       function getCaja(){
-        let desde=$("#desde").val();
+        let id_almacen = $("#id_almacen").val();
+        let desde = $("#desde").val();
+        const fechaCorteCaja = $("#desde").attr("data-fecha-corte");
+        const aplicaCorte = $("#desde").attr("data-corte-vigente") === "1" && String(id_almacen) === $("#desde").attr("data-almacen-corte");
+        if (aplicaCorte) {
+          $("#desde, #hasta").attr("min", fechaCorteCaja);
+          if (!desde || desde < fechaCorteCaja) {
+            desde = fechaCorteCaja;
+            $("#desde").val(desde);
+          }
+        } else {
+          $("#desde, #hasta").removeAttr("min");
+        }
         let hasta=$("#hasta").val();
         let forma_pago=$("#forma_pago").val();
         let motivo=$("#id_motivo").val();
         //let tipo_comprobante=$("#tipo_comprobante").val();
-        let id_almacen=$("#id_almacen").val();
         let id_empleado=$("#id_empleado").val();
-        let bandera_saldo=saldo=credito=debito=0;
         $('#dataTables-example666').DataTable().destroy();
         $('#dataTables-example666').DataTable({
           stateSave: true,
@@ -432,9 +453,6 @@ include 'database.php';?>
             {"data": "forma_pago","width": "10%"},
             {
               render: function(data, type, row, meta) {
-                if(type=="display"){
-                  credito+=parseFloat(row.credito);
-                }
                 if(parseFloat(row.credito)>0){
                   return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.credito);
                 }else{
@@ -445,9 +463,6 @@ include 'database.php';?>
               //,"width": "15%"
             },{
               render: function(data, type, row, meta) {
-                if(type=="display"){
-                  debito+=parseFloat(row.debito);
-                }
                 if(parseFloat(row.debito)>0){
                   return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.debito);
                 }else{
@@ -457,16 +472,7 @@ include 'database.php';?>
               className: 'dt-body-right text-right w-15',
             },{
               render: function(data, type, row, meta) {
-                if(type=="display"){
-                  if(bandera_saldo==0){
-                    bandera_saldo=1;
-                    saldo=parseFloat(row.saldo)
-                  }else{
-                    saldo+=parseFloat(row.credito)-parseFloat(row.debito);
-                    //console.log("saldo: "+saldo);
-                  }
-                }
-                return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(saldo);
+                return new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(row.saldo);
               },
               className: 'dt-body-right text-right w-15',
               orderDataType: "num-fmt"
@@ -498,18 +504,14 @@ include 'database.php';?>
           footerCallback: function (row, data, start, end, display) {
             var api = this.api();
 
-            let saldoFinal=sumaDebito=sumaCredito=0;
-            data.forEach(function(reg){
-              if(reg.saldo>0){
-                saldoFinal=reg.saldo;
-              }
-              let credito=parseFloat(reg.credito)
-              let debito=parseFloat(reg.debito)
-              sumaDebito+=debito
-              sumaCredito+=credito
-              saldoFinal+=credito-debito;
-              
-            })
+            let saldoFinal = 0;
+            let sumaDebito = 0;
+            let sumaCredito = 0;
+            data.forEach(function(reg) {
+              saldoFinal = Number(reg.saldo);
+              sumaDebito += Number(reg.debito);
+              sumaCredito += Number(reg.credito);
+            });
             // Update footer
             //console.log($(api.column(3).footer()))
             $(api.column(5).footer()).html(new Intl.NumberFormat('es-AR', {currency: 'ARS', style: 'currency'}).format(sumaCredito));

@@ -7,42 +7,59 @@ if(empty($_SESSION['user']['id_perfil'])){
 	die("Redirecting to index.php"); 
 }
 include_once 'database.php';
+require_once 'funciones.php';
 $pdo = Database::connect();
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$desde=$_GET["desde"];
-$filtroDesde="";
-if($desde!=""){
-  $filtroDesde="AND DATE(fecha_hora)>='$desde'";
-  $filtroDesdePagoProv="AND DATE(fecha_hora_pago)>='$desde'";
-}
-$hasta=$_GET["hasta"];
-$filtroHasta="";
-if($hasta!=""){
-  $filtroHasta="AND DATE(fecha_hora)<='$hasta'";
-  $filtroHastaPagoProv="AND DATE(fecha_hora_pago)<='$hasta'";
-}
-$forma_pago=$_GET["forma_pago"];
-$filtroFormaPago="";
-if($forma_pago!=""){
-  $filtroFormaPago="AND fp.id IN ($forma_pago)";
-}
-$id_almacen=$_GET["id_almacen"];
-$filtroAlmacen="";
-if($id_almacen>0){
-  $filtroAlmacen="AND a.id IN ($id_almacen)";
-}
-$id_empleado=$_GET["id_empleado"];
-$filtroEmpleado="";
-if($id_empleado>0){
-  $filtroEmpleado="AND e.id IN ($id_empleado)";
+$fechaCorteCaja = obtenerFechaCorteCaja();
+$corteVigente = estaVigenteCorteCaja();
+$id_pagos_proveedores_desde_pagos_pendientes = "pago_realizado";
+$opcionMotivo = "\\d+|" . $id_pagos_proveedores_desde_pagos_pendientes;
+try {
+  $id_almacen = obtenerIdsFiltroCaja($_GET['id_almacen'] ?? null);
+  $fechaDesdePredeterminada = date('Y-m-d');
+  if ($corteVigente && $id_almacen === (string) obtenerAlmacenCorteCaja()) {
+    $fechaDesdePredeterminada = $fechaCorteCaja;
+  }
+  $desde = obtenerFechaFiltroCaja($_GET['desde'] ?? null, $fechaDesdePredeterminada);
+  $hasta = obtenerFechaFiltroCaja($_GET['hasta'] ?? null, date('Y-m-d'));
+  $forma_pago = obtenerIdsFiltroCaja($_GET['forma_pago'] ?? null);
+  $id_empleado = obtenerIdsFiltroCaja($_GET['id_empleado'] ?? null);
+  $motivo = $_GET['motivo'] ?? '';
+  if (!is_string($motivo) || ($motivo !== '' && !preg_match('/^(' . $opcionMotivo . ')(,(' . $opcionMotivo . '))*$/D', $motivo))) {
+    throw new InvalidArgumentException('El motivo no es válido.');
+  }
+} catch (InvalidArgumentException $error) {
+  http_response_code(400);
+  header('Content-Type: application/json; charset=utf-8');
+  echo json_encode(['error' => $error->getMessage()]);
+  exit;
 }
 
-function encerrar_entre_comillas($valor) {
-  return '"' . addslashes($valor) . '"';
+// Al consultar varios locales, cada registro conserva el corte de su propio almacén.
+if ($corteVigente && $id_almacen === (string) obtenerAlmacenCorteCaja() && $desde < $fechaCorteCaja) {
+  $desde = $fechaCorteCaja;
+}
+$filtroDesde = 'AND DATE(fecha_hora) >= :desde ' . crearFiltroCorteCaja('fecha_hora');
+$filtroDesdePagoProv = 'AND DATE(fecha_hora_pago) >= :desde ' . crearFiltroCorteCaja('fecha_hora_pago');
+$filtroHasta = 'AND DATE(fecha_hora) <= :hasta';
+$filtroHastaPagoProv = 'AND DATE(fecha_hora_pago) <= :hasta';
+$parametrosCorte = [':corte_vigente' => (int) $corteVigente, ':almacen_corte' => obtenerAlmacenCorteCaja(), ':fecha_corte' => $fechaCorteCaja];
+$parametrosPeriodo = [':desde' => $desde, ':hasta' => $hasta] + $parametrosCorte;
+$parametrosSaldoAnterior = [':desde' => $desde] + $parametrosCorte;
+
+$parametrosComunes = [];
+$filtroFormaPago = crearFiltroIdsCaja($forma_pago, 'fp.id', 'forma_pago', $parametrosComunes);
+$filtroAlmacen = '';
+if ($id_almacen !== '0') {
+  $filtroAlmacen = crearFiltroIdsCaja($id_almacen, 'a.id', 'almacen', $parametrosComunes);
+}
+$parametrosMovimientos = $parametrosComunes;
+$filtroEmpleado = '';
+if ($id_empleado !== '0') {
+  $filtroEmpleado = crearFiltroIdsCaja($id_empleado, 'e.id', 'empleado', $parametrosMovimientos);
 }
 
-$id_pagos_proveedores_desde_pagos_pendientes="pago_realizado";
-$motivo=$_GET["motivo"];
 $aMotivos=explode(",",$motivo);
 
 $mostrarPagoProveedoresDesdePagosPendientes=0;
@@ -52,10 +69,8 @@ if($motivo!=""){
   if(in_array($id_pagos_proveedores_desde_pagos_pendientes,$aMotivos)){
     $mostrarPagoProveedoresDesdePagosPendientes=1;
   }
-  // aplicar la función a cada valor del array
-  $aMotivos = array_map('encerrar_entre_comillas', $aMotivos);
-  $motivos=implode(",",$aMotivos);
-  $filtroMotivo="AND id_motivo IN ($motivos)";
+  $motivos = obtenerIdsFiltroCaja(str_replace($id_pagos_proveedores_desde_pagos_pendientes, '0', $motivo));
+  $filtroMotivo = crearFiltroIdsCaja($motivos, 'id_motivo', 'motivo', $parametrosMovimientos);
 }else{
   $mostrarPagoProveedoresDesdePagosPendientes=1;
 }
@@ -81,8 +96,8 @@ if($desde<=$hasta){
 
   //INICIO SALDO ANTERIOR
 
-  $filtroHastaSaldoAnterior="AND DATE(fecha_hora)<'$desde'";
-  $filtroHastaSaldoAnteriorPagoProv="AND DATE(fecha_hora_pago)<'$desde'";
+  $filtroHastaSaldoAnterior = 'AND DATE(fecha_hora) < :desde ' . crearFiltroCorteCaja('fecha_hora');
+  $filtroHastaSaldoAnteriorPagoProv = 'AND DATE(fecha_hora_pago) < :desde ' . crearFiltroCorteCaja('fecha_hora_pago');
 
   $total_facturas_recibos=0;
   if($filtroMotivo=="" and $filtroEmpleado==""){
@@ -90,7 +105,7 @@ if($desde<=$hasta){
     $sql = "SELECT SUM(v.total_con_descuento) AS total_ventas FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE tipo_comprobante IN ('R','A','B','NDB') $whereVentas $filtroHastaSaldoAnterior";
     $q = $pdo->prepare($sql);
     //echo $sql;
-    $q->execute(array());
+    $q->execute($parametrosSaldoAnterior + $parametrosComunes);
     $data = $q->fetch(PDO::FETCH_ASSOC);
     /*$total_facturas_recibos=$data["total_ventas"];
     if(is_null($total_facturas_recibos)){
@@ -108,7 +123,7 @@ if($desde<=$hasta){
     $sql = "SELECT SUM(v.total_con_descuento) AS total_notas_credito FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE tipo_comprobante IN ('NCA','NCB') $whereVentas $filtroHastaSaldoAnterior";
     $q = $pdo->prepare($sql);
     //echo $sql;
-    $q->execute(array());
+    $q->execute($parametrosSaldoAnterior + $parametrosComunes);
     $dataB = $q->fetch(PDO::FETCH_ASSOC);
     /*$total_notas_credito=$dataB["total_notas_credito"];
     if(is_null($total_notas_credito)){
@@ -124,7 +139,7 @@ if($desde<=$hasta){
   $sql2 = "SELECT SUM(mc.monto) AS ingresos_externos FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago LEFT JOIN empleados e ON mc.id_empleado=e.id WHERE anulado=0 AND tipo_caja='Chica' AND  tipo_movimiento='Ingreso' $where $filtroHastaSaldoAnterior $filtroMotivo $filtroEmpleado";
   $q2 = $pdo->prepare($sql2);
   //echo $sql2;
-  $q2->execute(array());
+  $q2->execute($parametrosSaldoAnterior + $parametrosMovimientos);
   $data2 = $q2->fetch(PDO::FETCH_ASSOC);
   /*$ingresos_externos=$data2["ingresos_externos"];
   if(is_null($ingresos_externos)){
@@ -139,7 +154,7 @@ if($desde<=$hasta){
   $sql3 = "SELECT SUM(mc.monto) AS egresos_caja_chica FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago LEFT JOIN empleados e ON mc.id_empleado=e.id WHERE anulado=0 AND tipo_caja='Chica' AND tipo_movimiento='Egreso' $where $filtroHastaSaldoAnterior $filtroMotivo $filtroEmpleado";
   $q3 = $pdo->prepare($sql3);
   //echo $sql;
-  $q3->execute(array());
+  $q3->execute($parametrosSaldoAnterior + $parametrosMovimientos);
   $data3 = $q3->fetch(PDO::FETCH_ASSOC);
   /*$egresos_caja_chica=$data3["egresos_caja_chica"];
   if(is_null($egresos_caja_chica)){
@@ -158,7 +173,7 @@ if($desde<=$hasta){
     $sql4 = " SELECT SUM(CASE WHEN v.tipo_comprobante = 'NCB' THEN -deuda_proveedor ELSE deuda_proveedor END) AS total_pago_proveedores FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroHastaSaldoAnteriorPagoProv";
     $q4 = $pdo->prepare($sql4);
     //echo $sql4;
-    $q4->execute(array());
+    $q4->execute($parametrosSaldoAnterior + $parametrosComunes);
     $data4 = $q4->fetch(PDO::FETCH_ASSOC);
     $total_pago_proveedores=0;
     if($data4){
@@ -182,7 +197,7 @@ if($desde<=$hasta){
     $sql6 = " SELECT SUM(deuda_proveedor) AS total_pago_proveedores_canjes FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN almacenes a ON cd.id_almacen=a.id INNER JOIN forma_pago fp ON cd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereCanjes $filtroHastaSaldoAnteriorPagoProv";
     $q6 = $pdo->prepare($sql6);
     //echo $sql6."<br>";
-    $q6->execute(array());
+    $q6->execute($parametrosSaldoAnterior + $parametrosComunes);
     $data6 = $q6->fetch(PDO::FETCH_ASSOC);
     $total_pago_proveedores_canjes=0;
     if($data6){
@@ -204,6 +219,7 @@ if($desde<=$hasta){
     "credito"=>0,
     "debito"=>0,
     "saldo"=>$saldo_anterior,
+    "es_saldo_anterior"=>true,
     "detalle_productos"=>"",
   ];
 
@@ -234,7 +250,9 @@ if($desde<=$hasta){
     //obtenemos las ventas
     $sql = " SELECT v.id AS id_venta, a.almacen, date_format(v.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,v.fecha_hora, fp.forma_pago,(SELECT GROUP_CONCAT('+',vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.subtotal,2,'de_DE') SEPARATOR '<br>') FROM ventas_detalle vd inner join productos p on p.id = vd.id_producto WHERE vd.id_venta=v.id) AS detalle_productos,(SELECT COUNT(vd.id) FROM ventas_detalle vd WHERE vd.id_venta=v.id) AS cant_productos,v.total_con_descuento,v.id_cierre_caja,tipo_comprobante FROM ventas v inner join almacenes a on a.id = v.id_almacen inner join forma_pago fp on fp.id = v.id_forma_pago WHERE 1 $whereVentas $filtroDesde $filtroHasta";
     //echo $sql;
-    foreach ($pdo->query($sql) as $row) {
+    $q = $pdo->prepare($sql);
+    $q->execute($parametrosPeriodo + $parametrosComunes);
+    foreach ($q as $row) {
       $cerrado="<i class='fa fa-lock' aria-hidden='true'></i> ";
       if($row["id_cierre_caja"]==0){
         $cerrado="<i class='fa fa-unlock' aria-hidden='true'></i> ";
@@ -266,9 +284,11 @@ if($desde<=$hasta){
 
   if($mostrarPagoProveedoresDesdePagosPendientes==1 and $filtroEmpleado==""){
     //obtenemos las pagos a proveedoras
-    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(CASE WHEN v.tipo_comprobante = 'NCB' THEN -deuda_proveedor ELSE deuda_proveedor END) AS suma_deuda_proveedor,GROUP_CONCAT(IF(v.tipo_comprobante='NCB','-','+'),vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(vd.fecha_hora_pago)";
+    $sql = " SELECT p.id_proveedor,MIN(vd.fecha_hora_pago) AS fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(CASE WHEN v.tipo_comprobante = 'NCB' THEN -deuda_proveedor ELSE deuda_proveedor END) AS suma_deuda_proveedor,GROUP_CONCAT(IF(v.tipo_comprobante='NCB','-','+'),vd.cantidad,' ',p.descripcion,': $',FORMAT(vd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.id AS id_forma_pago,fp.forma_pago FROM ventas_detalle vd INNER JOIN ventas v ON vd.id_venta=v.id INNER JOIN productos p ON vd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON vd.id_almacen=a.id INNER JOIN forma_pago fp ON vd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereVentas $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, pr.apellido, pr.nombre, DATE(vd.fecha_hora_pago), fp.id, fp.forma_pago";
     //echo $sql;
-    foreach ($pdo->query($sql) as $row) {
+    $q = $pdo->prepare($sql);
+    $q->execute($parametrosPeriodo + $parametrosComunes);
+    foreach ($q as $row) {
       $aCaja[]=[
         "id_proveedor"=>$row["id_proveedor"],
         "id"=>$row["id_proveedor"],
@@ -278,6 +298,7 @@ if($desde<=$hasta){
         "detalle"=>$row["proveedor"],
         //"forma_pago"=>"Efectivo",
         "forma_pago"=>$row["forma_pago"],
+        "id_forma_pago"=>(int) $row["id_forma_pago"],
         "credito"=>0,
         "debito"=>$row["suma_deuda_proveedor"],
         "saldo"=>0,
@@ -286,9 +307,11 @@ if($desde<=$hasta){
     }
 
     //obtenemos las pagos a proveedoras de productos vendidos por medio de canjes
-    $sql = " SELECT p.id_proveedor,fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',cd.cantidad,' ',p.descripcion,': $',FORMAT(cd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.forma_pago FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON cd.id_almacen=a.id INNER JOIN forma_pago fp ON cd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereCanjes $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, DATE(cd.fecha_hora_pago)";
+    $sql = " SELECT p.id_proveedor,MIN(cd.fecha_hora_pago) AS fecha_hora_pago,CONCAT(apellido,' ',nombre) AS proveedor,SUM(deuda_proveedor) AS suma_deuda_proveedor,GROUP_CONCAT('+',cd.cantidad,' ',p.descripcion,': $',FORMAT(cd.deuda_proveedor,2,'de_DE') SEPARATOR '<br>') AS detalle_productos,fp.id AS id_forma_pago,fp.forma_pago FROM canjes_detalle cd INNER JOIN canjes c ON cd.id_canje=c.id INNER JOIN productos p ON cd.id_producto=p.id INNER JOIN proveedores pr ON p.id_proveedor=pr.id INNER JOIN almacenes a ON cd.id_almacen=a.id INNER JOIN forma_pago fp ON cd.id_forma_pago=fp.id WHERE pagado=1 AND caja_egreso='Chica' $whereCanjes $filtroDesdePagoProv $filtroHastaPagoProv GROUP BY p.id_proveedor, pr.apellido, pr.nombre, DATE(cd.fecha_hora_pago), fp.id, fp.forma_pago";
     //echo $sql;
-    foreach ($pdo->query($sql) as $row) {
+    $q = $pdo->prepare($sql);
+    $q->execute($parametrosPeriodo + $parametrosComunes);
+    foreach ($q as $row) {
       $fecha_hora_pago=date("d-m-Y H:i",strtotime($row["fecha_hora_pago"]));
       $fecha_pago=date("d-m-Y",strtotime($fecha_hora_pago));
       $motivo="Pago a proveedores";
@@ -296,13 +319,13 @@ if($desde<=$hasta){
       $indice = null;
       //buscamos el indice del array en caso de que ya haya un pago a proveedor realizado con la misma forma de pago y en la misma fecha
       foreach ($aCaja as $key => $value) {
-        if ($detalle==$value["detalle"] and $motivo==$value["motivo"] and $fecha_pago==date("d-m-Y",strtotime($value["fecha_hora"])) and $row["forma_pago"]==$value["forma_pago"]) {
+        if (isset($value["id_proveedor"]) && $row["id_proveedor"] == $value["id_proveedor"] && $motivo==$value["motivo"] and $fecha_pago==date("d-m-Y",strtotime($value["fecha_hora"])) and $row["id_forma_pago"]==$value["id_forma_pago"]) {
           $indice = $key;
           break;
         }
       }
 
-      if($indice){
+      if ($indice !== null) {
         //si se encuentra el indice sumamos la deuda del proveedor y concatenamos el detalle del producto
         $aCaja[$indice]["debito"]+=$row["suma_deuda_proveedor"];
         $aCaja[$indice]["detalle_productos"].="<br>".$row["detalle_productos"];
@@ -317,6 +340,7 @@ if($desde<=$hasta){
           "detalle"=>$detalle,
           //"forma_pago"=>"Efectivo",
           "forma_pago"=>$row["forma_pago"],
+          "id_forma_pago"=>(int) $row["id_forma_pago"],
           "credito"=>0,
           "debito"=>$row["suma_deuda_proveedor"],
           "saldo"=>0,
@@ -329,7 +353,9 @@ if($desde<=$hasta){
   //obtenemos los movimientos de la caja chica y segun si son ingresos o egresos los mostramos en crédio o débito
   $sql = " SELECT mc.id AS id_movimiento, a.almacen, date_format(mc.fecha_hora,'%d/%m/%Y %H:%i') AS fecha_hora_formatted,mc.fecha_hora, fp.forma_pago,mc.monto AS total,msc.motivo,mc.detalle,mc.id_cierre_caja,mc.tipo_movimiento FROM movimientos_caja mc inner join almacenes a on a.id = mc.id_almacen_egreso inner join forma_pago fp on fp.id = mc.id_forma_pago INNER JOIN motivos_salidas_caja msc ON mc.id_motivo=msc.id LEFT JOIN empleados e ON mc.id_empleado=e.id WHERE anulado=0 AND tipo_caja='Chica' $where $filtroDesde $filtroHasta $filtroMotivo $filtroEmpleado";
   //echo $sql;
-  foreach ($pdo->query($sql) as $row) {
+  $q = $pdo->prepare($sql);
+  $q->execute($parametrosPeriodo + $parametrosMovimientos);
+  foreach ($q as $row) {
     
     //$iconVer="<a href='verMovimientoCajaChica.php?id=".$row["id_movimiento"]."' target='_blank' class='badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>";
     $iconVer="<span data-id='".$row["id_movimiento"]."' data-tipo='movimiento' class='ver badge badge-primary'><i class='fa fa-eye' aria-hidden='true'></i></span>";
@@ -366,17 +392,27 @@ if($desde<=$hasta){
   }
   Database::disconnect();
 
-  function date_compare($a, $b){
-      $t1 = strtotime($a['fecha_hora']);
-      $t2 = strtotime($b['fecha_hora']);
-      return $t1 - $t2;
+  function date_compare($a, $b) {
+    if (!empty($a['es_saldo_anterior'])) {
+      return -1;
+    }
+    if (!empty($b['es_saldo_anterior'])) {
+      return 1;
+    }
+    return strtotime($a['fecha_hora']) - strtotime($b['fecha_hora']);
   }
 
   usort($aCaja, 'date_compare');
 
+  $saldo = (float) $saldo_anterior;
   foreach ($aCaja as $key => $value) {
-    $aCaja[$key]['fecha_hora']=date("d/m/Y H:i",strtotime($value['fecha_hora']));
+    if (empty($value['es_saldo_anterior'])) {
+      $saldo += (float) $value['credito'] - (float) $value['debito'];
+    }
+    $aCaja[$key]['saldo'] = $saldo;
+    $aCaja[$key]['fecha_hora'] = date('d/m/Y H:i', strtotime($value['fecha_hora']));
   }
 }
 
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode($aCaja);
