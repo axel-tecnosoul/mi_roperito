@@ -1,4 +1,6 @@
 <?php
+ini_set('memory_limit', '512M');
+
 session_start(); 
 header('Content-Disposition: attachment; filename="productos_vendidos.xls"');
 include 'database.php';?>
